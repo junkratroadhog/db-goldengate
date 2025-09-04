@@ -19,7 +19,7 @@ pipeline {
                 sh '''
                 echo "Running Pre-requisites for Golden-Gate Deploy on Source DB in container $src_CN"
                 docker cp scripts/pre-requisite-params.sql $src_CN:/tmp/pre-requisite-params.sql
-                docker exec $src_CN bash "
+                docker exec $src_CN bash -c "
                 sqlplus / as sysdba <<EOF
                 @/tmp/pre-requisite-params.sql
                 exit;
@@ -30,7 +30,7 @@ pipeline {
                 sh '''
                 echo "Running Pre-requisites for Golden-Gate Deploy on Destination DB in container $dest_CN"
                 docker cp scripts/pre-requisite-params.sql $dest_CN:/tmp/pre-requisite-params.sql
-                docker exec $dest_CN bash "
+                docker exec $dest_CN bash -c "
                 sqlplus / as sysdba <<EOF
                 @/tmp/pre-requisite-params.sql
                 exit;
