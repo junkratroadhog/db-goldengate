@@ -30,5 +30,21 @@ pipeline {
                 '''
            }
         }
+
+        stage ('Creating OGG users and granting required privileges') {
+            steps {
+                // SRC - Create OGG user in source DB and grant required privileges
+                sh '''
+                docker cp scripts/oggadmin.sql $src_CN:/tmp/oggadmin.sql
+                docker exec $src_CN sqlplus / as sysdba @/tmp/oggadmin.sql $src_PDB
+                '''
+
+                // DEST - Create OGG user in destination DB and grant required privileges
+                sh '''
+                docker cp scripts/oggadmin.sql $dest_CN:/tmp/oggadmin.sql
+                docker exec $dest_CN sqlplus / as sysdba @/tmp/oggadmin.sql $dest_PDB
+                '''
+           }
+        }
     }
 }
