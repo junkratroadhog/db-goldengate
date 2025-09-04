@@ -14,7 +14,7 @@ pipeline {
         OGG_VOLUME = 'ogg_users_detail_vol'
         OGG_CONTAINER = 'ogg-users_detail'
         OGG_HOME = '/u02/ogg/ogg_home'
-        OGG_binary = '$OGG_binary'
+        OGG_binary = 'gg_binary.zip'
     }
 
     stages {
