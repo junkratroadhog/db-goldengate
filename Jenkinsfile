@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     environment {
-        src_CDB = 'USERSDB'
-        src_CN  = 'db-users'
-        src_PDB = 'USERS_PDB'
+        src_CN  = 'db-utest'
+        src_CDB = 'TUSERS'
+        src_PDB = 'TUSERS_PDB'
 
-        dest_CDB = 'DETAILSDB'
-        dest_CN  = 'db-details'
-        dest_PDB = 'DETAILS_PDB'
+        dest_CDB = 'TDETAILS'
+        dest_CN  = 'db-dtest'
+        dest_PDB = 'TDETAILS_PDB'
     }
 
     stages {
