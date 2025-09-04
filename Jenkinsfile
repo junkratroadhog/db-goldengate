@@ -58,6 +58,8 @@ pipeline {
                 sh '''
                 echo "Using existing GoldenGate binary: $OGG_binary"
                 cd /tmp/
+                ls -ltr
+                pwd
 
                 # Ensure the ZIP exists
                 if [ ! -f $OGG_binary ]; then
