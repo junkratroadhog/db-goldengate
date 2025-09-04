@@ -58,7 +58,7 @@ pipeline {
                 sh '''
                 echo "Using existing GoldenGate binary: $OGG_binary"
                 docker run -d --name jenkins -v /tmp:/tmp jenkins/jenkins:lts
-                sh 'cp /tmp/$OGG_binary $WORKSPACE/'
+                cp /tmp/$OGG_binary $WORKSPACE/$OGG_binary
 
                 # Ensure the ZIP exists
                 if [ ! -f $OGG_binary ]; then
