@@ -57,20 +57,20 @@ pipeline {
             steps {
                 sh '''
                 echo "Using existing GoldenGate binary: $OGG_binary"
-                docker run -d --name jenkins -v /tmp:/tmp jenkins/jenkins:lts
+                docker run --rm -v /tmp/$OGG_binary:/tmp/$OGG_binary:ro -v $WORKSPACE:/workspace alpine cp /tmp/$OGG_binary /workspace/
                 cp /tmp/$OGG_binary $WORKSPACE/$OGG_binary
 
                 # Ensure the ZIP exists
                 if [ ! -f $OGG_binary ]; then
-                    echo "ERROR: $OGG_binary not found in /tmp/"
+                    echo "ERROR: $OGG_binary not found in workspace!"
                     exit 1
                 fi
 
                 # Unzip the archive
-                unzip -o $OGG_binary -d /tmp/gg_binary
+                unzip -o $OGG_binary -d ogg_binary
 
                 # Find the installer recursively
-                installer=$(find /tmp/gg_binary/ -type f -name "runInstaller" | head -n 1)
+                installer=$(find ogg_binary/ -type f -name "runInstaller" | head -n 1)
 
                 if [ -z "$installer" ]; then
                     echo "ERROR: runInstaller not found!"
