@@ -14,7 +14,7 @@ pipeline {
         OGG_VOLUME = 'ogg_users_detail_vol'
         OGG_CONTAINER = 'ogg-users_detail'
         OGG_HOME = '/u02/ogg/ogg_home'
-        OGG_binary = 'gg_binary.zip'
+        OGG_binary = '$OGG_binary'
     }
 
     stages {
@@ -56,17 +56,17 @@ pipeline {
         stage('Extract & Run Goldengate Installer') {
             steps {
                 sh '''
-                echo "Using existing GoldenGate binary: gg_binary.zip"
+                echo "Using existing GoldenGate binary: $OGG_binary"
                 cd /tmp/
 
                 # Ensure the ZIP exists
-                if [ ! -f gg_binary.zip ]; then
-                    echo "ERROR: gg_binary.zip not found in /tmp/"
+                if [ ! -f $OGG_binary ]; then
+                    echo "ERROR: $OGG_binary not found in /tmp/"
                     exit 1
                 fi
 
                 # Unzip the archive
-                unzip -o gg_binary.zip -d /tmp/gg_binary
+                unzip -o $OGG_binary -d /tmp/gg_binary
 
                 # Find the installer recursively
                 installer=$(find /tmp/gg_binary/ -type f -name "runInstaller" | head -n 1)
