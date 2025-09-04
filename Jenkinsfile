@@ -57,10 +57,8 @@ pipeline {
             steps {
                 sh '''
                 echo "Using existing GoldenGate binary: $OGG_binary"
-                cd /tmp/
-                ls -ltr
-                pwd
-
+                cp /host_tmp/$OGG_binary $WORKSPACE/
+                
                 # Ensure the ZIP exists
                 if [ ! -f $OGG_binary ]; then
                     echo "ERROR: $OGG_binary not found in /tmp/"
