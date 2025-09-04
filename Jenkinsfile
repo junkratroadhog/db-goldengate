@@ -20,7 +20,6 @@ pipeline {
                 echo "Running Pre-requisites for Golden-Gate Deploy on Source DB in container $src_CN"
                 docker cp scripts/pre-requisite-params.sql $src_CN:/tmp/pre-requisite-params.sql
                 docker exec $src_CN sqlplus / as sysdba @/tmp/pre-requisite-params.sql $src_PDB
-                "
                 '''
 
                 // DEST - Pre-requisite commands to be run on destination DB Force loggin enabled in CDB and Supplemental log data added in PDB
@@ -28,7 +27,6 @@ pipeline {
                 echo "Running Pre-requisites for Golden-Gate Deploy on Destination DB in container $dest_CN"
                 docker cp scripts/pre-requisite-params.sql $dest_CN:/tmp/pre-requisite-params.sql
                 docker exec $dest_CN sqlplus / as sysdba @/tmp/pre-requisite-params.sql $dest_PDB
-                "
                 '''
            }
         }
