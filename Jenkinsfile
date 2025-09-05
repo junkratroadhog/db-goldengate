@@ -113,11 +113,11 @@ pipeline {
     post {
         always {
             echo 'Cleaning workspace...'
-            sh'''
+            /*sh'''
             docker stop $OGG_CONTAINER || true
             docker rm -f $OGG_CONTAINER || true
             docker volume rm $OGG_VOLUME || true
-            '''
+            '''*/
             cleanWs()
         }
     }
