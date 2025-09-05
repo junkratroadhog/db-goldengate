@@ -57,9 +57,8 @@ pipeline {
             steps {
                 sh '''
                 echo "Using existing GoldenGate binary: $OGG_binary"
-                pwd
-                ls -lh /tmp/gg_binary.zip
-                docker exec my-jenkins ls -ltr /tmp
+
+                docker exec my-jenkins ls -ltr
                 docker cp /tmp/gg_binary.zip my-jenkins:/var/jenkins_home/workspace/deploy-goldengate/$OGG_binary
 
                 # Ensure the ZIP exists
