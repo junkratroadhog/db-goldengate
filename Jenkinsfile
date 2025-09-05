@@ -17,7 +17,7 @@ pipeline {
         OGG_binary = 'gg_binary.zip' // This file has to be copied to my-jenkins docker container manually into /tmp/binaries/
 
         // Goldengate Deployment parameters
-        DEPLOYMENT_NAME = 'ogg_deploy-Users-Detail'
+        OGG_DEPLOY_NAME = 'ogg_deploy-Users-Detail'
         deploy_username = 'oggadmin'
         deploy_password = 'oracle'        
     }
