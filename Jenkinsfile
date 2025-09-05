@@ -10,7 +10,7 @@ pipeline {
         dest_CN  = 'db-dtest'
         dest_PDB = 'TDETAILS_PDB'
 
-        // GoldenGate environment
+        // GoldenGate environment NOTE : You must dump the gg_binary.zip into /software volume in jenkins container manually
         OGG_VOLUME = 'ogg_users_detail_vol'
         OGG_CONTAINER = 'ogg-users_detail'
         OGG_HOME = '/u02/ogg/ogg_home'
