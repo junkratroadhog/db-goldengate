@@ -191,7 +191,6 @@ pipeline {
                 docker network connect gg_network $src_CN || true
                 docker network connect gg_network $dest_CN || true
                 docker network connect gg_network $OGG_CONTAINER || true
-                "
                 '''
             }
         }
