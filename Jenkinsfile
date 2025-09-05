@@ -96,7 +96,7 @@ pipeline {
                 "
 
                 # Copy GG binary zip into container
-                docker cp /home/docker/$OGG_binary $OGG_CONTAINER:/tmp/binaries/$OGG_binary
+                docker cp /software/$OGG_binary $OGG_CONTAINER:/tmp/binaries/$OGG_binary
                 docker exec -i -u root $OGG_CONTAINER bash -c "chown oracle:oinstall /tmp/binaries/$OGG_binary"
 
                 docker exec -i -u root $OGG_CONTAINER bash -c '
