@@ -89,7 +89,7 @@ pipeline {
                 docker exec -i $OGG_CONTAINER bash -c "unzip -o /tmp/binaries/$OGG_binary -d /tmp/binaries/ogg_binary"
 
                 # Find the installer recursively
-                docker exec -i $OGG_CONTAINER bash -c "installer=\$(find /tmp/ogg_binary/ -type f -name 'runInstaller' | head -n 1)
+                docker exec -i $OGG_CONTAINER bash -c "installer=\$(find /tmp/binaries/ogg_binary/ -type f -name 'runInstaller' | head -n 1)
 
                 if [ -z "$installer" ]; then
                     echo "ERROR: runInstaller not found!"
