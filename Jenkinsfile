@@ -79,9 +79,9 @@ pipeline {
 
                 # Create binaries directory in container and set permissions
                 docker exec -i -u root $OGG_CONTAINER bash -c "mkdir -p /tmp/binaries"
-                docker exec -i -u root $OGG_CONTAINER bash -c "chmod 777 /tmp/binaries/$OGG_binary && chown jenkins:jenkins /tmp/binaries/$OGG_binary"
                 
                 docker cp /tmp/binaries/$OGG_binary $OGG_CONTAINER:/tmp/binaries/$OGG_binary
+                docker exec -i -u root $OGG_CONTAINER bash -c "chmod 777 /tmp/binaries/$OGG_binary && chown jenkins:jenkins /tmp/binaries/$OGG_binary"
 
                 # Unzip the archive
                 docker exec -i $OGG_CONTAINER bash -c "unzip -o /tmp/binaries/$OGG_binary -d /tmp/ogg_binary"
