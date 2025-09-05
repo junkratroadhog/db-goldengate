@@ -89,18 +89,16 @@ pipeline {
                 docker exec -i $OGG_CONTAINER bash -c "unzip -o /tmp/binaries/$OGG_binary -d /tmp/binaries/ogg_binary"
 
                 # Find the installer recursively
-                docker exec -i $OGG_CONTAINER bash -c "installer=\$(find /tmp/binaries/ogg_binary/ -type f -name 'runInstaller' | head -n 1)
+                docker exec -i $OGG_CONTAINER bash -c '
+                    installer=$(find /tmp/binaries/ogg_binary -type f -name "runInstaller" | head -n 1)
 
-                if [ -z "$installer" ]; then
-                    echo "ERROR: runInstaller not found!"
-                    exit 1
-                fi
+                    if [ -z "$installer" ]; then
+                        echo "ERROR: runInstaller not found!"
+                        exit 1
+                    fi
 
-                echo "Installer found at: $installer"
-
-                # Make it executable and run
-                chmod +x "$installer"
-                "
+                    echo "Installer found at: $installer"
+                '
                 echo "Installing GoldenGate in container"
                 docker exec -i $OGG_CONTAINER bash -c "
                 cd /u02/ogg/ogg_install/oggcore_linux_x64_2130000/oggcore
