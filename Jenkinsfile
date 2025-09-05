@@ -179,7 +179,7 @@ pipeline {
 
         stage('Configure Trails & Networking') {
             steps {
-                sh '''
+                sh """
                     echo "Creating GoldenGate 21c deployment in container..."
 
                     docker exec -i -u oracle $OGG_CONTAINER bash -c '
@@ -215,7 +215,7 @@ pipeline {
 
                       echo -e "connect http://localhost:7809 DEPLOYMENT $OGG_DEPLOY_NAME USER $deploy_username PASSWORD $deploy_password\ninfo all\nexit" | $OGG_HOME/bin/adminclient
                     '
-                '''
+                """
             }
 
         }
