@@ -58,9 +58,7 @@ pipeline {
                 sh '''
                 echo "Using existing GoldenGate binary: $OGG_binary"
 
-                docker exec my-jenkins ls -ltr
-                docker cp /tmp/gg_binary.zip my-jenkins:/var/jenkins_home/workspace/deploy-goldengate/$OGG_binary
-
+                cp /tmp/$OGG_binary .
                 # Ensure the ZIP exists
                 if [ ! -f $OGG_binary ]; then
                     echo "ERROR: $OGG_binary not found in workspace!"
