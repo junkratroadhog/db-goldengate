@@ -94,14 +94,14 @@ pipeline {
                 docker cp /tmp/binaries/$OGG_binary $OGG_CONTAINER:/tmp/binaries/$OGG_binary
                 docker exec -i -u root $OGG_CONTAINER bash -c "chown oracle:oinstall /tmp/binaries/$OGG_binary"
 
-                docker exec -i -u root $OGG_CONTAINER bash -c "
+                docker exec -i -u root $OGG_CONTAINER bash -c '
                   if ! command -v unzip >/dev/null 2>&1; then
                     echo "Installing unzip..."
                     yum install -y -q unzip
                   else
                     echo "unzip already installed"
                   fi
-                "
+                '
 
                 # Unzip as oracle
                 docker exec -i -u oracle $OGG_CONTAINER bash -c "
@@ -154,7 +154,7 @@ pipeline {
             }
         }
     }
-    
+
     post {
         always {
             echo 'Cleaning workspace...'
