@@ -86,7 +86,7 @@ pipeline {
                 docker exec -i -u root $OGG_CONTAINER bash -c "yum install -y unzip"
 
                 # Unzip the archive
-                docker exec -i $OGG_CONTAINER bash -c "unzip -o /tmp/binaries/$OGG_binary -d /tmp/ogg_binary"
+                docker exec -i $OGG_CONTAINER bash -c "unzip -o /tmp/binaries/$OGG_binary -d /tmp/binaries/ogg_binary"
 
                 # Find the installer recursively
                 docker exec -i $OGG_CONTAINER bash -c "installer=\$(find /tmp/ogg_binary/ -type f -name 'runInstaller' | head -n 1)
