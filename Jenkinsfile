@@ -180,43 +180,41 @@ pipeline {
         stage('Configure Trails & Networking') {
             steps {
                 sh '''
-                echo "Creating trail directories inside GG container"
-                docker exec -i $OGG_CONTAINER bash -c "
-                mkdir -p /u02/ogg/trails/source
-                mkdir -p /u02/ogg/trails/target
-                "
+                    echo "Creating GoldenGate 21c deployment in container..."
 
-                echo "Connecting GG container to DB containers"
-                docker network create gg_network || true
-                docker network connect gg_network $src_CN || true
-                docker network connect gg_network $dest_CN || true
-                docker network connect gg_network $OGG_CONTAINER || true
-                '''
-            }
-        }
+                    docker exec -i -u oracle $OGG_CONTAINER bash -c '
+                      export OGG_HOME=/u02/ogg/ogg_home
+                      export PATH=$OGG_HOME/bin:$PATH
 
-        stage ('Golden-Gate Microservices Deployment') {
-            steps {
-                sh '''
-                echo "Creating GoldenGate 21c deployment in container..."
-        
-                # Run adminclient with commands piped
-                docker exec -i -u oracle $OGG_CONTAINER bash -c "
-                \$OGG_HOME/bin/adminclient -silent \
-                  -createDeployment \
-                  -deploymentName $OGG_DEPLOY_NAME \
-                  -adminUser $deploy_username \
-                  -adminPassword $deploy_password
-                  "
+                      # Create deployment
+                      $OGG_HOME/bin/adminclient -silent \
+                        -createDeployment \
+                        -deploymentName $OGG_DEPLOY_NAME \
+                        -adminUser $deploy_username \
+                        -adminPassword $deploy_password
+                    '
 
-                echo "Deployment $OGG_DEPLOY_NAME created successfully."
+                    echo "Starting ServiceManager..."
+                    docker exec -i -u oracle $OGG_CONTAINER bash -c '
+                      export OGG_HOME=/u02/ogg/ogg_home
+                      export PATH=$OGG_HOME/bin:$PATH
+                      source /home/oracle/.bashrc
 
-                # Start Service manager
-                docker exec -i -u oracle $OGG_CONTAINER bash -c "\$OGG_HOME/bin/ServiceManager start"
+                      # Ensure ownership
+                      chown -R oracle:oinstall $OGG_HOME/etc
 
-                docker exec -it -u oracle $OGG_CONTAINER bash -c "
-                echo -e 'connect http://localhost:7809 DEPLOYMENT $OGG_DEPLOY_NAME USER $deploy_username PASSWORD $deploy_password\\ninfo all\\nexit' | \$OGG_HOME/bin/adminclient
-                "
+                      # Start ServiceManager
+                      $OGG_HOME/bin/ServiceManager start
+                      sleep 5
+                    '
+
+                    echo "Connecting via adminclient..."
+                    docker exec -i -u oracle $OGG_CONTAINER bash -c '
+                      export OGG_HOME=/u02/ogg/ogg_home
+                      export PATH=$OGG_HOME/bin:$PATH
+
+                      echo -e "connect http://localhost:7809 DEPLOYMENT $OGG_DEPLOY_NAME USER $deploy_username PASSWORD $deploy_password\ninfo all\nexit" | $OGG_HOME/bin/adminclient
+                    '
                 '''
             }
 
