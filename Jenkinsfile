@@ -105,7 +105,8 @@ pipeline {
                 ./install.sh -silent -ogghome $OGG_HOME
                 echo 'export OGG_HOME=$OGG_HOME' >> /etc/profile
                 echo 'export PATH=\\$OGG_HOME:\\$PATH' >> /etc/profile
-                "                '''
+                "                
+                '''
             }
         }
     }
