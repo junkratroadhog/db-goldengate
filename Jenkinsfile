@@ -181,46 +181,44 @@ pipeline {
             steps {
                 sh """
                     echo "Creating GoldenGate 21c deployment in container..."
-
-                    docker exec -i -u oracle $OGG_CONTAINER bash -c '
+        
+                    docker exec -i -u oracle $OGG_CONTAINER bash -c \"
                       export OGG_HOME=/u02/ogg/ogg_home
-                      export PATH=$OGG_HOME/bin:$PATH
-
+                      export PATH=\\\$OGG_HOME/bin:\\\$PATH
+        
                       # Create deployment
-                      $OGG_HOME/bin/adminclient -silent \
-                        -createDeployment \
-                        -deploymentName $OGG_DEPLOY_NAME \
-                        -adminUser $deploy_username \
+                      \$OGG_HOME/bin/adminclient -silent \\
+                        -createDeployment \\
+                        -deploymentName $OGG_DEPLOY_NAME \\
+                        -adminUser $deploy_username \\
                         -adminPassword $deploy_password
-                    '
-
+                    \"
+        
                     echo "Starting ServiceManager..."
-                    docker exec -i -u oracle $OGG_CONTAINER bash -c '
+                    docker exec -i -u oracle $OGG_CONTAINER bash -c \"
                       export OGG_HOME=/u02/ogg/ogg_home
-                      export PATH=$OGG_HOME/bin:$PATH
-                      source /home/oracle/.bashrc
-
+                      export PATH=\\\$OGG_HOME/bin:\\\$PATH
+        
                       # Ensure ownership
-                      chown -R oracle:oinstall $OGG_HOME/etc
-
+                      chown -R oracle:oinstall \\$OGG_HOME/etc
+        
                       # Start ServiceManager
-                      $OGG_HOME/bin/ServiceManager start
+                      \$OGG_HOME/bin/ServiceManager start
                       sleep 5
-                    '
-
+                    \"
+        
                     echo "Connecting via adminclient..."
-                    docker exec -i -u oracle $OGG_CONTAINER bash -c '
+                    docker exec -i -u oracle $OGG_CONTAINER bash -c \"
                       export OGG_HOME=/u02/ogg/ogg_home
-                      export PATH=$OGG_HOME/bin:$PATH
-
-                      echo -e "connect http://localhost:7809 DEPLOYMENT $OGG_DEPLOY_NAME USER $deploy_username PASSWORD $deploy_password\ninfo all\nexit" | $OGG_HOME/bin/adminclient
-                    '
+                      export PATH=\\\$OGG_HOME/bin:\\\$PATH
+        
+                      echo -e \\\"connect http://localhost:7809 DEPLOYMENT $OGG_DEPLOY_NAME USER $deploy_username PASSWORD $deploy_password\\\\ninfo all\\\\nexit\\\" | \$OGG_HOME/bin/adminclient
+                    \"
                 """
             }
-
         }
 
-        
+
     }
 
     post {
