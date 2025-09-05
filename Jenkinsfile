@@ -19,7 +19,7 @@ pipeline {
 
     stages {
 
-        stage('Pre-requisites for Golden-Gate Deploy') {
+/*        stage('Pre-requisites for Golden-Gate Deploy') {
             steps {
                 // SRC - Pre-requisite commands to be run on source DB Force loggin enabled in CDB and Supplemental log data added in PDB
                 sh '''
@@ -51,7 +51,7 @@ pipeline {
                 docker exec $dest_CN sqlplus / as sysdba @/tmp/oggadmin.sql $dest_PDB
                 '''
            }
-        }
+        }*/
 
         stage ('Prepare GG Container') {
             steps {
