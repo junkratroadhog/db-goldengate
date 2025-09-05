@@ -181,7 +181,7 @@ pipeline {
             steps {
                 sh '''
                 echo "Creating trail directories inside GG container"
-                docker exec -it $OGG_CONTAINER bash -c "
+                docker exec -i $OGG_CONTAINER bash -c "
                 mkdir -p /u02/ogg/trails/source
                 mkdir -p /u02/ogg/trails/target
                 "
