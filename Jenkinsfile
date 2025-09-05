@@ -61,7 +61,7 @@ pipeline {
                 docker exec -i -u root my-jenkins bash -c "chmod 777 /tmp/binaries/$OGG_binary && chown jenkins:jenkins /tmp/binaries/$OGG_binary"
                 hostname -f
                 ls -lrt /tmp/binaries/gg_binary.zip
-                cp /tmp/binaries/$OGG_binary $WORKSPACE/binaries/$OGG_binary
+                cp /tmp/binaries/$OGG_binary $WORKSPACE/binaries/
 
                 # Ensure the ZIP exists
                 if [ ! -f $OGG_binary ]; then
