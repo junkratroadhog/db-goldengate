@@ -59,6 +59,8 @@ pipeline {
                 echo "Using existing GoldenGate binary: $OGG_binary"
 
                 docker exec -i -u root my-jenkins bash -c "chmod 777 /tmp/$OGG_binary && chown jenkins:jenkins /tmp/$OGG_binary"
+                hostname -f
+                ls -lrt /tmp/
                 cp /tmp/$OGG_binary $WORKSPACE/$OGG_binary
 
                 # Ensure the ZIP exists
