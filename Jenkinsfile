@@ -202,8 +202,12 @@ pipeline {
         
                 # Run adminclient with commands piped
                 docker exec -i -u oracle $OGG_CONTAINER bash -c "
-                echo -e 'create deployment $OGG_DEPLOY_NAME USER $deploy_username PASSWORD $deploy_password\\nexit' | \$OGG_HOME/bin/adminclient
-                "
+                \$OGG_HOME/bin/adminclient -silent \
+                  -createDeployment \
+                  -deploymentName $OGG_DEPLOY_NAME \
+                  -adminUser $deploy_username \
+                  -adminPassword $deploy_password
+                  "
 
                 echo "Deployment $OGG_DEPLOY_NAME created successfully."
 
