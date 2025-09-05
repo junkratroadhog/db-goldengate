@@ -19,7 +19,7 @@ pipeline {
 
     stages {
 
-/*        stage('Pre-requisites for Golden-Gate Deploy') {
+        stage('Pre-requisites for Golden-Gate Deploy') {
             steps {
                 // SRC - Pre-requisite commands to be run on source DB Force loggin enabled in CDB and Supplemental log data added in PDB
                 sh '''
@@ -51,7 +51,7 @@ pipeline {
                 docker exec $dest_CN sqlplus / as sysdba @/tmp/oggadmin.sql $dest_PDB
                 '''
            }
-        }*/
+        }
 
         stage ('Prepare GG Container') {
             steps {
@@ -102,7 +102,23 @@ pipeline {
                 echo "Installing GoldenGate in container"
                 docker exec -i $OGG_CONTAINER bash -c "
                 cd $installer
-                ./install.sh -silent -ogghome $OGG_HOME
+
+                mkdir -p /u02/ogg /u02/oraInventory
+                chown -R oracle:oinstall /u02/ogg /u02/oraInventory
+                chmod -R 775 /u02/ogg /u02/oraInventory
+
+                docker exec -i $OGG_CONTAINER bash -c "
+                  sed -i \
+                    -e 's#^SOFTWARE_LOCATION=.*#SOFTWARE_LOCATION=/u02/ogg/ogg_home#' \
+                    -e 's#^INVENTORY_LOCATION=.*#INVENTORY_LOCATION=/u02/oraInventory#' \
+                    -e 's#^UNIX_GROUP_NAME=.*#UNIX_GROUP_NAME=oinstall#' \
+                    /tmp/binaries/ogg_binary/fbo_ggs_Linux_x64_Oracle_services_shiphome/Disk1/response/oggcore.rsp
+                "
+
+                ./runInstaller -silent -waitforcompletion \
+                -responseFile ./response/oggcore.rsp \
+                -ignorePrereqFailure
+
                 echo 'export OGG_HOME=$OGG_HOME' >> /etc/profile
                 echo 'export PATH=\\$OGG_HOME:\\$PATH' >> /etc/profile
                 "
