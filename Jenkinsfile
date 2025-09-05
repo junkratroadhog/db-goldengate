@@ -83,6 +83,8 @@ pipeline {
                 docker cp /tmp/binaries/$OGG_binary $OGG_CONTAINER:/tmp/binaries/$OGG_binary
                 docker exec -i -u root $OGG_CONTAINER bash -c "chmod 777 /tmp/binaries/$OGG_binary"
 
+                docker exec -i -u root $OGG_CONTAINER bash -c "yum install -y unzip"
+
                 # Unzip the archive
                 docker exec -i $OGG_CONTAINER bash -c "unzip -o /tmp/binaries/$OGG_binary -d /tmp/ogg_binary"
 
