@@ -103,6 +103,11 @@ pipeline {
                   fi
                 '
 
+                # Install required Java packages
+                docker exec -i -u root $OGG_CONTAINER bash -c '
+                yum install -y -q libnsl libaio glibc libX11 libXau libxcb libXi libXtst libXrender libXext libstdc++ ksh gcc gcc-c++ make
+                '
+
                 # Unzip as oracle
                 docker exec -i -u oracle $OGG_CONTAINER bash -c "
                   unzip -o /tmp/binaries/$OGG_binary -d /tmp/binaries/ogg_binary
