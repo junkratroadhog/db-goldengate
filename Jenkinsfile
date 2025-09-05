@@ -57,7 +57,7 @@ pipeline {
             steps {
                 sh '''
                 echo "Using existing GoldenGate binary: $OGG_binary"
-                docker run --rm -v /tmp/$OGG_binary:/tmp/$OGG_binary:ro -v $WORKSPACE:/workspace alpine cp /tmp/$OGG_binary /workspace/
+                docker run --rm -v /tmp/$OGG_binary:/tmp/$OGG_binary.zip:ro -v $WORKSPACE:/workspace alpine cp /tmp/$OGG_binary /workspace/
                 cp /tmp/$OGG_binary $WORKSPACE/$OGG_binary
 
                 # Ensure the ZIP exists
