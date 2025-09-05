@@ -14,7 +14,7 @@ pipeline {
         OGG_VOLUME = 'ogg_users_detail_vol'
         OGG_CONTAINER = 'ogg-users_detail'
         OGG_HOME = '/u02/ogg/ogg_home'
-        OGG_binary = 'gg_binary.zip'
+        OGG_binary = 'gg_binary.zip' // This file has to be copied to my-jenkins docker container manually into /tmp/binaries/
     }
 
     stages {
@@ -53,44 +53,7 @@ pipeline {
            }
         }
 
-        stage('Extract & Run Goldengate Installer') {
-            steps {
-                sh '''
-                echo "Using existing GoldenGate binary: $OGG_binary"
-
-                docker exec -i -u root my-jenkins bash -c "chmod 777 /tmp/binaries/$OGG_binary && chown jenkins:jenkins /tmp/binaries/$OGG_binary"
-                hostname -f
-                ls -lrt /tmp/binaries/gg_binary.zip
-                mkdir -p $WORKSPACE/binaries
-                cp /tmp/binaries/$OGG_binary $WORKSPACE/binaries/
-
-                # Ensure the ZIP exists
-                if [ ! -f $OGG_binary ]; then
-                    echo "ERROR: $OGG_binary not found in workspace!"
-                    exit 1
-                fi
-
-                # Unzip the archive
-                unzip -o $OGG_binary -d ogg_binary
-
-                # Find the installer recursively
-                installer=$(find ogg_binary/ -type f -name "runInstaller" | head -n 1)
-
-                if [ -z "$installer" ]; then
-                    echo "ERROR: runInstaller not found!"
-                    exit 1
-                fi
-
-                echo "Installer found at: $installer"
-
-                # Make it executable and run
-                chmod +x "$installer"
-                "$installer"
-                '''
-            }
-        }
-
-        /*stage ('Prepare GG Container') {
+        stage ('Prepare GG Container') {
             steps {
                 sh '''
                 if ! docker volume inspect $OGG_VOLUME > /dev/null 2>&1; then
@@ -107,6 +70,53 @@ pipeline {
                 docker run -d --name $OGG_CONTAINER -v $OGG_VOLUME:/u02/ogg oraclelinux:8 tail -f /dev/null                
                 '''
             }
-        }*/
+        }
+
+        stage ('Copy & Install GoldenGate') {
+            steps {
+                sh '''
+                echo "Using existing GoldenGate binary: $OGG_binary"
+
+                # Create binaries directory in container and set permissions
+                docker exec -i -u root $OGG_CONTAINER bash -c "mkdir -p /tmp/binaries"
+                docker exec -i -u root $OGG_CONTAINER bash -c "chmod 777 /tmp/binaries/$OGG_binary && chown jenkins:jenkins /tmp/binaries/$OGG_binary"
+                
+                docker cp /tmp/binaries/$OGG_binary $OGG_CONTAINER:/tmp/binaries/$OGG_binary
+
+                # Unzip the archive
+                docker exec -i $OGG_CONTAINER bash -c "unzip -o /tmp/binaries/$OGG_binary -d /tmp/ogg_binary"
+
+                # Find the installer recursively
+                docker exec -i $OGG_CONTAINER bash -c "installer=\$(find /tmp/ogg_binary/ -type f -name 'runInstaller' | head -n 1)
+
+                if [ -z "$installer" ]; then
+                    echo "ERROR: runInstaller not found!"
+                    exit 1
+                fi
+
+                echo "Installer found at: $installer"
+
+                # Make it executable and run
+                chmod +x "$installer"
+                "
+                echo "Installing GoldenGate in container"
+                docker exec -i $OGG_CONTAINER bash -c "
+                cd /u02/ogg/ogg_install/oggcore_linux_x64_2130000/oggcore
+                ./install.sh -silent -ogghome $OGG_HOME
+                echo 'export OGG_HOME=$OGG_HOME' >> /etc/profile
+                echo 'export PATH=\\$OGG_HOME:\\$PATH' >> /etc/profile
+                "                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning workspace...'
+            docker stop $OGG_CONTAINER || true
+            docker rm -f $OGG_CONTAINER || true
+            docker volume rm $OGG_VOLUME || true
+            cleanWs()
+        }
     }
 }
