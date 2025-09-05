@@ -15,6 +15,11 @@ pipeline {
         OGG_CONTAINER = 'ogg-users_detail'
         OGG_HOME = '/u02/ogg/ogg_home'
         OGG_binary = 'gg_binary.zip' // This file has to be copied to my-jenkins docker container manually into /tmp/binaries/
+
+        // Goldengate Deployment parameters
+        DEPLOYMENT_NAME = 'ogg_deploy-Users-Detail'
+        deploy_username = 'oggadmin'
+        deploy_password = 'oracle'        
     }
 
     stages {
@@ -107,7 +112,7 @@ pipeline {
                 docker exec -i -u root $OGG_CONTAINER bash -c '
                 yum install -y -q libnsl libaio glibc libX11 libXau libxcb libXi libXtst libXrender libXext libstdc++ ksh gcc gcc-c++ make
                 '
-
+                
                 # Unzip as oracle
                 docker exec -i -u oracle $OGG_CONTAINER bash -c "
                   unzip -o /tmp/binaries/$OGG_binary -d /tmp/binaries/ogg_binary
@@ -149,9 +154,9 @@ pipeline {
                   chmod +x "$installer"
                   cd "$(dirname "$installer")"
 
-                  ./runInstaller -silent -waitforcompletion \
-                    -responseFile "$rsp" \
-                    -ignorePrereqFailure -invPtrLoc /etc/oraInst.loc
+                  "$installer" -silent -waitforcompletion \
+                        -responseFile "$rsp" \
+                        -ignorePrereqFailure -invPtrLoc /etc/oraInst.loc
 
                   echo "export OGG_HOME=$OGG_HOME" >> /home/oracle/.bashrc
                   echo "export PATH=\\$OGG_HOME:\\$PATH" >> /home/oracle/.bashrc
@@ -159,6 +164,62 @@ pipeline {
                 '''
             }
         }
+
+        stage('Verify Installation') {
+            steps {
+                sh '''
+                echo "Verifying GoldenGate installation"
+                docker exec $OGG_CONTAINER bash -c "
+                source /etc/profile
+                \$OGG_HOME/oggcli/oggcli -version
+                "
+                '''
+            }
+        }
+
+        stage('Configure Trails & Networking') {
+            steps {
+                sh '''
+                echo "Creating trail directories inside GG container"
+                docker exec -it $OGG_CONTAINER bash -c "
+                mkdir -p /u02/ogg/trails/source
+                mkdir -p /u02/ogg/trails/target
+                "
+
+                echo "Connecting GG container to DB containers"
+                docker network create gg_network || true
+                docker network connect gg_network $src_CN || true
+                docker network connect gg_network $dest_CN || true
+                docker network connect gg_network $OGG_CONTAINER || true
+                "
+                '''
+            }
+        }
+
+        stage ('Golden-Gate Microservices Deployment') {
+            steps {
+                sh '''
+                echo "Creating GoldenGate 21c deployment in container..."
+        
+                # Run adminclient with commands piped
+                docker exec -i -u oracle $OGG_CONTAINER bash -c "
+                echo -e 'create deployment $OGG_DEPLOY_NAME USER $deploy_username PASSWORD $deploy_password\\nexit' | \$OGG_HOME/bin/adminclient
+                "
+
+                echo "Deployment $OGG_DEPLOY_NAME created successfully."
+
+                # Start Service manager
+                docker exec -i -u oracle $OGG_CONTAINER bash -c "\$OGG_HOME/bin/ServiceManager start"
+
+                docker exec -it -u oracle $OGG_CONTAINER bash -c "
+                echo -e 'connect http://localhost:7809 DEPLOYMENT $OGG_DEPLOY_NAME USER $deploy_username PASSWORD $deploy_password\\ninfo all\\nexit' | \$OGG_HOME/bin/adminclient
+                "
+                '''
+            }
+
+        }
+
+        
     }
 
     post {
