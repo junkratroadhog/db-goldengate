@@ -53,7 +53,7 @@ pipeline {
            }
         }*/
 
-        stage ('Prepare GG Container') {
+        stage ('Deploy GG Container') {
             steps {
                 sh '''
                 if ! docker volume inspect $OGG_VOLUME > /dev/null 2>&1; then
@@ -77,56 +77,84 @@ pipeline {
                 sh '''
                 echo "Using existing GoldenGate binary: $OGG_binary"
 
-                # Create binaries directory in container and set permissions
-                docker exec -i -u root $OGG_CONTAINER bash -c "mkdir -p /tmp/binaries"
-                
+                # Create oracle user + group if not exists
+                docker exec -i -u root $OGG_CONTAINER bash -c "
+                  getent group oinstall >/dev/null || groupadd -g 54321 oinstall
+                  id -u oracle >/dev/null 2>&1 || useradd -u 54321 -g oinstall oracle
+                "
+
+                # Prepare directories with correct ownership
+                docker exec -i -u root $OGG_CONTAINER bash -c "
+                  mkdir -p /tmp/binaries /u02/ogg /u02/oraInventory
+                  chown -R oracle:oinstall /tmp/binaries /u02/ogg /u02/oraInventory
+                  chmod -R 775 /u02/ogg /u02/oraInventory
+                "
+
+                # Copy GG binary zip into container
                 docker cp /tmp/binaries/$OGG_binary $OGG_CONTAINER:/tmp/binaries/$OGG_binary
-                docker exec -i -u root $OGG_CONTAINER bash -c "chmod 777 /tmp/binaries/$OGG_binary"
+                docker exec -i -u root $OGG_CONTAINER bash -c "chown oracle:oinstall /tmp/binaries/$OGG_binary"
 
-                docker exec -i -u root $OGG_CONTAINER bash -c "yum install -y unzip"
+                docker exec -i -u root $OGG_CONTAINER bash -c "
+                  if ! command -v unzip >/dev/null 2>&1; then
+                    echo "Installing unzip..."
+                    yum install -y -q unzip
+                  else
+                    echo "unzip already installed"
+                  fi
+                "
 
-                # Unzip the archive
-                docker exec -i $OGG_CONTAINER bash -c "unzip -o /tmp/binaries/$OGG_binary -d /tmp/binaries/ogg_binary"
+                # Unzip as oracle
+                docker exec -i -u oracle $OGG_CONTAINER bash -c "
+                  unzip -o /tmp/binaries/$OGG_binary -d /tmp/binaries/ogg_binary
+                "
 
-                # Find the installer recursively
-                docker exec -i $OGG_CONTAINER bash -c '
-                    installer=$(find /tmp/binaries/ogg_binary -type f -name "runInstaller" | head -n 1)
+                # Create oraInst.loc
+                docker exec -i -u root $OGG_CONTAINER bash -c "
+                  echo 'inventory_loc=/u02/oraInventory' > /etc/oraInst.loc
+                  echo 'inst_group=oinstall' >> /etc/oraInst.loc
+                  chown oracle:oinstall /etc/oraInst.loc
+                "
 
-                    if [ -z "$installer" ]; then
-                        echo "ERROR: runInstaller not found!"
-                        exit 1
-                    fi
+                # Run installer as oracle
+                docker exec -i -u oracle $OGG_CONTAINER bash -c '
+                  set -e
 
-                    echo "Installer found at: $installer"
-                '
-                echo "Installing GoldenGate in container"
-                docker exec -i $OGG_CONTAINER bash -c "
-                cd $installer
+                  OGG_HOME=/u02/ogg/ogg_home
+                  STAGE_DIR=/tmp/binaries/ogg_binary
 
-                mkdir -p /u02/ogg /u02/oraInventory
-                chown -R oracle:oinstall /u02/ogg /u02/oraInventory
-                chmod -R 775 /u02/ogg /u02/oraInventory
+                  installer=$(find $STAGE_DIR -type f -name runInstaller | head -n 1)
+                  rsp=$(find $STAGE_DIR -type f -name oggcore.rsp | head -n 1)
 
-                docker exec -i $OGG_CONTAINER bash -c "
+                  if [ -z "$installer" ] || [ -z "$rsp" ]; then
+                    echo "ERROR: Missing installer or response file"
+                    exit 1
+                  fi
+
+                  echo "Installer: $installer"
+                  echo "Response : $rsp"
+
+                  # Update response file with correct paths
                   sed -i \
-                    -e 's#^SOFTWARE_LOCATION=.*#SOFTWARE_LOCATION=/u02/ogg/ogg_home#' \
-                    -e 's#^INVENTORY_LOCATION=.*#INVENTORY_LOCATION=/u02/oraInventory#' \
-                    -e 's#^UNIX_GROUP_NAME=.*#UNIX_GROUP_NAME=oinstall#' \
-                    /tmp/binaries/ogg_binary/fbo_ggs_Linux_x64_Oracle_services_shiphome/Disk1/response/oggcore.rsp
-                "
+                    -e "s#^SOFTWARE_LOCATION=.*#SOFTWARE_LOCATION=$OGG_HOME#" \
+                    -e "s#^INVENTORY_LOCATION=.*#INVENTORY_LOCATION=/u02/oraInventory#" \
+                    -e "s#^UNIX_GROUP_NAME=.*#UNIX_GROUP_NAME=oinstall#" \
+                    "$rsp"
 
-                ./runInstaller -silent -waitforcompletion \
-                -responseFile ./response/oggcore.rsp \
-                -ignorePrereqFailure
+                  chmod +x "$installer"
+                  cd "$(dirname "$installer")"
 
-                echo 'export OGG_HOME=$OGG_HOME' >> /etc/profile
-                echo 'export PATH=\\$OGG_HOME:\\$PATH' >> /etc/profile
-                "
+                  ./runInstaller -silent -waitforcompletion \
+                    -responseFile "$rsp" \
+                    -ignorePrereqFailure -invPtrLoc /etc/oraInst.loc
+
+                  echo "export OGG_HOME=$OGG_HOME" >> /home/oracle/.bashrc
+                  echo "export PATH=\\$OGG_HOME:\\$PATH" >> /home/oracle/.bashrc
+                '
                 '''
             }
         }
     }
-
+    
     post {
         always {
             echo 'Cleaning workspace...'
