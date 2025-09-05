@@ -171,7 +171,7 @@ pipeline {
                 echo "Verifying GoldenGate installation"
                 docker exec $OGG_CONTAINER bash -c "
                 source /etc/profile
-                \$OGG_HOME/oggcli/oggcli -version
+                \$OGG_HOME/bin/adminclient -version
                 "
                 '''
             }
