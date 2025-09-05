@@ -60,8 +60,8 @@ pipeline {
                 pwd
                 ls -ltr 
                 ls -ltr /tmp
-                docker run --rm -v /tmp/$OGG_binary:/tmp/$OGG_binary:ro -v $WORKSPACE:/workspace alpine cp /tmp/$OGG_binary /workspace/
-                cp /tmp/$OGG_binary $WORKSPACE/$OGG_binary
+                docker exec my-jenkins ls -ltr /tmp
+                docker cp /tmp/gg_binary.zip my-jenkins:/var/jenkins_home/workspace/deploy-goldengate/$OGG_binary
 
                 # Ensure the ZIP exists
                 if [ ! -f $OGG_binary ]; then
