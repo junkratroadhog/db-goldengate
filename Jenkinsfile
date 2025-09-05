@@ -138,12 +138,13 @@ pipeline {
                   echo "Installer: $installer"
                   echo "Response : $rsp"
 
-                  # Update response file with correct paths
-                  sed -i \
-                    -e "s#^SOFTWARE_LOCATION=.*#SOFTWARE_LOCATION=$OGG_HOME#" \
-                    -e "s#^INVENTORY_LOCATION=.*#INVENTORY_LOCATION=/u02/oraInventory#" \
-                    -e "s#^UNIX_GROUP_NAME=.*#UNIX_GROUP_NAME=oinstall#" \
-                    "$rsp"
+                # Update response file with correct paths
+                sed -i \
+                  -e "s#^SOFTWARE_LOCATION=.*#SOFTWARE_LOCATION=$OGG_HOME#" \
+                  -e "s#^INVENTORY_LOCATION=.*#INVENTORY_LOCATION=/u02/oraInventory#" \
+                  -e "s#^UNIX_GROUP_NAME=.*#UNIX_GROUP_NAME=oinstall#" \
+                  -e "s#^INSTALL_OPTION=.*#INSTALL_OPTION=ORA21c#" \
+                  "$rsp"
 
                   chmod +x "$installer"
                   cd "$(dirname "$installer")"
