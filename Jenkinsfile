@@ -133,8 +133,8 @@ pipeline {
                   OGG_HOME=/u02/ogg/ogg_home
                   STAGE_DIR=/tmp/binaries/ogg_binary
 
-                  installer=$(find $STAGE_DIR -type f -name runInstaller | head -n 1)
-                  rsp=$(find $STAGE_DIR -type f -name oggcore.rsp | head -n 1)
+                  installer=$(find \$STAGE_DIR -type f -name runInstaller | head -n 1)
+                  rsp=$(find \$STAGE_DIR -type f -name oggcore.rsp | head -n 1)
 
                   if [ -z "$installer" ] || [ -z "$rsp" ]; then
                     echo "ERROR: Missing installer or response file"
