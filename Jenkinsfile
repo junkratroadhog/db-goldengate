@@ -15,7 +15,6 @@ pipeline {
         OGG_CONTAINER = 'ogg-users_detail'
         OGG_HOME = '/u02/ogg/ogg_home'
         OGG_binary = 'gg_binary.zip' // This file has to be copied to my-jenkins docker container manually into /tmp/binaries/
-        STAGE_DIR='/tmp/binaries/ogg_binary'
 
         // Goldengate Deployment parameters
         OGG_DEPLOY_NAME = 'ogg_deploy-Users-Detail'
@@ -133,11 +132,15 @@ pipeline {
 
                   OGG_HOME=/u02/ogg/ogg_home
 
+                  # Find the stage directory dynamically (directory that contains runInstaller)
+                  STAGE_DIR=$(find . -type f -name runInstaller -printf '%h\n' | head -n 1)
+                  
                   installer=$(find "$STAGE_DIR" -type f -name runInstaller | head -n 1)
                   rsp=$(find "$STAGE_DIR" -type f -name oggcore.rsp | head -n 1)
-
+                  
                   if [ -z "$installer" ] || [ -z "$rsp" ]; then
                     echo "ERROR: Missing installer or response file"
+                    echo "STAGE_DIR=$STAGE_DIR"
                     exit 1
                   fi
 
