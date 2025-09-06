@@ -15,6 +15,7 @@ pipeline {
         OGG_CONTAINER = 'ogg-users_detail'
         OGG_HOME = '/u02/ogg/ogg_home'
         OGG_binary = 'gg_binary.zip' // This file has to be copied to my-jenkins docker container manually into /tmp/binaries/
+        STAGE_DIR=/tmp/binaries/ogg_binary
 
         // Goldengate Deployment parameters
         OGG_DEPLOY_NAME = 'ogg_deploy-Users-Detail'
@@ -131,7 +132,6 @@ pipeline {
                   set -e
 
                   OGG_HOME=/u02/ogg/ogg_home
-                  STAGE_DIR=/tmp/binaries/ogg_binary
 
                   installer=$(find \$STAGE_DIR -type f -name runInstaller | head -n 1)
                   rsp=$(find \$STAGE_DIR -type f -name oggcore.rsp | head -n 1)
@@ -186,10 +186,9 @@ pipeline {
                 docker exec -i -u oracle $OGG_CONTAINER bash -c '
                   export OGG_HOME=/u02/ogg/ogg_home
                   export PATH=$OGG_HOME/bin:$PATH
-                  STAGE_DIR=/tmp/binaries/ogg_binary
 
                   # Find the original oggca.rsp template shipped with GoldenGate
-                  rsp_template=\$(find $STAGE_DIR -type f -name "oggca*.rsp" | head -n 1)
+                  rsp_template=\$(find \$STAGE_DIR -type f -name "oggca*.rsp" | head -n 1)
                   if [ -z "$rsp_template" ]; then
                     echo "ERROR: Could not find oggca response file template"
                     exit 1
