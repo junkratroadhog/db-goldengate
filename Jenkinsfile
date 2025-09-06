@@ -201,7 +201,7 @@ pipeline {
                       export PATH=\\\$OGG_HOME/bin:\\\$PATH
         
                       # Ensure ownership
-                      chown -R oracle:oinstall \\$OGG_HOME/etc
+                      chown -R oracle:oinstall \$OGG_HOME/etc
         
                       # Start ServiceManager
                       \$OGG_HOME/bin/ServiceManager start
