@@ -200,10 +200,7 @@ pipeline {
                       export OGG_HOME=/u02/ogg/ogg_home
                       export PATH=\\\$OGG_HOME/bin:\\\$PATH
         
-                      # Ensure ownership
-                      chown -R oracle:oinstall \$OGG_HOME/etc
-        
-                      # Start ServiceManager
+                    # Start ServiceManager
                       \$OGG_HOME/bin/ServiceManager start
                       sleep 5
                     \"
