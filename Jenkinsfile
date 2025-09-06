@@ -178,40 +178,44 @@ pipeline {
             }
         }
 
+        stage('Create Deployment') {
+            steps {
+                sh """
+                echo "Creating GoldenGate deployment..."
+
+                docker exec -i -u oracle $OGG_CONTAINER bash -c '
+                  export OGG_HOME=/u02/ogg/ogg_home
+                  export PATH=$OGG_HOME/bin:$PATH
+
+                  cat > /tmp/ogg_deploy.rsp <<EOF
+[GENERAL]
+DEPLOYMENT_NAME=$OGG_DEPLOY_NAME
+ADMIN_USERNAME=$deploy_username
+ADMIN_PASSWORD=$deploy_password
+SERVICE_MANAGER_PORT=$port_number
+OGG_HOME=$OGG_HOME
+EOF
+
+                  $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
+                '
+                """
+            }
+        }
+
         stage('Configure Trails & Networking') {
             steps {
                 sh """
-                    echo "Creating GoldenGate 21c deployment in container..."
-        
-                    docker exec -i -u oracle $OGG_CONTAINER bash -c \"
-                      export OGG_HOME=/u02/ogg/ogg_home
-                      export PATH=\\\$OGG_HOME/bin:\\\$PATH
-        
-                    # Create deployment
-                    \$OGG_HOME/bin/deployService createDeployment \
-                      --deploymentName $OGG_DEPLOY_NAME \
-                      --port $port_number \
-                      --adminUser $deploy_username \
-                      --adminPassword $deploy_password \
-                      --dir \$OGG_HOME
+                echo "Starting ServiceManager and connecting..."
 
-                    echo "Starting ServiceManager..."
-                    docker exec -i -u oracle $OGG_CONTAINER bash -c \"
-                      export OGG_HOME=/u02/ogg/ogg_home
-                      export PATH=\\\$OGG_HOME/bin:\\\$PATH
-        
-                    # Start ServiceManager
-                      \$OGG_HOME/bin/ServiceManager start
-                      sleep 5
-                    \"
-        
-                    echo "Connecting via adminclient..."
-                    docker exec -i -u oracle $OGG_CONTAINER bash -c \"
-                      export OGG_HOME=/u02/ogg/ogg_home
-                      export PATH=\\\$OGG_HOME/bin:\\\$PATH
-        
-                      echo -e \\\"connect http://localhost:7809 DEPLOYMENT $OGG_DEPLOY_NAME USER $deploy_username PASSWORD $deploy_password\\\\ninfo all\\\\nexit\\\" | \$OGG_HOME/bin/adminclient
-                    \"
+                docker exec -i -u oracle $OGG_CONTAINER bash -c \"
+                  export OGG_HOME=/u02/ogg/ogg_home
+                  export PATH=\\\$OGG_HOME/bin:\\\$PATH
+
+                  \$OGG_HOME/bin/ServiceManager start
+                  sleep 5
+
+                  echo -e \\\"connect http://localhost:$port_number DEPLOYMENT $OGG_DEPLOY_NAME USER $deploy_username PASSWORD $deploy_password\\\\ninfo all\\\\nexit\\\" | \$OGG_HOME/bin/adminclient
+                \"
                 """
             }
         }
