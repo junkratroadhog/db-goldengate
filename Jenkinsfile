@@ -129,24 +129,24 @@ pipeline {
                 # Run installer as oracle
                 docker exec -i -u oracle $OGG_CONTAINER bash -c '
                   set -e
-                
+
                   OGG_HOME=/u02/ogg/ogg_home
-                
+
                   # Find the stage directory dynamically (directory that contains runInstaller)
-                  STAGE_DIR=$(find . -type f -name runInstaller -printf "%h\n" | head -n 1)
-                
+                  STAGE_DIR=$(find /tmp -type f -name runInstaller -printf "%h\n" | head -n 1)
+
                   installer=$(find "$STAGE_DIR" -type f -name runInstaller | head -n 1)
                   rsp=$(find "$STAGE_DIR" -type f -name oggcore.rsp | head -n 1)
-                
+
                   if [ -z "$installer" ] || [ -z "$rsp" ]; then
                     echo "ERROR: Missing installer or response file"
                     echo "STAGE_DIR=$STAGE_DIR"
                     exit 1
                   fi
-                
+
                   echo "Installer: $installer"
                   echo "Response : $rsp"
-                
+
                   # Update response file with correct paths
                   sed -i \
                     -e "s#^SOFTWARE_LOCATION=.*#SOFTWARE_LOCATION=$OGG_HOME#" \
@@ -154,14 +154,14 @@ pipeline {
                     -e "s#^UNIX_GROUP_NAME=.*#UNIX_GROUP_NAME=oinstall#" \
                     -e "s#^INSTALL_OPTION=.*#INSTALL_OPTION=ORA21c#" \
                     "$rsp"
-                
+
                   chmod +x "$installer"
                   cd "$(dirname "$installer")"
-                
+
                   "$installer" -silent -waitforcompletion \
                         -responseFile "$rsp" \
                         -ignorePrereqFailure -invPtrLoc /etc/oraInst.loc
-                
+
                   echo "export OGG_HOME=$OGG_HOME" >> /home/oracle/.bashrc
                   echo "export PATH=\\$OGG_HOME:\\$PATH" >> /home/oracle/.bashrc
                 '
