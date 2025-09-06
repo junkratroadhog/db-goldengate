@@ -180,7 +180,7 @@ pipeline {
 
         stage('Create Deployment') {
             steps {
-                sh """
+                sh '''
                 echo "Creating GoldenGate deployment..."
 
                 docker exec -i -u oracle $OGG_CONTAINER bash -c '
@@ -207,7 +207,7 @@ pipeline {
 
                   $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
                 '
-                """
+                '''
           }
         }
 
