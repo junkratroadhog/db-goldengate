@@ -189,7 +189,7 @@ pipeline {
                   STAGE_DIR=/tmp/binaries/ogg_binary
 
                   # Find the original oggca.rsp template shipped with GoldenGate
-                  rsp_template=$(find $STAGE_DIR -type f -name "oggca*.rsp" | head -n 1)
+                  rsp_template=\$(find $STAGE_DIR -type f -name "oggca*.rsp" | head -n 1)
                   if [ -z "$rsp_template" ]; then
                     echo "ERROR: Could not find oggca response file template"
                     exit 1
