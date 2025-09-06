@@ -19,8 +19,9 @@ pipeline {
         // Goldengate Deployment parameters
         OGG_DEPLOY_NAME = 'ogg_deploy-Users-Detail'
         deploy_username = 'oggadmin'
-        deploy_password = 'oracle'        
-    }
+        deploy_password = 'oracle'
+        port_number   = '7809'
+        }
 
     stages {
 
@@ -186,14 +187,14 @@ pipeline {
                       export OGG_HOME=/u02/ogg/ogg_home
                       export PATH=\\\$OGG_HOME/bin:\\\$PATH
         
-                      # Create deployment
-                      \$OGG_HOME/bin/adminclient -silent \\
-                        -createDeployment \\
-                        -deploymentName $OGG_DEPLOY_NAME \\
-                        -adminUser $deploy_username \\
-                        -adminPassword $deploy_password
-                    \"
-        
+                    # Create deployment
+                    \$OGG_HOME/bin/deployService createDeployment \
+                      --deploymentName $OGG_DEPLOY_NAME \
+                      --port $port_number \
+                      --adminUser $deploy_username \
+                      --adminPassword $deploy_password \
+                      --dir \$OGG_HOME
+
                     echo "Starting ServiceManager..."
                     docker exec -i -u oracle $OGG_CONTAINER bash -c \"
                       export OGG_HOME=/u02/ogg/ogg_home
