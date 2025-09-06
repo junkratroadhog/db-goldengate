@@ -116,7 +116,7 @@ pipeline {
                 
                 # Unzip as oracle
                 docker exec -i -u oracle $OGG_CONTAINER bash -c "
-                  unzip -o /tmp/binaries/$OGG_binary -d /tmp/binaries/ogg_binary
+                  unzip -q -o /tmp/binaries/$OGG_binary -d /tmp/binaries/ogg_binary
                 "
 
                 # Create oraInst.loc
@@ -129,20 +129,20 @@ pipeline {
                 # Run installer as oracle
                 docker exec -i -u oracle $OGG_CONTAINER bash -c '
                   set -e
-                
+
                   export OGG_HOME=/u02/ogg/ogg_home
                   export PATH=$OGG_HOME/bin:$PATH
-                
+
                   # Find the oggca.rsp template inside installed OGG home
                   rsp_template=$(find "$OGG_HOME" -type f -name "oggca*.rsp" | head -n 1)
-                
+
                   if [ -z "$rsp_template" ]; then
                     echo "ERROR: Could not find oggca response file template"
                     exit 1
                   fi
-                
+
                   cp "$rsp_template" /tmp/ogg_deploy.rsp
-                
+
                   # Patch values into response file
                   sed -i \
                     -e "s|^DEPLOYMENT_NAME=.*|DEPLOYMENT_NAME=$OGG_DEPLOY_NAME|" \
@@ -151,7 +151,7 @@ pipeline {
                     -e "s|^SERVICE_MANAGER_PORT=.*|SERVICE_MANAGER_PORT=$port_number|" \
                     -e "s|^OGG_HOME=.*|OGG_HOME=$OGG_HOME|" \
                     /tmp/ogg_deploy.rsp
-                
+
                   $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
                 '
                 '''
