@@ -142,37 +142,14 @@ pipeline {
                     exit 1
                   fi
 
-                  echo $OGG_HOME
-                  rsp_template=$(find "$OGG_HOME" -type f -name "*ogg*.rsp" | head -n 1)
-                  if [ -z "$rsp_template" ]; then
-                    echo "ERROR: Could not find ogg response file template"
-                    exit 1
-                  fi
-
-                  cp "$rsp_template" /tmp/ogg_deploy.rsp
-
-                  # Helper: update or append key=value
-                  update_rsp_param() {
-                    local key=$1
-                    local value=$2
-                    if grep -q "^$key=" /tmp/ogg_deploy.rsp; then
-                      sed -i "s|^$key=.*|$key=$value|" /tmp/ogg_deploy.rsp
-                    else
-                      echo "$key=$value" >> /tmp/ogg_deploy.rsp
-                    fi
-                  }
-
-                  # Patch values into response file
-                  update_rsp_param DEPLOYMENT_NAME "$OGG_DEPLOY_NAME"
-                  update_rsp_param ADMINISTRATOR_USER "$deploy_username"
-                  update_rsp_param ADMINISTRATOR_PASSWORD "$deploy_password"
-                  update_rsp_param SERVICE_MANAGER_PORT "$port_number"
-                  update_rsp_param OGG_HOME "$OGG_HOME"
-                
-                  echo "==== FINAL RSP FILE ===="
-                  cat -n /tmp/ogg_deploy.rsp
-                  echo "========================"
-                  $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
+                  # Run installer in silent mode
+                  $installer -silent -responseFile $rsp_file \
+                  ORACLE_HOME=$OGG_HOME \
+                  ORACLE_BASE=/u02/ogg \
+                  INVENTORY_LOCATION=/u02/oraInventory \
+                  UNIX_GROUP_NAME=oinstall \
+                  DECLINE_SECURITY_UPDATES=true \
+                  ACCEPT_LICENSE_AGREEMENT=true
                 '
                 '''
             }
