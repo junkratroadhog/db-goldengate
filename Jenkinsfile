@@ -173,7 +173,7 @@ pipeline {
                 sh '''
                 echo "Creating GoldenGate deployment..."
 
-                docker exec -i -u oracle $OGG_CONTAINER bash -c '
+                docker exec -i -u oracle -e STAGE_DIR="$STAGE_DIR" -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c '
                   export OGG_HOME=${OGG_HOME}
                   export PATH=$OGG_HOME/bin:$PATH
 
