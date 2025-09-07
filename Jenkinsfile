@@ -138,9 +138,9 @@ pipeline {
                     echo "Cleaning existing OGG_HOME: $OGG_HOME"
                     rm -rf "$OGG_HOME"
                 fi
-                mkdir -p "$OGG_HOME"
-                chown oracle:oinstall "$OGG_HOME"
                 
+                docker exec -i -u oracle $OGG_CONTAINER bash -c "mkdir -p $OGG_HOME && chown oracle:oinstall $OGG_HOME && chmod 775 $OGG_HOME"
+
                 # Run GG INSTALLER as oracle user
                 docker exec -i $OGG_CONTAINER bash -c "chmod +x /tmp/install_scripts/*"
                 docker exec -i -u oracle -e STAGE_DIR="$STAGE_DIR" -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c './tmp/install_scripts/runInstaller.sh'
