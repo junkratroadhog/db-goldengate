@@ -34,7 +34,8 @@ if [ -n "$rsp_file" ]; then
         UNIX_GROUP_NAME=oinstall \
         DECLINE_SECURITY_UPDATES=true \
         ACCEPT_LICENSE_AGREEMENT=true \
-        INSTALL_OPTION=ORA21c
+        INSTALL_OPTION=ORA21c \
+        SOFTWARE_LOCATION="$OGG_HOME"
 else
     $installer -silent \
         oracle.install.option=OGGCORE \
@@ -43,5 +44,6 @@ else
         UNIX_GROUP_NAME=oinstall \
         DECLINE_SECURITY_UPDATES=true \
         ACCEPT_LICENSE_AGREEMENT=true \
-        INSTALL_OPTION=ORA21c
+        INSTALL_OPTION=ORA21c \
+        SOFTWARE_LOCATION="$OGG_HOME"
 fi
