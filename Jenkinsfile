@@ -114,7 +114,7 @@ pipeline {
                 yum install -y -q libnsl libaio glibc libX11 libXau libxcb libXi libXtst libXrender libXext libstdc++ ksh gcc gcc-c++ make
                 '
                 
-                # Unzip as oracle
+                # Unzip Binaries as oracle
                 docker exec -i -u oracle $OGG_CONTAINER bash -c "
                   unzip -q -o /tmp/binaries/$OGG_binary -d /tmp/binaries/ogg_binary
                 "
@@ -132,6 +132,15 @@ pipeline {
 
                   export OGG_HOME=/u02/ogg/ogg_home
                   export PATH=$OGG_HOME/bin:$PATH
+
+                  docker exec -i -u oracle $OGG_CONTAINER bash -c "
+                    cd /tmp/binaries/ogg_binary/fbo_ggs_Linux_x64_Oracle_services_shiphome/Disk1
+                    ./runInstaller -silent -waitforcompletion \
+                      -responseFile /dev/null \
+                      ORACLE_HOME=$OGG_HOME \
+                      INVENTORY_LOCATION=/u02/oraInventory \
+                      UNIX_GROUP_NAME=oinstall
+                  "
 
                   # Find the oggca.rsp template inside installed OGG home
                   rsp_template=$(find "$OGG_HOME" -type f -name "oggca*.rsp" | head -n 1)
