@@ -144,7 +144,7 @@ pipeline {
 
                   rsp_template=$(find "$OGG_HOME" -type f -name "ogg*.rsp" | head -n 1)
                   if [ -z "$rsp_template" ]; then
-                    echo "ERROR: Could not find oggca response file template"
+                    echo "ERROR: Could not find ogg response file template"
                     exit 1
                   fi
 
@@ -159,6 +159,7 @@ pipeline {
                     -e "s|^OGG_HOME=.*|OGG_HOME=$OGG_HOME|" \
                     /tmp/ogg_deploy.rsp
 
+                  echo $OGG_HOME
                   $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
                 '
                 '''
