@@ -1,29 +1,43 @@
+#!/bin/bash
 set -e
 
-# Required environment variables: OGG_HOME, STAGE_DIR
-if [ -z "$OGG_HOME" ] || [ -z "$STAGE_DIR" ]; then
-  echo "ERROR: OGG_HOME or STAGE_DIR not set"
-  exit 1
-fi
+# Required environment variables: OGG_HOME, STAGE_DIR, ORA_BASE (optional)
+: "${OGG_HOME:?Environment variable OGG_HOME must be set}"
+: "${STAGE_DIR:?Environment variable STAGE_DIR must be set}"
+: "${ORA_BASE:=/u02/ogg}"   # Default base if not provided
+: "${ORA_INV:=/u02/oraInventory}" # Default inventory location
 
-export OGG_HOME=${OGG_HOME}
-export PATH=\$OGG_HOME/bin:$PATH
+export PATH=$OGG_HOME/bin:$PATH
 
-# Dynamically find runInstaller inside $STAGE_DIR
+# Dynamically find installer
 installer=$(find "$STAGE_DIR" -type f -name runInstaller | head -n 1)
 if [ -z "$installer" ]; then
-  echo "ERROR: Missing installer file"
+  echo "ERROR: Missing installer file in STAGE_DIR=$STAGE_DIR"
   exit 1
 fi
 
-# Dynamically find a response file template if exists
+# Use the directory containing the installer as working directory
+installer_dir=$(dirname "$installer")
+cd "$installer_dir"
+
+# Dynamically find response file (if any)
 rsp_file=$(find "$STAGE_DIR" -type f -name "ogg*.rsp" | head -n 1)
 
-# If no response file, run installer without -responseFile (interactive defaults)
+# Run installer in silent mode
 if [ -z "$rsp_file" ]; then
-  echo "WARNING: No response file found, running installer with default options"
-  $installer -silent ORACLE_HOME=$OGG_HOME ORACLE_BASE=/u02/ogg INVENTORY_LOCATION=/u02/oraInventory UNIX_GROUP_NAME=oinstall DECLINE_SECURITY_UPDATES=true ACCEPT_LICENSE_AGREEMENT=true
+  echo "Running installer without response file"
+  $installer -silent \
+    ORACLE_BASE="$ORA_BASE" \
+    INVENTORY_LOCATION="$ORA_INV" \
+    UNIX_GROUP_NAME=oinstall \
+    DECLINE_SECURITY_UPDATES=true \
+    ACCEPT_LICENSE_AGREEMENT=true
 else
-  echo "Using response file: $rsp_file"
-  $installer -silent -responseFile "$rsp_file" ORACLE_HOME=$OGG_HOME ORACLE_BASE=/u02/ogg INVENTORY_LOCATION=/u02/oraInventory UNIX_GROUP_NAME=oinstall DECLINE_SECURITY_UPDATES=true ACCEPT_LICENSE_AGREEMENT=true
+  echo "Running installer using response file: $rsp_file"
+  $installer -silent -responseFile "$rsp_file" \
+    ORACLE_BASE="$ORA_BASE" \
+    INVENTORY_LOCATION="$ORA_INV" \
+    UNIX_GROUP_NAME=oinstall \
+    DECLINE_SECURITY_UPDATES=true \
+    ACCEPT_LICENSE_AGREEMENT=true
 fi
