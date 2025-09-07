@@ -196,7 +196,6 @@ pipeline {
                     -e "s|^OGG_HOME=.*|OGG_HOME=$OGG_HOME|" \
                     /tmp/ogg_deploy.rsp
 
-                  #$OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
                 '
                 '''
           }
