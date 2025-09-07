@@ -142,7 +142,8 @@ pipeline {
                     exit 1
                   fi
 
-                  rsp_template=$(find "$OGG_HOME" -type f -name "ogg*.rsp" | head -n 1)
+                  echo $OGG_HOME
+                  rsp_template=$(find "$OGG_HOME" -type f -name "*ogg*.rsp" | head -n 1)
                   if [ -z "$rsp_template" ]; then
                     echo "ERROR: Could not find ogg response file template"
                     exit 1
