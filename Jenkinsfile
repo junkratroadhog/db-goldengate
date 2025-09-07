@@ -26,15 +26,6 @@ pipeline {
 
     stages {
 
-      stage('copy scripts') {
-        steps {
-                sh '''
-                docker exec -i $OGG_CONTAINER bash -c "mkdir -p /tmp/install_scripts && chown oracle:oinstall /tmp/install_scripts && chmod 775 /tmp/install_scripts"                
-                docker cp scripts/. $OGG_CONTAINER:/tmp/install_scripts
-                '''
-        }
-      }
-
 /*        stage('Pre-requisites for Golden-Gate Deploy') {
             steps {
                 // SRC - Pre-requisite commands to be run on source DB Force loggin enabled in CDB and Supplemental log data added in PDB
@@ -86,6 +77,15 @@ pipeline {
                 docker run -d --name $OGG_CONTAINER -v $OGG_VOLUME:/u02/ogg oraclelinux:8 tail -f /dev/null                
                 '''
             }
+        }
+
+        stage('copy scripts') {
+          steps {
+                  sh '''
+                  docker exec -i $OGG_CONTAINER bash -c "mkdir -p /tmp/install_scripts && chown oracle:oinstall /tmp/install_scripts && chmod 775 /tmp/install_scripts"                
+                  docker cp scripts/. $OGG_CONTAINER:/tmp/install_scripts
+                  '''
+          }
         }
 
         stage ('Copy & Install GoldenGate') {
