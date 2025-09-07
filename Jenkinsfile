@@ -156,7 +156,7 @@ pipeline {
                 sh '''
                 echo "Verifying GoldenGate AdminClient version..."
 
-                docker exec -i -u oracle $OGG_CONTAINER bash -c "
+                docker exec -i -u oracle $OGG_CONTAINER bash -c '
                   export OGG_HOME=$OGG_HOME
                   echo $OGG_HOME
                   export PATH=\\$OGG_HOME/bin:\\$PATH
@@ -168,7 +168,7 @@ pipeline {
 
                   echo 'GoldenGate AdminClient Version:'
                   $OGG_HOME/bin/adminclient -version
-                "
+                '
                 '''
             }
         }
