@@ -133,24 +133,16 @@ pipeline {
                   export OGG_HOME=/u02/ogg/ogg_home
                   export PATH=$OGG_HOME/bin:$PATH
 
-                  docker exec -i -u oracle $OGG_CONTAINER bash -c "
-                    cd /tmp/binaries/ogg_binary/fbo_ggs_Linux_x64_Oracle_services_shiphome/Disk1
-                    ./runInstaller -silent -waitforcompletion \
-                      -responseFile /dev/null \
-                      ORACLE_HOME=$OGG_HOME \
-                      INVENTORY_LOCATION=/u02/oraInventory \
-                      UNIX_GROUP_NAME=oinstall
-                  "
-
-                  # Find the oggca.rsp template inside installed OGG home
-                  rsp_template=$(find "$OGG_HOME" -type f -name "oggca*.rsp" | head -n 1)
-
-                  if [ -z "$rsp_template" ]; then
-                    echo "ERROR: Could not find oggca response file template"
+                  # Dynamically find runInstaller inside /tmp/binaries
+                  installer=$(find /tmp/binaries -type f -name runInstaller | head -n 1)
+                  rsp=$(find /tmp/binaries -type f -name "oggca*.rsp" | head -n 1)
+                
+                  if [ -z "$installer" ] || [ -z "$rsp" ]; then
+                    echo "ERROR: Missing installer or response file"
+                    echo "installer=$installer"
+                    echo "rsp=$rsp"
                     exit 1
                   fi
-
-                  cp "$rsp_template" /tmp/ogg_deploy.rsp
 
                   # Patch values into response file
                   sed -i \
