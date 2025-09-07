@@ -128,7 +128,9 @@ pipeline {
                 "
 
                 # Run installer as oracle
-                docker exec -i -u oracle -e STAGE_DIR="$STAGE_DIR" -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c 'ls -ltr && pwd && scripts/runInstaller.sh'
+                docker exec -i -u oracle $OGG_CONTAINER bash -c "mkdir -p /tmp/install_scripts && chown oracle:oinstall /tmp/install_scripts"
+                docker cp scripts/runInstaller.sh $OGG_CONTAINER:/tmp/install_scripts/runInstaller.sh
+                docker exec -i -u oracle -e STAGE_DIR="$STAGE_DIR" -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c 'ls -ltr && pwd && ./tmp/install_scripts/runInstaller.sh'
                 '''
             }
         }
