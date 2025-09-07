@@ -79,9 +79,14 @@ pipeline {
             }
         }
 
-        stage('copy scripts') {
+        stage('Create Oracle User and Copy scripts') {
           steps {
                   sh '''
+                  # Create oracle user + group if not exists
+                  docker exec -i -u root $OGG_CONTAINER bash -c "
+                    getent group oinstall >/dev/null || groupadd -g 54321 oinstall
+                    id -u oracle >/dev/null 2>&1 || useradd -u 54321 -g oinstall oracle
+                  "
                   docker exec -i $OGG_CONTAINER bash -c "mkdir -p /tmp/install_scripts && chown oracle:oinstall /tmp/install_scripts && chmod 775 /tmp/install_scripts"                
                   docker cp scripts/. $OGG_CONTAINER:/tmp/install_scripts
                   '''
@@ -92,12 +97,6 @@ pipeline {
             steps {
                 sh '''
                 echo "Using existing GoldenGate binary: $OGG_binary"
-
-                # Create oracle user + group if not exists
-                docker exec -i -u root $OGG_CONTAINER bash -c "
-                  getent group oinstall >/dev/null || groupadd -g 54321 oinstall
-                  id -u oracle >/dev/null 2>&1 || useradd -u 54321 -g oinstall oracle
-                "
 
                 # Prepare directories with correct ownership
                 docker exec -i -u root $OGG_CONTAINER bash -c "
