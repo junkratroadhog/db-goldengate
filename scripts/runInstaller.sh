@@ -21,13 +21,14 @@ installer_dir=$(dirname "$installer")
 cd "$installer_dir"
 
 # Dynamically find response file (if any)
-rsp_file=$(find "$STAGE_DIR" -type f -name "ogg*.rsp" | head -n 1)
+rsp_file=$(find "/tmp" -type f -name "ogg*.rsp" | head -n 1)
 
 # If response file exists
 if [ -n "$rsp_file" ]; then
     # Patch INSTALL_TYPE dynamically
     sed -i 's|^#*INSTALL_TYPE=.*|INSTALL_TYPE=GG_MICROSERVICES|' "$rsp_file"
     $installer -silent -responseFile "$rsp_file" \
+        oracle.install.option=OGGCORE \
         ORACLE_BASE="$ORA_BASE" \
         INVENTORY_LOCATION="$ORA_INV" \
         UNIX_GROUP_NAME=oinstall \
@@ -35,6 +36,7 @@ if [ -n "$rsp_file" ]; then
         ACCEPT_LICENSE_AGREEMENT=true
 else
     $installer -silent \
+        oracle.install.option=OGGCORE \
         ORACLE_BASE="$ORA_BASE" \
         INVENTORY_LOCATION="$ORA_INV" \
         UNIX_GROUP_NAME=oinstall \
