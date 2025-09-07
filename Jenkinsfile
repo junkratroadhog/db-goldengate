@@ -92,14 +92,14 @@ pipeline {
 
                 # Prepare directories with correct ownership
                 docker exec -i -u root $OGG_CONTAINER bash -c "
-                  mkdir -p /tmp/binaries /u02/ogg /u02/oraInventory
-                  chown -R oracle:oinstall /tmp/binaries /u02/ogg /u02/oraInventory
+                  mkdir -p ${STAGE_DIR} /u02/ogg /u02/oraInventory
+                  chown -R oracle:oinstall ${STAGE_DIR} /u02/ogg /u02/oraInventory
                   chmod -R 775 /u02/ogg /u02/oraInventory
                 "
 
                 # Copy GG binary zip into container
-                docker cp /software/$OGG_binary $OGG_CONTAINER:/tmp/binaries/$OGG_binary
-                docker exec -i -u root $OGG_CONTAINER bash -c "chown oracle:oinstall /tmp/binaries/$OGG_binary"
+                docker cp /software/$OGG_binary $OGG_CONTAINER:${STAGE_DIR}/$OGG_binary
+                docker exec -i -u root $OGG_CONTAINER bash -c "chown oracle:oinstall ${STAGE_DIR}/$OGG_binary"
 
                 docker exec -i -u root $OGG_CONTAINER bash -c '
                   if ! command -v unzip >/dev/null 2>&1; then
@@ -117,7 +117,7 @@ pipeline {
                 
                 # Unzip Binaries as oracle
                 docker exec -i -u oracle $OGG_CONTAINER bash -c "
-                  unzip -q -o /tmp/binaries/$OGG_binary -d /tmp/binaries/ogg_binary
+                  unzip -q -o ${STAGE_DIR}/$OGG_binary -d ${STAGE_DIR}/${OGG_binary%.zip}
                 "
 
                 # Create oraInst.loc
@@ -134,9 +134,9 @@ pipeline {
                   export OGG_HOME=$OGG_HOME
                   export PATH=\$OGG_HOME/bin:$PATH
 
-                  # Dynamically find runInstaller inside /tmp/binaries
-                  installer=$(find /tmp/binaries -type f -name runInstaller | head -n 1)
-                
+                  # Dynamically find runInstaller inside $STAGE_DIR
+                  installer=$(find ${STAGE_DIR} -type f -name runInstaller | head -n 1)
+
                   if [ -z "$installer" ]; then
                     echo "ERROR: Missing installer file"
                     echo "installer=$installer"
@@ -179,7 +179,7 @@ pipeline {
 
                   # Find the original ogg*.rsp template shipped with GoldenGate
                   echo $OGG_HOME
-                  rsp_template=$(find $STAGE_DIR -type f -name "ogg*.rsp" | head -n 1)
+                  rsp_template=$(find ${STAGE_DIR} -type f -name "ogg*.rsp" | head -n 1)
                   if [ -z "$rsp_template" ]; then
                     echo "ERROR: Could not find ogg*.rsp response file template"
                     exit 1
