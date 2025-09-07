@@ -156,8 +156,6 @@ pipeline {
                 sh '''
                 echo "Verifying GoldenGate installation"
                 docker exec -i -u oracle -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c "
-                : "${OGG_HOME:?Environment variable OGG_HOME must be set}"
-                source /etc/profile
                 $OGG_HOME/bin/adminclient -version
                 "
                 '''
