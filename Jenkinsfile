@@ -155,7 +155,7 @@ pipeline {
             steps {
                 sh '''
                 echo "Verifying GoldenGate installation"
-                docker exec -u oracle $OGG_CONTAINER bash -c "
+                docker exec -i -u oracle $OGG_CONTAINER bash -c "
                 source /etc/profile
                 \$OGG_HOME/bin/adminclient -version
                 "
