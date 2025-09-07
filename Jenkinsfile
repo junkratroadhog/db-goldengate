@@ -175,7 +175,7 @@ pipeline {
 
                 docker exec -i -u oracle $OGG_CONTAINER bash -c '
                   export OGG_HOME=${OGG_HOME}
-                  export PATH=\$OGG_HOME/bin:$PATH
+                  export PATH=$OGG_HOME/bin:$PATH
 
                   # Find the original ogg*.rsp template shipped with GoldenGate
                   echo $OGG_HOME
@@ -196,7 +196,7 @@ pipeline {
                     -e "s|^OGG_HOME=.*|OGG_HOME=$OGG_HOME|" \
                     /tmp/ogg_deploy.rsp
 
-                  $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
+                  #$OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
                 '
                 '''
           }
