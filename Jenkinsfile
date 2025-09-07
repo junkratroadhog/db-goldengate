@@ -63,10 +63,6 @@ pipeline {
         stage ('Deploy GG Container') {
             steps {
                 sh '''
-                if ! docker volume inspect $OGG_VOLUME > /dev/null 2>&1; then
-                    docker volume create $OGG_VOLUME
-                fi
-
                 # Remove old container if exists
                 if docker ps -a --format '{{.Names}}' | grep -q "^$OGG_CONTAINER\$"; then
                     docker run --rm -v $OGG_VOLUME:$OGG_HOME alpine sh -c "rm -rf $OGG_HOME/*"
@@ -74,6 +70,10 @@ pipeline {
                     docker volume rm $OGG_VOLUME
                     docker rm -f $OGG_CONTAINER
                     
+                fi
+
+                if ! docker volume inspect $OGG_VOLUME > /dev/null 2>&1; then
+                    docker volume create $OGG_VOLUME
                 fi
 
                 # Start new GG container
