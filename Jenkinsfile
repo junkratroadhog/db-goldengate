@@ -151,16 +151,27 @@ pipeline {
 
                   cp "$rsp_template" /tmp/ogg_deploy.rsp
 
-                  # Patch values into response file
-                  sed -i \
-                    -e "s|^DEPLOYMENT_NAME=.*|DEPLOYMENT_NAME=$OGG_DEPLOY_NAME|" \
-                    -e "s|^ADMINISTRATOR_USER=.*|ADMINISTRATOR_USER=$deploy_username|" \
-                    -e "s|^ADMINISTRATOR_PASSWORD=.*|ADMINISTRATOR_PASSWORD=$deploy_password|" \
-                    -e "s|^SERVICE_MANAGER_PORT=.*|SERVICE_MANAGER_PORT=$port_number|" \
-                    -e "s|^OGG_HOME=.*|OGG_HOME=$OGG_HOME|" \
-                    /tmp/ogg_deploy.rsp
+                  # Helper: update or append key=value
+                  update_rsp_param() {
+                    local key=$1
+                    local value=$2
+                    if grep -q "^$key=" /tmp/ogg_deploy.rsp; then
+                      sed -i "s|^$key=.*|$key=$value|" /tmp/ogg_deploy.rsp
+                    else
+                      echo "$key=$value" >> /tmp/ogg_deploy.rsp
+                    fi
+                  }
 
-                  echo $OGG_HOME
+                  # Patch values into response file
+                  update_rsp_param DEPLOYMENT_NAME "$OGG_DEPLOY_NAME"
+                  update_rsp_param ADMINISTRATOR_USER "$deploy_username"
+                  update_rsp_param ADMINISTRATOR_PASSWORD "$deploy_password"
+                  update_rsp_param SERVICE_MANAGER_PORT "$port_number"
+                  update_rsp_param OGG_HOME "$OGG_HOME"
+                
+                  echo "==== FINAL RSP FILE ===="
+                  cat -n /tmp/ogg_deploy.rsp
+                  echo "========================"
                   $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
                 '
                 '''
