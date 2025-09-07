@@ -134,7 +134,13 @@ pipeline {
                   echo 'inst_group=oinstall' >> /etc/oraInst.loc
                   chown oracle:oinstall /etc/oraInst.loc
                 "
-
+                if [ -d "$OGG_HOME" ]; then
+                    echo "Cleaning existing OGG_HOME: $OGG_HOME"
+                    rm -rf "$OGG_HOME"
+                fi
+                mkdir -p "$OGG_HOME"
+                chown oracle:oinstall "$OGG_HOME"
+                
                 # Run GG INSTALLER as oracle user
                 docker exec -i $OGG_CONTAINER bash -c "chmod +x /tmp/install_scripts/*"
                 docker exec -i -u oracle -e STAGE_DIR="$STAGE_DIR" -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c './tmp/install_scripts/runInstaller.sh'
