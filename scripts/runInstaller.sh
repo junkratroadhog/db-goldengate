@@ -33,7 +33,8 @@ if [ -n "$rsp_file" ]; then
         INVENTORY_LOCATION="$ORA_INV" \
         UNIX_GROUP_NAME=oinstall \
         DECLINE_SECURITY_UPDATES=true \
-        ACCEPT_LICENSE_AGREEMENT=true
+        ACCEPT_LICENSE_AGREEMENT=true \
+        INSTALL_OPTION=ORA21c
 else
     $installer -silent \
         oracle.install.option=OGGCORE \
@@ -41,5 +42,6 @@ else
         INVENTORY_LOCATION="$ORA_INV" \
         UNIX_GROUP_NAME=oinstall \
         DECLINE_SECURITY_UPDATES=true \
-        ACCEPT_LICENSE_AGREEMENT=true
+        ACCEPT_LICENSE_AGREEMENT=true \
+        INSTALL_OPTION=ORA21c
 fi
