@@ -176,10 +176,10 @@ pipeline {
                   export OGG_HOME=/u02/ogg/ogg_home
                   export PATH=$OGG_HOME/bin:$PATH
 
-                  # Find the original oggca.rsp template shipped with GoldenGate
-                  rsp_template=$(find $STAGE_DIR -type f -name "oggca*.rsp" | head -n 1)
+                  # Find the original ogg*.rsp template shipped with GoldenGate
+                  rsp_template=$(find $OGG_HOME -type f -name "ogg*.rsp" | head -n 1)
                   if [ -z "$rsp_template" ]; then
-                    echo "ERROR: Could not find oggca response file template"
+                    echo "ERROR: Could not find ogg*.rsp response file template"
                     exit 1
                   fi
 
