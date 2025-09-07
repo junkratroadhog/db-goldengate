@@ -130,8 +130,8 @@ pipeline {
                 docker exec -i -u oracle $OGG_CONTAINER bash -c '
                   set -e
 
-                  export OGG_HOME=/u02/ogg/ogg_home
-                  export PATH=$OGG_HOME/bin:$PATH
+                  export OGG_HOME=$OGG_HOME
+                  export PATH=\$OGG_HOME/bin:$PATH
 
                   # Dynamically find runInstaller inside /tmp/binaries
                   installer=$(find /tmp/binaries -type f -name runInstaller | head -n 1)
@@ -177,7 +177,8 @@ pipeline {
                   export PATH=$OGG_HOME/bin:$PATH
 
                   # Find the original ogg*.rsp template shipped with GoldenGate
-                  rsp_template=$(find $OGG_HOME -type f -name "ogg*.rsp" | head -n 1)
+                  echo $OGG_HOME
+                  rsp_template=$(find /tmp/binaries -type f -name "ogg*.rsp" | head -n 1)
                   if [ -z "$rsp_template" ]; then
                     echo "ERROR: Could not find ogg*.rsp response file template"
                     exit 1
