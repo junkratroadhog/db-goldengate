@@ -99,7 +99,7 @@ pipeline {
 
                 # Copy GG binary zip into container
                 docker cp /software/$OGG_binary $OGG_CONTAINER:${STAGE_DIR}/$OGG_binary
-                docker exec -i -u root $OGG_CONTAINER bash -c "chown oracle:oinstall ${STAGE_DIR}/$OGG_binary"
+                docker exec -i -u root -e STAGE_DIR="$STAGE_DIR" -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c "chown oracle:oinstall ${STAGE_DIR}/$OGG_binary"
 
                 docker exec -i -u root $OGG_CONTAINER bash -c '
                   if ! command -v unzip >/dev/null 2>&1; then
