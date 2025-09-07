@@ -135,14 +135,20 @@ pipeline {
 
                   # Dynamically find runInstaller inside /tmp/binaries
                   installer=$(find /tmp/binaries -type f -name runInstaller | head -n 1)
-                  rsp=$(find /tmp/binaries -type f -name "oggca*.rsp" | head -n 1)
                 
-                  if [ -z "$installer" ] || [ -z "$rsp" ]; then
-                    echo "ERROR: Missing installer or response file"
+                  if [ -z "$installer" ]; then
+                    echo "ERROR: Missing installer file"
                     echo "installer=$installer"
-                    echo "rsp=$rsp"
                     exit 1
                   fi
+
+                  rsp_template=$(find "$OGG_HOME" -type f -name "oggca*.rsp" | head -n 1)
+                  if [ -z "$rsp_template" ]; then
+                    echo "ERROR: Could not find oggca response file template"
+                    exit 1
+                  fi
+                
+                  cp "$rsp_template" /tmp/ogg_deploy.rsp
 
                   # Patch values into response file
                   sed -i \
