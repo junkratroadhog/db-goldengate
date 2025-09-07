@@ -65,8 +65,8 @@ pipeline {
                 sh '''
                 # Remove old container if exists
                 if docker ps -a --format '{{.Names}}' | grep -q "^$OGG_CONTAINER\$"; then
-                    docker run --rm -v $OGG_VOLUME:$OGG_HOME alpine sh -c "rm -rf $OGG_HOME/*"
                     docker stop $OGG_CONTAINER
+                    docker run --rm -v $OGG_VOLUME:$OGG_HOME alpine sh -c "rm -rf $OGG_HOME/*"
                     docker volume rm $OGG_VOLUME
                     docker rm -f $OGG_CONTAINER
                     
