@@ -23,21 +23,21 @@ cd "$installer_dir"
 # Dynamically find response file (if any)
 rsp_file=$(find "$STAGE_DIR" -type f -name "ogg*.rsp" | head -n 1)
 
-# Run installer in silent mode
-if [ -z "$rsp_file" ]; then
-  echo "Running installer without response file"
-  $installer -silent \
-    ORACLE_BASE="$ORA_BASE" \
-    INVENTORY_LOCATION="$ORA_INV" \
-    UNIX_GROUP_NAME=oinstall \
-    DECLINE_SECURITY_UPDATES=true \
-    ACCEPT_LICENSE_AGREEMENT=true
+# If response file exists
+if [ -n "$rsp_file" ]; then
+    # Patch INSTALL_TYPE dynamically
+    sed -i 's|^#*INSTALL_TYPE=.*|INSTALL_TYPE=GG_MICROSERVICES|' "$rsp_file"
+    $installer -silent -responseFile "$rsp_file" \
+        ORACLE_BASE="$ORA_BASE" \
+        INVENTORY_LOCATION="$ORA_INV" \
+        UNIX_GROUP_NAME=oinstall \
+        DECLINE_SECURITY_UPDATES=true \
+        ACCEPT_LICENSE_AGREEMENT=true
 else
-  echo "Running installer using response file: $rsp_file"
-  $installer -silent -responseFile "$rsp_file" \
-    ORACLE_BASE="$ORA_BASE" \
-    INVENTORY_LOCATION="$ORA_INV" \
-    UNIX_GROUP_NAME=oinstall \
-    DECLINE_SECURITY_UPDATES=true \
-    ACCEPT_LICENSE_AGREEMENT=true
+    $installer -silent \
+        ORACLE_BASE="$ORA_BASE" \
+        INVENTORY_LOCATION="$ORA_INV" \
+        UNIX_GROUP_NAME=oinstall \
+        DECLINE_SECURITY_UPDATES=true \
+        ACCEPT_LICENSE_AGREEMENT=true
 fi
