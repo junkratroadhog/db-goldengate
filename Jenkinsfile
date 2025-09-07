@@ -13,7 +13,7 @@ pipeline {
         // GoldenGate environment NOTE : You must dump the gg_binary.zip into /software volume in jenkins container manually
         OGG_VOLUME = 'ogg_users_detail_vol'
         OGG_CONTAINER = 'ogg-users_detail'
-        OGG_HOME = '/u02/ogg/ogg_home'
+        OGG_HOME = '/u02/ogg/ggs_home'
         OGG_binary = 'gg_binary.zip' // This file has to be copied to my-jenkins docker container manually into /tmp/binaries/
         STAGE_DIR = '/tmp/binaries'
 
@@ -138,7 +138,7 @@ pipeline {
                     echo "Cleaning existing OGG_HOME: $OGG_HOME"
                     rm -rf "$OGG_HOME"
                 fi
-                
+
                 docker exec -i -u oracle $OGG_CONTAINER bash -c "mkdir -p $OGG_HOME && chown oracle:oinstall $OGG_HOME && chmod 775 $OGG_HOME"
 
                 # Run GG INSTALLER as oracle user
