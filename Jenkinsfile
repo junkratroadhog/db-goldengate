@@ -155,7 +155,7 @@ pipeline {
             steps {
                 sh '''
                 echo "Verifying GoldenGate installation"
-                docker exec -u oracle $OGG_CONTAINER bash -c "export OGG_HOME=${OGG_HOME} && \$OGG_HOME/bin/adminclient -version"
+                docker exec -i -u oracle $OGG_CONTAINER bash -c "export OGG_HOME=${OGG_HOME} && \$OGG_HOME/bin/adminclient -version"
                 '''
             }
         }
