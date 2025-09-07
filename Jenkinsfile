@@ -142,12 +142,12 @@ pipeline {
                     exit 1
                   fi
 
-                  rsp_template=$(find "$OGG_HOME" -type f -name "oggca*.rsp" | head -n 1)
+                  rsp_template=$(find "$OGG_HOME" -type f -name "ogg*.rsp" | head -n 1)
                   if [ -z "$rsp_template" ]; then
                     echo "ERROR: Could not find oggca response file template"
                     exit 1
                   fi
-                
+
                   cp "$rsp_template" /tmp/ogg_deploy.rsp
 
                   # Patch values into response file
