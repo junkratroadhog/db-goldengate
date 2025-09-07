@@ -21,7 +21,7 @@ installer_dir=$(dirname "$installer")
 cd "$installer_dir"
 
 # Dynamically find response file (if any)
-rsp_file=$(find "/tmp" -type f -name "ogg*.rsp" | head -n 1)
+rsp_template=$(find "$STAGE_DIR" -type f -name "oggca*.rsp" | head -n 1)
 
 # If response file exists
 if [ -n "$rsp_file" ]; then
