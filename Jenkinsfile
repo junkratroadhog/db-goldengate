@@ -107,10 +107,10 @@ pipeline {
 
         stage('Verify Env') {
             steps {
-                sh """
+                sh '''
                 # Run in a fresh login shell
                 docker exec -i -u oracle $OGG_CONTAINER bash -l -c 'echo OGG_HOME=\$OGG_HOME; echo PATH=\$PATH'
-                """
+                '''
             }
         }
 
