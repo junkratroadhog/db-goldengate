@@ -180,7 +180,7 @@ EOF
                   export PATH="$OGG_HOME/bin:\$PATH"
 
                   # Copy the original template shipped with GoldenGate
-                  TEMPLATE=$(find "${OGG_HOME}" -type f -name "*.rsp" | head -n 1)
+                  TEMPLATE=$(find ${OGG_HOME} -type f -name "*.rsp" | head -n 1)
                   if [ -z "\$TEMPLATE" ]; then
                       echo "ERROR: Cannot find any GoldenGate response template under \$OGG_HOME!"
                       exit 1
