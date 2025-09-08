@@ -100,17 +100,17 @@ pipeline {
         stage('Setup Global Env') {
             steps {
                 sh """
-                docker exec -i -u root $OGG_CONTAINER bash -c 'echo "OGG_HOME=$GG_HOME" >> /etc/environment && echo "PATH=$GG_HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" >> /etc/environment'
+                docker exec -i -u root $OGG_CONTAINER bash -c 'echo "OGG_HOME=\$OGG_HOME" >> /etc/environment && echo "PATH=\$OGG_HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" >> /etc/environment'
                 """
             }
         }
 
         stage('Verify Env') {
             steps {
-                sh '''
+                sh """
                 # Run in a fresh login shell
                 docker exec -i -u oracle $OGG_CONTAINER bash -l -c 'echo OGG_HOME=\$OGG_HOME; echo PATH=\$PATH'
-                '''
+                """
             }
         }
 
