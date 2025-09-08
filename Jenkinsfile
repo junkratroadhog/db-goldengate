@@ -136,14 +136,12 @@ pipeline {
 
           # Run GG INSTALLER as oracle user
           docker exec -i ${OGG_CONTAINER} bash -c "chmod +x /tmp/install_scripts/*"
-          docker exec -i -u oracle -e STAGE_DIR=${STAGE_DIR} -e ORA_BASE=${ORA_BASE} -e ORA_INV=${ORA_INV} ${OGG_CONTAINER} bash -lc "
-            ./tmp/install_scripts/installgg.sh
           "
         """
       }
     }
 
-    stage('Configure Trails & Networking') {
+    /*stage('Configure Trails & Networking') {
       steps {
         sh """
           docker exec -i -u oracle \
@@ -155,7 +153,7 @@ pipeline {
         """
       }
     }
-  }
+  }*/
 
   post {
     always {
