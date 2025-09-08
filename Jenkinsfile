@@ -181,11 +181,11 @@ EOF
 
                   # Copy the original template shipped with GoldenGate
                   TEMPLATE=$(find "$OGG_HOME" -type f -name "*.rsp" | head -n 1)
-                  if [ -z "\$TEMPLATE" ]; then
-                      echo "ERROR: Cannot find any GoldenGate response template under \$OGG_HOME!"
+                  if [ -z "$TEMPLATE" ]; then
+                      echo "ERROR: Cannot find any GoldenGate response template under $OGG_HOME!"
                       exit 1
                   fi
-                  echo "Using response template: \$TEMPLATE"
+                  echo "Using response template: $TEMPLATE"
 
                   cp "\$TEMPLATE" /tmp/ogg_deploy.rsp
 
