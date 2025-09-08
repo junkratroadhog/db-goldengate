@@ -170,7 +170,12 @@ EOF
         stage('Configure Trails & Networking') {
             steps {
                 sh """
-                  docker exec -i -u oracle $OGG_CONTAINER bash -l -c './tmp/install_scripts/configureTN.sh'
+                docker exec -i -u oracle \
+                  -e PORT=$port_number \
+                  -e DEPLOYMENT=$OGG_DEPLOY_NAME \
+                  -e DEPLOY_USER=$deploy_username \
+                  -e DEPLOY_PASS=$deploy_password \
+                  $OGG_CONTAINER bash -l -c '/tmp/install_scripts/configureTN.sh'
                 """
             }
         }

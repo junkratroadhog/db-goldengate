@@ -1,5 +1,9 @@
 #!/bin/bash
 set -e
+
+export OGG_HOME=${OGG_HOME}
+export PATH=$OGG_HOME/bin:$PATH
+
 $OGG_HOME/bin/ServiceManager start
 sleep 5
-echo -e "connect http://localhost:$port_number DEPLOYMENT $OGG_DEPLOY_NAME USER $deploy_username PASSWORD $deploy_password\ninfo all\nexit" | $OGG_HOME/bin/adminclient
+echo -e "connect http://localhost:${port_number} DEPLOYMENT ${OGG_DEPLOY_NAME} USER ${deploy_username} PASSWORD ${deploy_password}\ninfo all\nexit" | $OGG_HOME/bin/adminclient
