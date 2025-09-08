@@ -108,11 +108,6 @@ pipeline {
     stage('Create Oracle User and Copy scripts') {
       steps {
         sh '''
-        # Create oracle user + group if not exists
-        docker exec -i -u root $OGG_CONTAINER bash -c "
-          getent group oinstall >/dev/null || groupadd -g 54321 oinstall
-          id -u oracle >/dev/null 2>&1 || useradd -u 54321 -g oinstall oracle
-        "
         docker exec -i $OGG_CONTAINER bash -c "mkdir -p /tmp/install_scripts && chown oracle:oinstall /tmp/install_scripts && chmod 775 /tmp/install_scripts"                
         docker cp scripts/. $OGG_CONTAINER:/tmp/install_scripts
         '''
@@ -124,38 +119,6 @@ pipeline {
     stage ('Copy & Install GoldenGate') {
       steps {
         sh """
-          echo "Using existing GoldenGate binary: ${OGG_binary}"
-
-          # Prepare directories with correct ownership
-          docker exec -i -u root ${OGG_CONTAINER} bash -c "
-            mkdir -p ${STAGE_DIR} /u02/ogg /u02/oraInventory
-            chown -R oracle:oinstall ${STAGE_DIR} /u02/ogg /u02/oraInventory
-            chmod -R 775 /u02/ogg /u02/oraInventory
-          "
-
-          # Copy GG binary zip into container
-          docker cp /software/${OGG_binary} ${OGG_CONTAINER}:${STAGE_DIR}/${OGG_binary}
-          docker exec -i -u root -e STAGE_DIR="${STAGE_DIR}" -e OGG_HOME="${OGG_HOME}" ${OGG_CONTAINER} bash -c "chown oracle:oinstall ${STAGE_DIR}/${OGG_binary} && chmod 777 ${STAGE_DIR}/${OGG_binary}"
-
-          docker exec -i -u root ${OGG_CONTAINER} bash -c '
-            if ! command -v unzip >/dev/null 2>&1; then
-              echo "Installing unzip..."
-              yum install -y -q unzip
-            else
-              echo "unzip already installed"
-            fi
-          '
-
-          # Install required Java packages
-          docker exec -i -u root ${OGG_CONTAINER} bash -c '
-          yum install -y -q libnsl libaio glibc libX11 libXau libxcb libXi libXtst libXrender libXext libstdc++ ksh gcc gcc-c++ make
-          '
-          
-          # Unzip Binaries as oracle
-          docker exec -i -u oracle ${OGG_CONTAINER} bash -c "
-            unzip -q -o ${STAGE_DIR}/${OGG_binary} -d ${STAGE_DIR}/.
-          "
-
           # Create oraInst.loc
           docker exec -i -u root ${OGG_CONTAINER} bash -c "
             echo 'inventory_loc=/u02/oraInventory' > /etc/oraInst.loc
