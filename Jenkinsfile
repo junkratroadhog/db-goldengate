@@ -108,7 +108,7 @@ export OGG_HOME=/u02/ogg/ggs_home
 export PATH=\$OGG_HOME/bin:\$PATH
 EOF
                 '
-                
+
                 # Reload bashrc for the current session (optional)
                 docker exec -u oracle $OGG_CONTAINER bash -c 'source ~/.bashrc'
                 echo "GoldenGate environment variables set persistently for oracle user"
@@ -192,7 +192,7 @@ EOF
                   cat /tmp/ogg_deploy.rsp
                   echo '========================================'
                 "
-                docker exec -i -u oracle -e OGG_HOME=/u02/ogg/ggs_home $OGG_CONTAINER bash -c "$OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp"
+                docker exec -i -u oracle $OGG_CONTAINER bash -c "$OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp"
                 '''
             }
         }
