@@ -101,10 +101,18 @@ pipeline {
             steps {
                 sh """
                 docker exec -i -u root $OGG_CONTAINER bash -c '
-                  # Append only if not already present
-                  grep -q "^OGG_HOME=" /etc/environment || echo "OGG_HOME=/u02/ogg/ggs_home" >> /etc/environment
-                  grep -q "^PATH=.*ogg/ggs_home/bin" /etc/environment || echo "PATH=/u02/ogg/ggs_home/bin:\$PATH" >> /etc/environment
+                  echo "OGG_HOME=/u02/ogg/ggs_home" >> /etc/environment
+                  echo "PATH=/u02/ogg/ggs_home/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" >> /etc/environment
                 '
+                """
+            }
+        }
+
+        stage('Verify Env') {
+            steps {
+                sh """
+                # Run in a fresh login shell
+                docker exec -i -u oracle $OGG_CONTAINER bash -l -c 'echo OGG_HOME=\$OGG_HOME; echo PATH=\$PATH'
                 """
             }
         }
