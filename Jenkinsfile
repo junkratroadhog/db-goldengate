@@ -2,11 +2,11 @@ pipeline {
   agent any
 
   parameters {
-    string(name: 'OGG_VOLUME', defaultValue: '', description: 'ogg_users_detail_vol')
-    string(name: 'OGG_CONTAINER', defaultValue: '', description: 'ogg-users_detail')
-    string(name: 'OGG_HOME', defaultValue: '', description: '/u02/ogg/ggs_home')
-    string(name: 'STAGE_DIR', defaultValue: '/u02/stage', description: 'Staging directory inside container')
-    string(name: 'OGG_binary', defaultValue: '', description: 'ggs_binary.zip')
+    string(name: 'OGG_VOLUME', defaultValue: 'ogg_users_detail_vol', description: 'ogg_users_detail_vol')
+    string(name: 'OGG_CONTAINER', defaultValue: 'ogg-users_detail', description: 'ogg-users_detail')
+    string(name: 'OGG_HOME', defaultValue: '/u02/ogg/ggs_home', description: '/u02/ogg/ggs_home')
+    string(name: 'STAGE_DIR', defaultValue: '/tmp/binaries', description: 'Staging directory inside container')
+    string(name: 'OGG_binary', defaultValue: 'gg_binary.zip', description: 'gg_binary.zip')
   }
 
   stages {
