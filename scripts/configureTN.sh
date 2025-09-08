@@ -8,10 +8,10 @@ set -e
 : "${deploy_password:?Environment variable deploy_password must be set}" # Default inventory location
 
 export PATH=$OGG_HOME/bin:$PATH
-echo \$OGG_HOME
+echo $OGG_HOME
 
 export OGG_HOME=${OGG_HOME}
-echo \$OGG_HOME
+echo $OGG_HOME
 
 $OGG_HOME/bin/ServiceManager start
 sleep 5
