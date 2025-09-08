@@ -101,8 +101,8 @@ pipeline {
             steps {
                 sh """
                 docker exec -i -u root $OGG_CONTAINER bash -c '
-                  echo "OGG_HOME=/u02/ogg/ggs_home" >> /etc/environment
-                  echo "PATH=/u02/ogg/ggs_home/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" >> /etc/environment
+                  echo "OGG_HOME=$GG_HOME" >> /etc/environment
+                  echo "PATH=$GG_HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" >> /etc/environment
                 '
                 """
             }
