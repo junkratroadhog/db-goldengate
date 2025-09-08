@@ -58,7 +58,7 @@ pipeline {
                 docker exec $dest_CN sqlplus / as sysdba @/tmp/oggadmin.sql $dest_PDB
                 '''
            }
-        }*/
+        }
 
         stage ('Deploy GG Container') {
             steps {
@@ -215,7 +215,20 @@ EOF
                 \"
                 """
             }
+        }*/
+
+                stage('TEST') {
+            steps {
+                sh """
+                echo "Creating GoldenGate deployment..."
+
+                docker exec -i -u oracle $OGG_CONTAINER bash -c '
+                echo $OGG_HOME
+                '
+                """
+            }
         }
+
       }
 
     post {
