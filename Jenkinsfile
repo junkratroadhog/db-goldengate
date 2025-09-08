@@ -163,15 +163,6 @@ pipeline {
                   export OGG_HOME=${OGG_HOME}
                   export PATH=$OGG_HOME/bin:$PATH
 
-                  # Find the GoldenGate deployment response template (oggca.rsp)
-                  rsp_template=$(find "$OGG_HOME" -type f -name "oggca*.rsp" | head -n 1)
-                  if [ -z "$rsp_template" ]; then
-                    echo "ERROR: Could not find oggca response file template in $OGG_HOME"
-                    exit 1
-                  fi
-
-                  cp "$rsp_template" /tmp/ogg_deploy.rsp
-
                   # Patch values into response file
                   sed -i \
                     -e "s|^DEPLOYMENT_NAME=.*|DEPLOYMENT_NAME=$OGG_DEPLOY_NAME|" \
