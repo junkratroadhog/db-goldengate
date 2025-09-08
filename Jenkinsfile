@@ -175,43 +175,39 @@ EOF
             steps {
                 sh '''
                 echo "Creating GoldenGate deployment..."
-
+        
                 docker exec -i -u oracle $OGG_CONTAINER bash -l -c '
-                  export PATH="$OGG_HOME/bin:\$PATH"
-
-                  # Copy the original template shipped with GoldenGate
-                  TEMPLATE=$(find "\$OGG_HOME" -type f -name "*.rsp" | head -n 1)
-                  if [ -z "\$TEMPLATE" ]; then
-                      echo "ERROR: Cannot find any GoldenGate response template under \$OGG_HOME!"
+                  export PATH="$OGG_HOME/bin:$PATH"
+        
+                  TEMPLATE=$(find "$OGG_HOME" -type f -name "*.rsp" | head -n 1)
+                  if [ -z "$TEMPLATE" ]; then
+                      echo "ERROR: Cannot find any GoldenGate response template under $OGG_HOME!"
                       exit 1
                   fi
-                  echo "Using response template: \$TEMPLATE"
-
-                  cp "\$TEMPLATE" /tmp/ogg_deploy.rsp
-                  '
-                  '''
-                  
-                  sh """
-                  docker exec -i -u oracle $OGG_CONTAINER bash -l -c '
-                  # Patch only the required values
+                  echo "Using response template: $TEMPLATE"
+        
+                  cp "$TEMPLATE" /tmp/ogg_deploy.rsp
+        
                   sed -i \
+                    -e "s|^CONFIGURATION_OPTION=.*|CONFIGURATION_OPTION=DEPLOY|" \
                     -e "s|^DEPLOYMENT_NAME=.*|DEPLOYMENT_NAME=$OGG_DEPLOY_NAME|" \
                     -e "s|^ADMINISTRATOR_USER=.*|ADMINISTRATOR_USER=$deploy_username|" \
                     -e "s|^ADMINISTRATOR_PASSWORD=.*|ADMINISTRATOR_PASSWORD=$deploy_password|" \
                     -e "s|^SERVICE_MANAGER_PORT=.*|SERVICE_MANAGER_PORT=$port_number|" \
+                    -e "s|^OGG_HOME=.*|OGG_HOME=$OGG_HOME|" \
+                    -e "s|^OGG_DEPLOYMENT_HOME=.*|OGG_DEPLOYMENT_HOME=$OGG_DEPLOYMENT_HOME|" \
+                    -e "s|^OGG_SOFTWARE_HOME=.*|OGG_SOFTWARE_HOME=$OGG_SOFTWARE_HOME|" \
                     /tmp/ogg_deploy.rsp
-
-                  # Remove any Windows-style line endings (just in case)
-                  sed -i 's/\\r\$//' /tmp/ogg_deploy.rsp
-
+        
+                  sed -i "s/\\r\$//" /tmp/ogg_deploy.rsp
+        
                   echo "==== Final Deployment Response File ===="
                   cat /tmp/ogg_deploy.rsp
                   echo "========================================"
-
-                  # Run GoldenGate CA in the same shell
-                  \$OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
+        
+                  $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
                 '
-                """
+                '''
             }
         }
 
