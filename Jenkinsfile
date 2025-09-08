@@ -100,7 +100,6 @@ pipeline {
         stage('Setup Global Env') {
             steps {
                 sh """
-                source /etc/environment
                 docker exec -i -u root $OGG_CONTAINER bash -c 'echo "OGG_HOME=${OGG_HOME}" >> /etc/environment && echo "PATH=${OGG_HOME}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" >> /etc/environment'
                 """
             }
@@ -109,6 +108,7 @@ pipeline {
         stage('Verify Env') {
             steps {
                 sh """
+                source /etc/environment || true
                 # Run in a fresh login shell
                 docker exec -i -u oracle $OGG_CONTAINER bash -l -c 'echo OGG_HOME=\$OGG_HOME; echo PATH=\$PATH'
                 docker exec -i -u oracle $OGG_CONTAINER bash -c 'echo "export OGG_HOME=${OGG_HOME}" >> ~/.bashrc && echo "export PATH=${OGG_HOME}/bin:\$PATH" >> ~/.bashrc'
