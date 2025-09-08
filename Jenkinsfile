@@ -191,8 +191,8 @@ EOF
                   echo '==== Final Deployment Response File ===='
                   cat /tmp/ogg_deploy.rsp
                   echo '========================================'
-                
-                docker exec -i -u oracle $OGG_CONTAINER bash -c "echo $OGG_HOME && $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp"
+                # Run GoldenGate CA in the same shell
+                $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
                 '
                 """
             }
