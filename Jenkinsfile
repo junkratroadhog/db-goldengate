@@ -27,7 +27,7 @@ pipeline {
 
     stages {
 
-/*        stage('Pre-requisites for Golden-Gate Deploy') {
+        /*stage('Pre-requisites for Golden-Gate Deploy') {
             steps {
                 // SRC - Pre-requisite commands to be run on source DB Force loggin enabled in CDB and Supplemental log data added in PDB
                 sh '''
@@ -97,23 +97,18 @@ pipeline {
           }
         }
 
-        stage('Set GoldenGate Environment Persistently') {
+        stage('Setup GoldenGate Environment') {
             steps {
-                sh '''
-                echo "Setting up GoldenGate environment in container"
-
-                docker exec -u oracle $OGG_CONTAINER bash -c '
-                # Add environment variables to ~/.bashrc if not already present
-                grep -q "export OGG_HOME=" ~/.bashrc || cat <<EOF >> ~/.bashrc
-export OGG_HOME=/u02/ogg/ggs_home
+                sh """
+                # Create a system-wide profile script
+                docker exec -i -u root $OGG_CONTAINER bash -c "
+                    cat <<'EOF' > /etc/profile.d/ogg.sh
+export OGG_HOME=$OGG_HOME
 export PATH=\$OGG_HOME/bin:\$PATH
 EOF
-                '
-
-                # Reload bashrc for the current session (optional)
-                docker exec -u oracle $OGG_CONTAINER bash -c 'source ~/.bashrc'
-                echo "GoldenGate environment variables set persistently for oracle user"
-                '''
+                    chmod +x /etc/profile.d/ogg.sh
+                "
+                """
             }
         }
 
@@ -175,8 +170,9 @@ EOF
         stage('Configure Trails & Networking') {
             steps {
                 sh """
-                docker exec -i -u oracle ogg-users_detail bash -l -c "printenv"
-                docker exec -i -u oracle $OGG_CONTAINER bash -l -c "
+                  docker exec -i -u oracle ogg-users_detail bash -l -c "printenv"
+                  docker exec -i -u oracle $OGG_CONTAINER bash -l -c "
+                  source /home/oracle/.bashrc
                   $OGG_HOME/bin/ServiceManager start
                   sleep 5
 
@@ -198,7 +194,7 @@ EOF
             }
         }*/
 
-      }
+    }
 
     post {
         always {
@@ -212,3 +208,4 @@ EOF
         }
     }
 }
+
