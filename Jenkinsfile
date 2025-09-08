@@ -68,25 +68,23 @@ pipeline {
         """
       }
     }
-  }
-
 
     stage('Install Dependencies and Unzip Binaries') {
       steps {
         sh """
             echo "Using existing GoldenGate binary: ${OGG_binary}"
-
+  
           # Prepare directories with correct ownership
           docker exec -i -u root ${params.OGG_CONTAINER} bash -c "
             mkdir -p ${params.STAGE_DIR} /u02/ogg /u02/oraInventory
             chown -R oracle:oinstall ${params.STAGE_DIR} /u02/ogg /u02/oraInventory
             chmod -R 775 /u02/ogg /u02/oraInventory
           "
-
+  
           # Copy GG binary zip into container
           docker cp /software/${params.OGG_binary} ${params.OGG_CONTAINER}:${params.STAGE_DIR}/${params.OGG_binary}
           docker exec -i -u root -e STAGE_DIR="${params.STAGE_DIR}" -e OGG_HOME="${params.OGG_HOME}" ${params.OGG_CONTAINER} bash -c "chown oracle:oinstall ${params.STAGE_DIR}/${params.OGG_binary} && chmod 777 ${params.STAGE_DIR}/${params.OGG_binary}"
-
+  
           docker exec -i -u root ${params.OGG_CONTAINER} bash -c '
             if ! command -v unzip >/dev/null 2>&1; then
               echo "Installing unzip..."
@@ -95,7 +93,7 @@ pipeline {
               echo "unzip already installed"
             fi
           '
-
+  
           # Install required Java packages
           docker exec -i -u root ${params.OGG_CONTAINER} bash -c '
           yum install -y -q libnsl libaio glibc libX11 libXau libxcb libXi libXtst libXrender libXext libstdc++ ksh gcc gcc-c++ make
@@ -108,6 +106,7 @@ pipeline {
         """
       }
     }
+  }
   
   post {
     always {
