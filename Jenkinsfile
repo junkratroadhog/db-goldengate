@@ -136,7 +136,6 @@ pipeline {
 
           # Run GG INSTALLER as oracle user
           docker exec -i ${OGG_CONTAINER} bash -c "chmod +x /tmp/install_scripts/*"
-          "
         """
       }
     }
