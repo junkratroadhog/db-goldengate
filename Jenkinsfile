@@ -81,7 +81,7 @@ pipeline {
                 docker run -d --name $OGG_CONTAINER -v $OGG_VOLUME:/u02/ogg oraclelinux:8 tail -f /dev/null                
                 '''
             }
-        }
+        }*/
 
         stage('Create Oracle User and Copy scripts') {
           steps {
@@ -95,7 +95,7 @@ pipeline {
                   docker cp scripts/. $OGG_CONTAINER:/tmp/install_scripts
                   '''
           }
-        }*/
+        }
 
         stage('Setup GoldenGate Environment') {
             steps {
