@@ -59,7 +59,7 @@ pipeline {
         docker exec $dest_CN sqlplus / as sysdba @/tmp/oggadmin.sql $dest_PDB
         '''
       }
-    }*/
+    }
 
     stage ('Deploy GG Container') {
       steps {
@@ -70,7 +70,7 @@ pipeline {
             string(name: 'OGG_HOME', value: env.OGG_HOME)
           ] 
       }
-    }
+    }*/
 
     stage('Create Oracle User and Copy scripts') {
       steps {
