@@ -192,7 +192,7 @@ EOF
                   cat /tmp/ogg_deploy.rsp
                   echo '========================================'
                 "
-                docker exec -i -u oracle $OGG_CONTAINER bash -c "$OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp"
+                docker exec -i -u oracle $OGG_CONTAINER bash -c "echo $OGG_HOME && $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp"
                 '''
             }
         }
