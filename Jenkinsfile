@@ -26,7 +26,7 @@ pipeline {
     port_number   = '7809'
     INSTALL_TYPE = 'ORA21c'
 
-    New_CN = 'yes' // yes/no - Whether to create a new container or use existing one
+    New_CN = 'no' // yes/no - Whether to create a new container or use existing one
   }
 
   stages {
@@ -136,7 +136,7 @@ pipeline {
 
           # Run GG INSTALLER as oracle user
           docker exec -i ${OGG_CONTAINER} bash -c "chmod +x /tmp/install_scripts/*"
-          docker exec -i -u oracle -e STAGE_DIR="${STAGE_DIR}" -e OGG_HOME="${OGG_HOME}" -e ORA_BASE="${ORA_BASE}" -e ORA_INV="${ORA_INV}" ${OGG_CONTAINER} bash -c "
+          docker exec -i -u oracle  ${OGG_CONTAINER} bash -lc "
             ./tmp/install_scripts/installgg.sh
           "
         """
@@ -144,29 +144,17 @@ pipeline {
     }
 
     stage('Configure Trails & Networking') {
-        steps {
-            sh """
-            docker exec -i -u oracle \
-              -e PORT=${port_number} \
-              -e DEPLOYMENT=${OGG_DEPLOY_NAME} \
-              -e DEPLOY_USER=${deploy_username} \
-              -e DEPLOY_PASS=${deploy_password} \
-              ${OGG_CONTAINER} bash -l -c './tmp/install_scripts/configureTN.sh'
-            """
-        }
+      steps {
+        sh """
+          docker exec -i -u oracle \
+            -e PORT=${port_number} \
+            -e DEPLOYMENT=${OGG_DEPLOY_NAME} \
+            -e DEPLOY_USER=${deploy_username} \
+            -e DEPLOY_PASS=${deploy_password} \
+          ${OGG_CONTAINER} bash -l -c './tmp/install_scripts/configureTN.sh'
+        """
+      }
     }
-
-    /*stage('TEST') {
-        steps {
-            sh """
-            docker exec -i -u oracle $OGG_CONTAINER bash -l -c '
-            echo \$OGG_HOME
-            export PATH=\$OGG_HOME/bin:\$PATH
-            echo \$PATH
-            '
-            """
-        }
-    }*/
   }
 
   post {
