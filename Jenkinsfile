@@ -59,7 +59,7 @@ pipeline {
                 docker exec $dest_CN sqlplus / as sysdba @/tmp/oggadmin.sql $dest_PDB
                 '''
            }
-        }*/
+        }
 
         stage ('Deploy GG Container') {
             steps {
@@ -81,7 +81,7 @@ pipeline {
                 docker run -d --name $OGG_CONTAINER -v $OGG_VOLUME:/u02/ogg oraclelinux:8 tail -f /dev/null                
                 '''
             }
-        }
+        }*/
 
         stage('Create Oracle User and Copy scripts') {
           steps {
