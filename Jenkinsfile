@@ -80,7 +80,7 @@ pipeline {
                 docker run -d --name $OGG_CONTAINER -v $OGG_VOLUME:/u02/ogg oraclelinux:8 tail -f /dev/null                
                 '''
             }
-        }
+        }*/
 
         stage('Create Oracle User and Copy scripts') {
           steps {
@@ -215,9 +215,9 @@ EOF
                 \"
                 """
             }
-        }*/
+        }
 
-        stage('TEST') {
+        /*stage('TEST') {
             steps {
                 sh """
                 docker exec -i -u oracle $OGG_CONTAINER bash -l -c '
@@ -227,7 +227,7 @@ EOF
                 '
                 """
             }
-        }
+        }*/
 
       }
 
