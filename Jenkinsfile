@@ -59,7 +59,7 @@ pipeline {
                 docker exec $dest_CN sqlplus / as sysdba @/tmp/oggadmin.sql $dest_PDB
                 '''
            }
-        }
+        }*/
 
         stage ('Deploy GG Container') {
             steps {
@@ -81,7 +81,7 @@ pipeline {
                 docker run -d --name $OGG_CONTAINER -v $OGG_VOLUME:/u02/ogg oraclelinux:8 tail -f /dev/null                
                 '''
             }
-        }*/
+        }
 
         stage('Create Oracle User and Copy scripts') {
           steps {
@@ -168,77 +168,6 @@ EOF
                 # Run GG INSTALLER as oracle user
                 docker exec -i $OGG_CONTAINER bash -c "chmod +x /tmp/install_scripts/*"
                 docker exec -i -u oracle -e STAGE_DIR="$STAGE_DIR" -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c './tmp/install_scripts/runInstaller.sh'
-                '''
-            }
-        }
-
-        stage('Set GoldenGate Constant Environment Variables') {
-          steps {
-                sh '''
-                echo "Setting constant GoldenGate environment variables for oracle user..."
-
-                docker exec -i -u oracle $OGG_CONTAINER bash -l -c "
-                  # Constant paths and settings
-                  OGG_HOME=/u02/ogg/ogg_home
-                  INSTALL_TYPE=ORA21c
-                  BASE_DEPLOY_PATH=/u02/ogg/deployments
-
-                  # Export only constant variables permanently in .bashrc
-                  echo export OGG_HOME=$OGG_HOME >> /home/oracle/.bashrc
-                  echo export INSTALL_TYPE=$INSTALL_TYPE >> /home/oracle/.bashrc
-                  echo export BASE_DEPLOY_PATH=$BASE_DEPLOY_PATH >> /home/oracle/.bashrc
-
-                  # Source .bashrc to apply immediately
-                  source /home/oracle/.bashrc
-
-                  echo 'Constant GoldenGate environment variables set successfully.'
-                "
-                '''
-            }
-        }
-
-        stage('Create Deployment') {
-            steps {
-                sh '''
-                echo "Creating GoldenGate deployment..."
-
-                docker exec -i -u oracle $OGG_CONTAINER bash -l -c '
-                  # Find the first shipped response file template
-                  TEMPLATE=$(find "$OGG_HOME" -type f -name "*.rsp" | head -n 1)
-                  if [ -z "$TEMPLATE" ]; then
-                      echo "ERROR: Cannot find any GoldenGate response template under $OGG_HOME!"
-                      exit 1
-                  fi
-                  echo "Using response template: $TEMPLATE"
-
-                  # Copy template to /tmp for modification
-                  cp "$TEMPLATE" /tmp/ogg_deploy.rsp
-
-                  # Patch required deployment parameters
-                  sed -i \
-                    -e "s|^INSTALL_TYPE=.*|INSTALL_TYPE=$INSTALL_TYPE|" \
-                    -e "s|^DEPLOYMENT_NAME=.*|DEPLOYMENT_NAME=$OGG_DEPLOY_NAME|" \
-                    -e "s|^DEPLOYMENT_PATH=.*|DEPLOYMENT_PATH=$OGG_DEPLOY_PATH|" \
-                    -e "s|^ADMINISTRATOR_USER=.*|ADMINISTRATOR_USER=$deploy_username|" \
-                    -e "s|^ADMINISTRATOR_PASSWORD=.*|ADMINISTRATOR_PASSWORD=$deploy_password|" \
-                    -e "s|^SERVICE_MANAGER_PORT=.*|SERVICE_MANAGER_PORT=$port_number|" \
-                    -e "s|^OGG_HOME=.*|OGG_HOME=$OGG_HOME|" \
-                    -e "s|^LICENSE_ACCEPTED=.*|LICENSE_ACCEPTED=true|" \
-                    -e "s|^DATABASE_TYPE=.*|DATABASE_TYPE=Oracle|" \
-                    -e "s|^DATABASE_VERSION=.*|DATABASE_VERSION=21c|" \
-                    /tmp/ogg_deploy.rsp
-
-                  # Remove Windows-style line endings
-                  sed -i "s/\\r\$//" /tmp/ogg_deploy.rsp
-
-                  # Show the final response file
-                  echo "==== Final Deployment Response File ===="
-                  cat /tmp/ogg_deploy.rsp
-                  echo "========================================"
-
-                  # Run GoldenGate CA using the patched response file
-                  $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
-                '
                 '''
             }
         }
