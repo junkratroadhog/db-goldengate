@@ -151,7 +151,7 @@ pipeline {
             -e OGG_DEPLOY_NAME=${OGG_DEPLOY_NAME} \
             -e deploy_username=${deploy_username} \
             -e deploy_password=${deploy_password} \
-          ${OGG_CONTAINER} bash -c "./tmp/install_scripts/configureTN.sh"
+          ${OGG_CONTAINER} bash -lc "./tmp/install_scripts/configureTN.sh"
         """
       }
     }
