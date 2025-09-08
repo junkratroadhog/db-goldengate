@@ -120,7 +120,7 @@ pipeline {
     stage('Setup Global Env') {
         steps {
             sh """
-            docker exec -i -u root $OGG_CONTAINER bash -c 'echo "OGG_HOME=${OGG_HOME}" >> /etc/environment && echo "PATH=${OGG_HOME}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" >> /etc/environment'
+            docker exec -i -u root ${OGG_CONTAINER} bash -c 'echo "OGG_HOME=${OGG_HOME}" >> /etc/environment && echo "PATH=\$OGG_HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" >> /etc/environment'
             """
         }
     }
@@ -130,8 +130,8 @@ pipeline {
             sh """
             source /etc/environment || true
             # Run in a fresh login shell
-            docker exec -i -u oracle $OGG_CONTAINER bash -l -c 'echo OGG_HOME=\$OGG_HOME; echo PATH=\$PATH'
-            docker exec -i -u oracle $OGG_CONTAINER bash -c 'echo "export OGG_HOME=${OGG_HOME}" >> ~/.bashrc && echo "export PATH=${OGG_HOME}/bin:\$PATH" >> ~/.bashrc'
+            docker exec -i -u oracle ${OGG_CONTAINER} bash -l -c 'echo OGG_HOME=\$OGG_HOME; echo PATH=\$PATH'
+            docker exec -i -u oracle ${OGG_CONTAINER} bash -c 'echo "export OGG_HOME=${OGG_HOME}" >> ~/.bashrc && echo "export PATH=${OGG_HOME}/bin:\$PATH" >> ~/.bashrc'
 
             """
         }
@@ -139,21 +139,21 @@ pipeline {
 
     stage ('Copy & Install GoldenGate') {
       steps {
-        sh '''
+        sh """
           echo "Using existing GoldenGate binary: $OGG_binary"
 
           # Prepare directories with correct ownership
-          docker exec -i -u root $OGG_CONTAINER bash -c "
+          docker exec -i -u root ${OGG_CONTAINER} bash -c "
             mkdir -p ${STAGE_DIR} /u02/ogg /u02/oraInventory
             chown -R oracle:oinstall ${STAGE_DIR} /u02/ogg /u02/oraInventory
             chmod -R 775 /u02/ogg /u02/oraInventory
           "
 
           # Copy GG binary zip into container
-          docker cp /software/$OGG_binary $OGG_CONTAINER:${STAGE_DIR}/$OGG_binary
-          docker exec -i -u root -e STAGE_DIR="$STAGE_DIR" -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c "chown oracle:oinstall ${STAGE_DIR}/$OGG_binary"
+          docker cp /software/${OGG_binary} ${OGG_CONTAINER}:${STAGE_DIR}/${OGG_binary}
+          docker exec -i -u root -e STAGE_DIR="${STAGE_DIR}" -e OGG_HOME="${OGG_HOME}" ${OGG_CONTAINER} bash -c "chown oracle:oinstall ${STAGE_DIR}/${OGG_binary} && chmod 777 ${STAGE_DIR}/${OGG_binary}"
 
-          docker exec -i -u root $OGG_CONTAINER bash -c '
+          docker exec -i -u root ${OGG_CONTAINER} bash -c '
             if ! command -v unzip >/dev/null 2>&1; then
               echo "Installing unzip..."
               yum install -y -q unzip
@@ -163,32 +163,32 @@ pipeline {
           '
 
           # Install required Java packages
-          docker exec -i -u root $OGG_CONTAINER bash -c '
+          docker exec -i -u root ${OGG_CONTAINER} bash -c '
           yum install -y -q libnsl libaio glibc libX11 libXau libxcb libXi libXtst libXrender libXext libstdc++ ksh gcc gcc-c++ make
           '
           
           # Unzip Binaries as oracle
-          docker exec -i -u oracle $OGG_CONTAINER bash -c "
-            unzip -q -o ${STAGE_DIR}/$OGG_binary -d ${STAGE_DIR}/${OGG_binary%.zip}
+          docker exec -i -u oracle ${OGG_CONTAINER} bash -c "
+            unzip -q -o ${STAGE_DIR}/${OGG_binary} -d ${STAGE_DIR}/${OGG_binary%.zip}
           "
 
           # Create oraInst.loc
-          docker exec -i -u root $OGG_CONTAINER bash -c "
+          docker exec -i -u root ${OGG_CONTAINER} bash -c "
             echo 'inventory_loc=/u02/oraInventory' > /etc/oraInst.loc
             echo 'inst_group=oinstall' >> /etc/oraInst.loc
             chown oracle:oinstall /etc/oraInst.loc
           "
-          if [ -d "$OGG_HOME" ]; then
-              echo "Cleaning existing OGG_HOME: $OGG_HOME"
-              rm -rf "$OGG_HOME"
+          if [ -d "\$OGG_HOME" ]; then
+              echo "Cleaning existing OGG_HOME: \$OGG_HOME"
+              rm -rf "\$OGG_HOME"
           fi
 
-          docker exec -i -u oracle $OGG_CONTAINER bash -c "mkdir -p $OGG_HOME && chown oracle:oinstall $OGG_HOME && chmod 775 $OGG_HOME"
+          docker exec -i -u oracle ${OGG_CONTAINER} bash -c "mkdir -p \$OGG_HOME && chown oracle:oinstall \$OGG_HOME && chmod 775 \$OGG_HOME"
 
           # Run GG INSTALLER as oracle user
-          docker exec -i $OGG_CONTAINER bash -c "chmod +x /tmp/install_scripts/*"
-          docker exec -i -u oracle -e STAGE_DIR="$STAGE_DIR" -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c './tmp/install_scripts/runInstaller.sh'
-        '''
+          docker exec -i ${OGG_CONTAINER} bash -c "chmod +x /tmp/install_scripts/*"
+          docker exec -i -u oracle -e STAGE_DIR="${STAGE_DIR}" -e OGG_HOME="${OGG_HOME}" ${OGG_CONTAINER} bash -c './tmp/install_scripts/runInstaller.sh'
+        """
       }
     }
 
