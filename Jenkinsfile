@@ -23,6 +23,8 @@ pipeline {
     deploy_password = 'oracle'
     port_number   = '7809'
     INSTALL_TYPE = 'ORA21c'
+
+    New_CN = 'yes'
   }
 
   stages {
@@ -59,18 +61,47 @@ pipeline {
         docker exec $dest_CN sqlplus / as sysdba @/tmp/oggadmin.sql $dest_PDB
         '''
       }
-    }
-
-    stage ('Deploy GG Container') {
-      steps {
-        build job: 'gg-deploy',
-          parameters: [
-            string(name: 'OGG_VOLUME', value: env.OGG_VOLUME),
-            string(name: 'OGG_CONTAINER', value: env.OGG_CONTAINER),
-            string(name: 'OGG_HOME', value: env.OGG_HOME)
-          ] 
-      }
     }*/
+
+    stage('Deploy GG Container') {
+      steps {
+        script {
+          if (env.New_CN == "yes") {
+            echo "New_CN is yes → running gg-deploy job to redeploy GG container..."
+            build job: 'gg-deploy',
+              parameters: [
+                string(name: 'OGG_VOLUME', value: env.OGG_VOLUME),
+                string(name: 'OGG_CONTAINER', value: env.OGG_CONTAINER),
+                string(name: 'OGG_HOME', value: env.OGG_HOME)
+              ]
+          } 
+          
+          else {
+            echo "New_CN is not yes → checking existing container..."
+            def containerExists = sh(
+              script: "docker ps -a --format '{{.Names}}' | grep -w ${env.OGG_CONTAINER} || true",
+              returnStdout: true
+            ).trim()
+    
+            if (containerExists) {
+              def containerRunning = sh(
+                script: "docker ps --format '{{.Names}}' | grep -w ${env.OGG_CONTAINER} || true",
+                returnStdout: true
+              ).trim()
+    
+              if (containerRunning) {
+                echo "Container ${env.OGG_CONTAINER} is already running → reusing it."
+              } else {
+                echo "Container ${env.OGG_CONTAINER} exists but is stopped → starting it."
+                sh "docker start ${env.OGG_CONTAINER}"
+              }
+            } else {
+              error "Container ${env.OGG_CONTAINER} does not exist and New_CN is not yes → cannot continue."
+            }
+          }
+        }
+      }
+    }
 
     stage('Create Oracle User and Copy scripts') {
       steps {
