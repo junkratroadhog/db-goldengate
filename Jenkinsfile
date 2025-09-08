@@ -155,7 +155,7 @@ pipeline {
             steps {
                 sh '''
                 docker exec -i -u oracle -e OGG_HOME=$OGG_HOME $OGG_CONTAINER \
-                    /tmp/install_scripts/verifyGGasfterinstall.sh
+                    ./tmp/install_scripts/verifyGGasfterinstall.sh
                 '''
             }
         }
