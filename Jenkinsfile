@@ -176,7 +176,7 @@ EOF
                 sh """
                 echo "Creating GoldenGate deployment..."
 
-                docker exec -i -u oracle $OGG_CONTAINER bash -c '
+                docker exec -i -u oracle $OGG_CONTAINER bash -l -c '
                   export PATH="$OGG_HOME/bin:\$PATH"
 
                   # Create deployment response file
