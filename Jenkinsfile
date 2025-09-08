@@ -24,7 +24,7 @@ pipeline {
     port_number   = '7809'
     INSTALL_TYPE = 'ORA21c'
 
-    New_CN = 'yes'
+    New_CN = 'no'
   }
 
   stages {
