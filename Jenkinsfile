@@ -56,7 +56,6 @@ pipeline {
         sh """
         # Run in a fresh login shell
         docker exec -i -u oracle ${params.OGG_CONTAINER} bash -l -c 'echo OGG_HOME=\$OGG_HOME; echo PATH=\$PATH'
-        docker exec -i -u oracle ${params.OGG_CONTAINER} bash -c 'echo "export OGG_HOME=${params.OGG_HOME}" >> ~/.bashrc && echo "export PATH=${params.OGG_HOME}/bin:\$PATH" >> ~/.bashrc'
         """
       }
     }
