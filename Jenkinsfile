@@ -192,7 +192,7 @@ EOF
       
                 # Patch only the mandatory deployment parameters
                 sed -i \
-                  -e "s|^INSTALL_TYPE=.*|INSTALL_TYPE=\"$INSTALL_TYPE\"|" \
+                  -e "s|^INSTALL_TYPE=.*|INSTALL_TYPE=$INSTALL_TYPE|" \
                   -e "s|^DEPLOYMENT_NAME=.*|DEPLOYMENT_NAME=$OGG_DEPLOY_NAME|" \
                   -e "s|^ADMINISTRATOR_USER=.*|ADMINISTRATOR_USER=$deploy_username|" \
                   -e "s|^ADMINISTRATOR_PASSWORD=.*|ADMINISTRATOR_PASSWORD=$deploy_password|" \
