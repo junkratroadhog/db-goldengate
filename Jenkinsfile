@@ -177,7 +177,6 @@ EOF
                 echo "Creating GoldenGate deployment..."
 
                 docker exec -i -u oracle -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c '
-                  export OGG_HOME="$OGG_HOME"
                   export PATH="$OGG_HOME/bin:\$PATH"
 
                   # Create deployment response file
@@ -194,7 +193,7 @@ EOF
                   echo "========================================"
 
                   # Run GoldenGate CA in the same shell
-                  $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
+                  \$OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
                 '
                 """
             }
