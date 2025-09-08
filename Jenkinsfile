@@ -97,17 +97,14 @@ pipeline {
           }
         }
 
-        stage('Setup GoldenGate Environment') {
+        stage('Setup Global Env') {
             steps {
                 sh """
-                # Create a system-wide profile script
-                docker exec -i -u root $OGG_CONTAINER bash -c "
-                    cat <<'EOF' > /etc/profile.d/ogg.sh
-export OGG_HOME=$OGG_HOME
-export PATH=\$OGG_HOME/bin:\$PATH
-EOF
-                    chmod +x /etc/profile.d/ogg.sh
-                "
+                docker exec -i -u root $OGG_CONTAINER bash -c '
+                  # Append only if not already present
+                  grep -q "^OGG_HOME=" /etc/environment || echo "OGG_HOME=/u02/ogg/ggs_home" >> /etc/environment
+                  grep -q "^PATH=.*ogg/ggs_home/bin" /etc/environment || echo "PATH=/u02/ogg/ggs_home/bin:\$PATH" >> /etc/environment
+                '
                 """
             }
         }
