@@ -30,14 +30,26 @@ pipeline {
       }
     }
 
-      stage('Setup Global Env') {
-        steps {
-          sh """
-          docker exec -i -u oracle ${params.OGG_CONTAINER} bash -c 'mkdir -p ${params.OGG_HOME}'
-          docker exec -i -u root ${params.OGG_CONTAINER} bash -c 'echo "OGG_HOME=${params.OGG_HOME}" >> /etc/environment && echo "PATH=\$OGG_HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" >> /etc/environment'
-          """
-        }
+    stage('Create Oracle User and Copy scripts') {
+      steps {
+        sh '''
+          # Create oracle user + group if not exists
+          docker exec -i -u root $OGG_CONTAINER bash -c "
+          getent group oinstall >/dev/null || groupadd -g 54321 oinstall
+          id -u oracle >/dev/null 2>&1 || useradd -u 54321 -g oinstall oracle
+          "
+        '''
       }
+    }
+
+    stage('Setup Global Env') {
+      steps {
+        sh """
+        docker exec -i -u oracle ${params.OGG_CONTAINER} bash -c 'mkdir -p ${params.OGG_HOME}'
+        docker exec -i -u root ${params.OGG_CONTAINER} bash -c 'echo "OGG_HOME=${params.OGG_HOME}" >> /etc/environment && echo "PATH=\$OGG_HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" >> /etc/environment'
+        """
+      }
+    }
 
     stage('Verify Env') {
       steps {
