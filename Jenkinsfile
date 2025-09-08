@@ -58,7 +58,7 @@ pipeline {
                 docker exec $dest_CN sqlplus / as sysdba @/tmp/oggadmin.sql $dest_PDB
                 '''
            }
-        }
+        }*/
 
         stage ('Deploy GG Container') {
             steps {
@@ -169,7 +169,7 @@ EOF
                 docker exec -i -u oracle -e STAGE_DIR="$STAGE_DIR" -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c './tmp/install_scripts/runInstaller.sh'
                 '''
             }
-        }*/
+        }
 
         stage('Create Deployment') {
             steps {
