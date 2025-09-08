@@ -23,7 +23,7 @@ pipeline {
     OGG_DEPLOY_NAME = 'ogg_deploy-Users-Detail'
     deploy_username = 'oggadmin'
     deploy_password = 'oracle'
-    port_number   = '7809'
+    PORT   = 7809
     INSTALL_TYPE = 'ORA21c'
 
     New_CN = 'yes' // yes/no - Whether to create a new container or use existing one
@@ -147,7 +147,7 @@ pipeline {
       steps {
         sh """
           docker exec -i -u oracle \
-            -e PORT=${port_number} \
+            -e PORT=${PORT} \
             -e DEPLOYMENT=${OGG_DEPLOY_NAME} \
             -e DEPLOY_USER=${deploy_username} \
             -e DEPLOY_PASS=${deploy_password} \
