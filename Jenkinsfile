@@ -26,7 +26,7 @@ pipeline {
     port_number   = '7809'
     INSTALL_TYPE = 'ORA21c'
 
-    New_CN = 'no'
+    New_CN = 'yes' // yes/no - Whether to create a new container or use existing one
   }
 
   stages {
@@ -191,23 +191,23 @@ pipeline {
           docker exec -i -u oracle -e STAGE_DIR="${STAGE_DIR}" -e OGG_HOME="${OGG_HOME}" ${OGG_CONTAINER} bash -c '
             #!/bin/bash
             set -e
-            
+
             export PATH=${OGG_HOME}/bin:$PATH
-            
+
             # Dynamically find installer
             installer=\$(find "${STAGE_DIR}" -type f -name runInstaller | head -n 1)
             if [ -z "\$installer" ]; then
               echo "ERROR: Missing installer file in STAGE_DIR=${STAGE_DIR}"
               exit 1
             fi
-            
+
             # Use the directory containing the installer as working directory
             installer_dir=\$(dirname "\$installer")
             cd "\$installer_dir"
-            
+
             # Dynamically find response file (if any)
             rsp_template=\$(find "${STAGE_DIR}" -type f -name "oggca*.rsp" | head -n 1)
-            
+
             # If response file exists
             if [ -n "\$rsp_template" ]; then
                 # Patch INSTALL_TYPE dynamically
