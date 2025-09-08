@@ -159,26 +159,24 @@ pipeline {
                 sh '''
                 echo "Creating GoldenGate deployment..."
         
-                docker exec -i -u oracle \
-                  -e OGG_HOME="$OGG_HOME" \
-                  $OGG_CONTAINER bash -c '
-                    export OGG_HOME=${OGG_HOME}
-                    export PATH=$OGG_HOME/bin:$PATH
-        
-                    cat > /tmp/ogg_deploy.rsp <<EOF
+                docker exec -i -u oracle -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c "
+                  export OGG_HOME=${OGG_HOME}
+                  export PATH=\$OGG_HOME/bin:\$PATH
+                
+                  cat > /tmp/ogg_deploy.rsp <<EOF
 DEPLOYMENT_NAME=$OGG_DEPLOY_NAME
 ADMINISTRATOR_USER=$deploy_username
 ADMINISTRATOR_PASSWORD=$deploy_password
 SERVICE_MANAGER_PORT=$port_number
 OGG_HOME=$OGG_HOME
 EOF
-        
-                    echo "==== Final Deployment Response File ===="
-                    cat /tmp/ogg_deploy.rsp
-                    echo "========================================"
-        
-                    $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
-                  '
+                
+                  echo '==== Final Deployment Response File ===='
+                  cat /tmp/ogg_deploy.rsp
+                  echo '========================================'
+                
+                  \$OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
+                "
                 '''
             }
         }
