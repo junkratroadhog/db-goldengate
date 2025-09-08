@@ -11,7 +11,7 @@ pipeline {
 
     stage ('Deploy GG Container') {
       steps {
-        sh '''
+        sh """
           # Remove old container if exists
           if docker ps -a --format '{{.Names}}' | grep -q "^${params.OGG_CONTAINER}\$"; then
             docker stop ${params.OGG_CONTAINER}
@@ -26,18 +26,18 @@ pipeline {
 
           # Start new GG container
           docker run -d --name ${params.OGG_CONTAINER} -v ${params.OGG_VOLUME}:${params.OGG_HOME} oraclelinux:8 tail -f /dev/null
-        '''
+        """
       }
     }
   }
   post {
     always {
       echo 'Cleaning workspace...'
-      /*sh'''
+      /*sh"""
       docker stop ${params.OGG_CONTAINER} || true
       docker rm -f ${params.OGG_CONTAINER} || true
       docker volume rm ${params.OGG_VOLUME} || true
-      '''*/
+      """*/
       cleanWs()
     }
   }
