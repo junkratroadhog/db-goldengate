@@ -128,7 +128,6 @@ pipeline {
     stage('Verify Env') {
         steps {
             sh """
-            source /etc/environment || true
             # Run in a fresh login shell
             docker exec -i -u oracle ${OGG_CONTAINER} bash -l -c 'echo OGG_HOME=\$OGG_HOME; echo PATH=\$PATH'
             docker exec -i -u oracle ${OGG_CONTAINER} bash -c 'echo "export OGG_HOME=${OGG_HOME}" >> ~/.bashrc && echo "export PATH=${OGG_HOME}/bin:\$PATH" >> ~/.bashrc'
