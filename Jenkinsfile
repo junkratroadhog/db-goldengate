@@ -173,7 +173,7 @@ EOF
 
         stage('Create Deployment') {
             steps {
-                sh '''
+                sh """
                 echo "Creating GoldenGate deployment..."
         
                 docker exec -i -u oracle -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c "
@@ -191,9 +191,10 @@ EOF
                   echo '==== Final Deployment Response File ===='
                   cat /tmp/ogg_deploy.rsp
                   echo '========================================'
-                "
+                
                 docker exec -i -u oracle $OGG_CONTAINER bash -c "echo $OGG_HOME && $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp"
-                '''
+                '
+                """
             }
         }
 
