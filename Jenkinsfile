@@ -165,7 +165,7 @@ EOF
                 docker exec -i -u oracle -e STAGE_DIR="$STAGE_DIR" -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c './tmp/install_scripts/runInstaller.sh'
                 '''
             }
-        }*/
+        }
 
         stage('Configure Trails & Networking') {
             steps {
