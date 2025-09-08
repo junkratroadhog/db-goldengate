@@ -177,15 +177,13 @@ EOF
                 sh """
                 echo "Starting ServiceManager and connecting..."
 
-                docker exec -i -u oracle $OGG_CONTAINER bash -c \"
-                  export OGG_HOME=/u02/ogg/ogg_home
-                  export PATH=\\\$OGG_HOME/bin:\\\$PATH
+                docker exec -i -u oracle $OGG_CONTAINER bash -l -c "
 
                   \$OGG_HOME/bin/ServiceManager start
                   sleep 5
 
                   echo -e \\\"connect http://localhost:$port_number DEPLOYMENT $OGG_DEPLOY_NAME USER $deploy_username PASSWORD $deploy_password\\\\ninfo all\\\\nexit\\\" | \$OGG_HOME/bin/adminclient
-                \"
+                "
                 """
             }
         }
