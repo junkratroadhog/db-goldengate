@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# Required environment variables: OGG_HOME, STAGE_DIR, ORA_BASE (optional)
+: "${OGG_HOME:?Environment variable OGG_HOME must be set}"
+: "${STAGE_DIR:?Environment variable STAGE_DIR must be set}"
+: "${ORA_BASE:=/u02/ogg}"   # Default base if not provided
+: "${ORA_INV:=/u02/oraInventory}" # Default inventory location
+
 export PATH=${OGG_HOME}/bin:$PATH
 
 # Dynamically find installer
