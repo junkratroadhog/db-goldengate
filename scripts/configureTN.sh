@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-export OGG_HOME=${OGG_HOME}
 export PATH=$OGG_HOME/bin:$PATH
 
 $OGG_HOME/bin/ServiceManager start
