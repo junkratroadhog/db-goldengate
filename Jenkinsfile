@@ -173,7 +173,7 @@ EOF
 
         stage('Create Deployment') {
             steps {
-                sh """
+                sh '''
                 echo "Creating GoldenGate deployment..."
 
                 docker exec -i -u oracle $OGG_CONTAINER bash -l -c '
@@ -188,7 +188,11 @@ EOF
                   echo "Using response template: \$TEMPLATE"
 
                   cp "\$TEMPLATE" /tmp/ogg_deploy.rsp
-
+                  '
+                  '''
+                  
+                  sh """
+                  docker exec -i -u oracle $OGG_CONTAINER bash -l -c '
                   # Patch only the required values
                   sed -i \
                     -e "s|^DEPLOYMENT_NAME=.*|DEPLOYMENT_NAME=$OGG_DEPLOY_NAME|" \
