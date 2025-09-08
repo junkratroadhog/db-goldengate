@@ -154,9 +154,8 @@ pipeline {
         stage('Verify GoldenGate AdminClient') {
             steps {
                 sh '''
-                docker exec -i -u oracle -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c "
-                  ./tmp/install_scripts/verifyGGasfterinstall.sh
-                "
+                docker exec -i -u oracle -e OGG_HOME=$OGG_HOME $OGG_CONTAINER \
+                    /tmp/install_scripts/verifyGGasfterinstall.sh
                 '''
             }
         }
