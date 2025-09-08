@@ -217,11 +217,12 @@ EOF
             }
         }*/
 
-                stage('TEST') {
+        stage('TEST') {
             steps {
                 sh """
-                docker exec -i -u oracle $OGG_CONTAINER bash -c '
+                docker exec -i -u oracle $OGG_CONTAINER bash -l -c '
                 echo \$OGG_HOME
+                export PATH=\$OGG_HOME/bin:\$PATH
                 echo \$PATH
                 '
                 """
