@@ -63,7 +63,7 @@ pipeline {
 
     stage ('Deploy GG Container') {
       steps {
-        build job: 'branched-job-name',
+        build job: 'gg-deploy',
           parameters: [
             string(name: 'OGG_VOLUME', value: env.OGG_VOLUME),
             string(name: 'OGG_CONTAINER', value: env.OGG_CONTAINER),
