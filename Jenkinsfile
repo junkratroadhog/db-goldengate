@@ -95,7 +95,6 @@ pipeline {
 
                   docker exec -i -u root $OGG_CONTAINER bash -c "echo 'export OGG_HOME=/u02/ogg/ggs_home' > /etc/profile.d/ogg.sh"
                   docker exec -i -u root $OGG_CONTAINER bash -c "echo 'export PATH=\$OGG_HOME/bin:\$PATH' >> /etc/profile.d/ogg.sh"
-                  "
                   '''
           }
         }
