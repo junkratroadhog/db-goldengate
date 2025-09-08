@@ -93,9 +93,8 @@ pipeline {
                   docker exec -i $OGG_CONTAINER bash -c "mkdir -p /tmp/install_scripts && chown oracle:oinstall /tmp/install_scripts && chmod 775 /tmp/install_scripts"                
                   docker cp scripts/. $OGG_CONTAINER:/tmp/install_scripts
 
-                  docker exec -i -u oracle $OGG_CONTAINER bash -c "
-                    echo 'export OGG_HOME=$OGG_HOME' >> /home/oracle/.bashrc
-                    echo 'export PATH=$OGG_HOME/bin:$PATH' >> /home/oracle/.bashrc
+                  docker exec -i -u root $OGG_CONTAINER bash -c "echo 'export OGG_HOME=/u02/ogg/ggs_home' > /etc/profile.d/ogg.sh"
+                  docker exec -i -u root $OGG_CONTAINER bash -c "echo 'export PATH=\$OGG_HOME/bin:\$PATH' >> /etc/profile.d/ogg.sh"
                   "
                   '''
           }
