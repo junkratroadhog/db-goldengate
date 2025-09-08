@@ -13,19 +13,19 @@ pipeline {
       steps {
         sh '''
           # Remove old container if exists
-          if docker ps -a --format '{{.Names}}' | grep -q "^$OGG_CONTAINER\$"; then
-            docker stop $OGG_CONTAINER
-            docker run --rm -v $OGG_VOLUME:$OGG_HOME alpine sh -c "rm -rf $OGG_HOME/*"
-            docker rm -f $OGG_CONTAINER
-            docker volume rm $OGG_VOLUME
+          if docker ps -a --format '{{.Names}}' | grep -q "^${params.OGG_CONTAINER}\$"; then
+            docker stop ${params.OGG_CONTAINER}
+            docker run --rm -v ${params.OGG_VOLUME}:${params.OGG_HOME} alpine sh -c "rm -rf ${params.OGG_HOME}/*"
+            docker rm -f ${params.OGG_CONTAINER}
+            docker volume rm ${params.OGG_VOLUME}
           fi
 
-          if ! docker volume inspect $OGG_VOLUME > /dev/null 2>&1; then
-            docker volume create $OGG_VOLUME
+          if ! docker volume inspect ${params.OGG_VOLUME} > /dev/null 2>&1; then
+            docker volume create ${params.OGG_VOLUME}
           fi
 
           # Start new GG container
-          docker run -d --name $OGG_CONTAINER -v $OGG_VOLUME:/u02/ogg oraclelinux:8 tail -f /dev/null                
+          docker run -d --name ${params.OGG_CONTAINER} -v ${params.OGG_VOLUME}:${params.OGG_HOME} oraclelinux:8 tail -f /dev/null
         '''
       }
     }
@@ -34,9 +34,9 @@ pipeline {
     always {
       echo 'Cleaning workspace...'
       /*sh'''
-      docker stop $OGG_CONTAINER || true
-      docker rm -f $OGG_CONTAINER || true
-      docker volume rm $OGG_VOLUME || true
+      docker stop ${params.OGG_CONTAINER} || true
+      docker rm -f ${params.OGG_CONTAINER} || true
+      docker volume rm ${params.OGG_VOLUME} || true
       '''*/
       cleanWs()
     }
