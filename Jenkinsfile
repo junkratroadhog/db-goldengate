@@ -170,7 +170,7 @@ pipeline {
           
           # Unzip Binaries as oracle
           docker exec -i -u oracle ${OGG_CONTAINER} bash -c "
-            unzip -q -o ${STAGE_DIR}/${OGG_binary} -d ${STAGE_DIR}/${OGG_binary}
+            unzip -q -o ${STAGE_DIR}/${OGG_binary} -d ${STAGE_DIR}/.
           "
 
           # Create oraInst.loc
