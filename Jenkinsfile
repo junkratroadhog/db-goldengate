@@ -178,7 +178,6 @@ EOF
                 echo "Starting ServiceManager and connecting..."
 
                 docker exec -i -u oracle $OGG_CONTAINER bash -l -c "
-
                   \$OGG_HOME/bin/ServiceManager start
                   sleep 5
 
