@@ -220,8 +220,6 @@ EOF
                 stage('TEST') {
             steps {
                 sh """
-                echo "Creating GoldenGate deployment..."
-
                 docker exec -i -u oracle $OGG_CONTAINER bash -c '
                 echo \$OGG_HOME
                 echo \$PATH
