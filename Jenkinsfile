@@ -148,7 +148,7 @@ pipeline {
         sh """
           docker exec -i -u oracle \
             -e PORT=${PORT} \
-            -e DEPLOYMENT=${OGG_DEPLOY_NAME} \
+            -e OGG_DEPLOY_NAME=${OGG_DEPLOY_NAME} \
             -e DEPLOY_USER=${deploy_username} \
             -e DEPLOY_PASS=${deploy_password} \
           ${OGG_CONTAINER} bash -c "./tmp/install_scripts/configureTN.sh"
