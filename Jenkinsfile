@@ -59,7 +59,7 @@ pipeline {
                 docker exec $dest_CN sqlplus / as sysdba @/tmp/oggadmin.sql $dest_PDB
                 '''
            }
-        }*/
+        }
 
         stage ('Deploy GG Container') {
             steps {
@@ -95,7 +95,7 @@ pipeline {
                   docker cp scripts/. $OGG_CONTAINER:/tmp/install_scripts
                   '''
           }
-        }
+        }*/
 
         stage('Setup GoldenGate Environment') {
             steps {
@@ -165,18 +165,18 @@ EOF
                 docker exec -i -u oracle -e STAGE_DIR="$STAGE_DIR" -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c './tmp/install_scripts/runInstaller.sh'
                 '''
             }
-        }
+        }*/
 
         stage('Configure Trails & Networking') {
             steps {
-                sh """
+                sh '''
                 docker exec -i -u oracle \
                   -e PORT=$port_number \
                   -e DEPLOYMENT=$OGG_DEPLOY_NAME \
                   -e DEPLOY_USER=$deploy_username \
                   -e DEPLOY_PASS=$deploy_password \
                   $OGG_CONTAINER bash -l -c './tmp/install_scripts/configureTN.sh'
-                """
+                '''
             }
         }
 
