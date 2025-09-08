@@ -26,7 +26,7 @@ pipeline {
     port_number   = '7809'
     INSTALL_TYPE = 'ORA21c'
 
-    New_CN = 'no' // yes/no - Whether to create a new container or use existing one
+    New_CN = 'yes' // yes/no - Whether to create a new container or use existing one
   }
 
   stages {
