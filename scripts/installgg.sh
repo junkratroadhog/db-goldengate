@@ -25,25 +25,25 @@ rsp_template=$(find "${STAGE_DIR}" -type f -name "oggca*.rsp" | head -n 1)
 
 # If response file exists
 if [ -n "$rsp_template" ]; then
-    # Patch INSTALL_TYPE dynamically
-    sed -i "s|^#*INSTALL_TYPE=.*|INSTALL_TYPE=GG_MICROSERVICES|" "$rsp_template"
+  # Patch INSTALL_TYPE dynamically
+  sed -i "s|^#*INSTALL_TYPE=.*|INSTALL_TYPE=GG_MICROSERVICES|" "$rsp_template"
     $installer -silent -responseFile "$rsp_template" \
-        oracle.install.option=OGGCORE \
-        ORACLE_BASE="${ORA_BASE}" \
-        INVENTORY_LOCATION="${ORA_INV}" \
-        UNIX_GROUP_NAME=oinstall \
-        DECLINE_SECURITY_UPDATES=true \
-        ACCEPT_LICENSE_AGREEMENT=true \
-        INSTALL_OPTION=ORA21c \
-        SOFTWARE_LOCATION="${OGG_HOME}"
+      oracle.install.option=OGGCORE \
+      ORACLE_BASE="${ORA_BASE}" \
+      INVENTORY_LOCATION="${ORA_INV}" \
+      UNIX_GROUP_NAME=oinstall \
+      DECLINE_SECURITY_UPDATES=true \
+      ACCEPT_LICENSE_AGREEMENT=true \
+      INSTALL_OPTION=ORA21c \
+      SOFTWARE_LOCATION="${OGG_HOME}"
 else
-    \$installer -silent \
-        oracle.install.option=OGGCORE \
-        ORACLE_BASE="${ORA_BASE}" \
-        INVENTORY_LOCATION="${ORA_INV}" \
-        UNIX_GROUP_NAME=oinstall \
-        DECLINE_SECURITY_UPDATES=true \
-        ACCEPT_LICENSE_AGREEMENT=true \
-        INSTALL_OPTION=ORA21c \
-        SOFTWARE_LOCATION="${OGG_HOME}"
+  $installer -silent \
+    oracle.install.option=OGGCORE \
+    ORACLE_BASE="${ORA_BASE}" \
+    INVENTORY_LOCATION="${ORA_INV}" \
+    UNIX_GROUP_NAME=oinstall \
+    DECLINE_SECURITY_UPDATES=true \
+    ACCEPT_LICENSE_AGREEMENT=true \
+    INSTALL_OPTION=ORA21c \
+    SOFTWARE_LOCATION="${OGG_HOME}"
 fi
