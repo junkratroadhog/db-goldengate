@@ -170,13 +170,7 @@ EOF
         stage('Configure Trails & Networking') {
             steps {
                 sh """
-                  docker exec -i -u oracle ogg-users_detail bash -l -c "printenv"
-                  docker exec -i -u oracle $OGG_CONTAINER bash -l -c '
-                  \$OGG_HOME/bin/ServiceManager start
-                  sleep 5
-
-                  echo -e "connect http://localhost:$port_number DEPLOYMENT $OGG_DEPLOY_NAME USER $deploy_username PASSWORD $deploy_password\\ninfo all\\nexit" | \$OGG_HOME/bin/adminclient
-                '
+                  docker exec -i -u oracle $OGG_CONTAINER bash -l -c './tmp/install_scripts/configureTN.sh'
                 """
             }
         }
