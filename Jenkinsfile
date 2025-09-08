@@ -54,19 +54,20 @@ pipeline {
         """
       }
     }
-    
+
     stage('Verify Env') {
       steps {
         sh """
         # Works for login shells
         docker exec -i -u oracle ${params.OGG_CONTAINER} bash -l -c 'echo OGG_HOME=\$OGG_HOME; echo PATH=\$PATH'
-    
+
         # Works for non-login shells too
         docker exec -i -u oracle ${params.OGG_CONTAINER} bash -c 'echo OGG_HOME=\$OGG_HOME; echo PATH=\$PATH'
         """
       }
     }
-
+  }
+  
   post {
     always {
       echo 'Cleaning workspace...'
