@@ -223,9 +223,8 @@ EOF
                 echo "Creating GoldenGate deployment..."
 
                 docker exec -i -u oracle $OGG_CONTAINER bash -c '
-                export PATH="$OGG_HOME/bin:\$PATH"
-                echo $OGG_HOME
-                echo $PATH
+                echo \$OGG_HOME
+                echo \$PATH
                 '
                 """
             }
