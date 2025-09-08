@@ -172,7 +172,6 @@ EOF
                 sh """
                   docker exec -i -u oracle ogg-users_detail bash -l -c "printenv"
                   docker exec -i -u oracle $OGG_CONTAINER bash -l -c "
-                  source /home/oracle/.bashrc
                   $OGG_HOME/bin/ServiceManager start
                   sleep 5
 
