@@ -158,21 +158,20 @@ pipeline {
             steps {
                 sh '''
                 echo "Creating GoldenGate deployment..."
-
-                docker exec -i -u oracle -e STAGE_DIR="$STAGE_DIR" -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c '
+        
+                docker exec -i -u oracle -e OGG_HOME="$OGG_HOME" $OGG_CONTAINER bash -c '
                   export OGG_HOME=${OGG_HOME}
                   export PATH=$OGG_HOME/bin:$PATH
-
-                  # Find the original ogg*.rsp template shipped with GoldenGate
-                  echo $OGG_HOME
-                  rsp_template=$(find "${STAGE_DIR}" -type f -name "ogg*.rsp" | head -n 1)
+        
+                  # Find the GoldenGate deployment response template (oggca.rsp)
+                  rsp_template=$(find "$OGG_HOME/response" -type f -name "oggca*.rsp" | head -n 1)
                   if [ -z "$rsp_template" ]; then
-                    echo "ERROR: Could not find ogg*.rsp response file template"
+                    echo "ERROR: Could not find oggca response file template in $OGG_HOME/response"
                     exit 1
                   fi
-
+        
                   cp "$rsp_template" /tmp/ogg_deploy.rsp
-
+        
                   # Patch values into response file
                   sed -i \
                     -e "s|^DEPLOYMENT_NAME=.*|DEPLOYMENT_NAME=$OGG_DEPLOY_NAME|" \
@@ -181,11 +180,12 @@ pipeline {
                     -e "s|^SERVICE_MANAGER_PORT=.*|SERVICE_MANAGER_PORT=$port_number|" \
                     -e "s|^OGG_HOME=.*|OGG_HOME=$OGG_HOME|" \
                     /tmp/ogg_deploy.rsp
-
-                  $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
+        
+                  # Run the GoldenGate Configuration Assistant in silent mode
+                  bash $OGG_HOME/bin/oggca.sh -silent -responseFile /tmp/ogg_deploy.rsp
                 '
                 '''
-          }
+            }
         }
 
         stage('Configure Trails & Networking') {
