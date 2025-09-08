@@ -46,20 +46,26 @@ pipeline {
       steps {
         sh """
         docker exec -i -u oracle ${params.OGG_CONTAINER} bash -c 'mkdir -p ${params.OGG_HOME}'
-        docker exec -i -u root ${params.OGG_CONTAINER} bash -c 'echo "OGG_HOME=${params.OGG_HOME}" >> /etc/environment && echo "PATH=\$OGG_HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" >> /etc/environment'
+        docker exec -i -u root ${params.OGG_CONTAINER} bash -c '
+          echo "export OGG_HOME=${params.OGG_HOME}" > /etc/profile.d/ogg.sh
+          echo "export PATH=\\\$OGG_HOME/bin:\\\$PATH" >> /etc/profile.d/ogg.sh
+          chmod +x /etc/profile.d/ogg.sh
+        '
         """
       }
     }
-
+    
     stage('Verify Env') {
       steps {
         sh """
-        # Run in a fresh login shell
+        # Works for login shells
         docker exec -i -u oracle ${params.OGG_CONTAINER} bash -l -c 'echo OGG_HOME=\$OGG_HOME; echo PATH=\$PATH'
+    
+        # Works for non-login shells too
+        docker exec -i -u oracle ${params.OGG_CONTAINER} bash -c 'echo OGG_HOME=\$OGG_HOME; echo PATH=\$PATH'
         """
       }
     }
-  }
 
   post {
     always {
