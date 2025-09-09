@@ -151,12 +151,15 @@ pipeline {
     stage('Create Deployment') {
       steps {
         sh """
-          # Create response file for deployment
           docker exec -i -u oracle \
-            -e OGG_HOME=${OGG_HOME} -e OGG_DEPLOY_NAME=${OGG_DEPLOY_NAME} -e AM_PORT=${AM_PORT} -e SM_PORT=${SM_PORT} -e DEPLOY_USERNAME=${deploy_username} -e DEPLOY_PASSWORD=${deploy_password} \
+            -e OGG_HOME=${OGG_HOME} \
+            -e OGG_DEPLOY_NAME=${OGG_DEPLOY_NAME} \
+            -e DEPLOY_USERNAME=${deploy_username} \
+            -e DEPLOY_PASSWORD=${deploy_password} \
+            -e AM_PORT=${AM_PORT} \
+            -e SM_PORT=${SM_PORT} \
             ${OGG_CONTAINER} bash -lc '/tmp/install_scripts/create_deploy_rsp.sh'
-          
-          #create Deployment
+
           docker exec -i -u oracle \
             -e OGG_HOME=${OGG_HOME} \
             -e OGG_DEPLOY_NAME=${OGG_DEPLOY_NAME} \
