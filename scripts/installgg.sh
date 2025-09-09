@@ -17,7 +17,7 @@ if [ -z "$installer" ]; then
 fi
 
 # Use the directory containing the installer as working directory
-installer_dir=$(dirname "\$installer")
+installer_dir=$(dirname "$installer")
 cd "$installer_dir"
 
 ./runInstaller -silent \
