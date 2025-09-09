@@ -23,7 +23,8 @@ pipeline {
     OGG_DEPLOY_NAME = 'ogg_deploy-Users-Detail'
     deploy_username = 'oggadmin'
     deploy_password = 'oracle'
-    PORT   = 7809
+    AM_PORT = 7809
+    SM_PORT = 9000
     INSTALL_TYPE = 'ORA21c'
 
     New_CN = 'yes' // yes/no - Whether to create a new container or use existing one
@@ -150,18 +151,20 @@ pipeline {
     stage('Create Deployment') {
       steps {
         sh """
+          # Create response file for deployment
+          docker exec -i -u oracle \
+            -e OGG_HOME=${OGG_HOME} -e OGG_DEPLOY_NAME=${OGG_DEPLOY_NAME} -e AM_PORT=${AM_PORT} -e SM_PORT=${SM_PORT} -e adminUsername=${deploy_username} -e adminPassword=${deploy_password}
+            ${OGG_CONTAINER} bash -lc '/tmp/install_scripts/create_deploy_rsp.sh'
+          
+          #create Deployment
           docker exec -i -u oracle \
             -e OGG_HOME=${OGG_HOME} \
-            ${OGG_CONTAINER} bash -lc '
-              \${OGG_HOME}/bin/oggca.sh -silent \
-                -deploymentName ${OGG_DEPLOY_NAME} \
-                -port ${PORT} \
-                -dir \${OGG_HOME}/var \
-                -adminUsername ${deploy_username} \
-                -adminPassword ${deploy_password} \
-                -serviceManagerPort 9000 \
-                -skipUpdates
-            '
+            -e OGG_DEPLOY_NAME=${OGG_DEPLOY_NAME} \
+            -e DEPLOY_USERNAME=${deploy_username} \
+            -e DEPLOY_PASSWORD=${deploy_password} \
+            -e ADMIN_PORT=${PORT} \
+            -e SM_PORT=${SM_PORT} \
+            ${OGG_CONTAINER} bash -lc "${OGG_HOME}/bin/oggca.sh -silent -responseFile /tmp/install_scripts/ogg_deploy.rsp"
         """
       }
     }
@@ -169,12 +172,7 @@ pipeline {
     stage('Configure Trails & Networking') {
       steps {
         sh """
-          docker exec -i -u oracle \
-            -e PORT=${PORT} \
-            -e OGG_DEPLOY_NAME=${OGG_DEPLOY_NAME} \
-            -e deploy_username=${deploy_username} \
-            -e deploy_password=${deploy_password} \
-          ${OGG_CONTAINER} bash -lc "./tmp/install_scripts/configureTN.sh"
+          echo "Trails and networking configuration to be added here"
         """
       }
     }
