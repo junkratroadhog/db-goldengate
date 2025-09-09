@@ -18,6 +18,7 @@ pipeline {
     STAGE_DIR = '/tmp/binaries'
     ORA_BASE = '/u02/ogg'
     ORA_INV = '/u02/oraInventory'
+    INSTALL_TYPE = 'ORA21c'
 
     // Goldengate Deployment parameters
     OGG_DEPLOY_NAME = 'ogg_deploy-Users-Detail'
@@ -25,7 +26,7 @@ pipeline {
     deploy_password = 'oracle'
     AM_PORT = 7809
     SM_PORT = 9000
-    INSTALL_TYPE = 'ORA21c'
+    GG_NETWORK = 'GG_NET'
 
     New_CN = 'yes' // yes/no - Whether to create a new container or use existing one
   }
@@ -172,11 +173,44 @@ pipeline {
       }
     }
 
-    stage('Configure Trails & Networking') {
+    stage('Setup GG Network & Deploy') {
       steps {
-        sh """
-          echo "Trails and networking configuration to be added here"
-        """
+        script {
+
+          // Create the network if it doesn't exist
+          sh """
+              if ! docker network ls --format '{{.Name}}' | grep -w ${env.GG_NETWORK} > /dev/null; then
+                  docker network create ${env.GG_NETWORK}
+              fi
+              """
+
+              // Connect DB containers to the network
+              sh """
+              docker network connect ${env.GG_NETWORK} ${env.src_CN} || true
+              docker network connect ${env.GG_NETWORK} ${env.dest_CN} || true
+              """
+
+              // Connect GG container to the network
+              sh """
+              docker network connect ${env.GG_NETWORK} ${env.OGG_CONTAINER} || true
+              """
+
+              // Create deployment directories and deploy GG
+              sh """
+              docker exec -i -u oracle -e OGG_HOME=${env.OGG_HOME} ${env.OGG_CONTAINER} bash -lc "\
+                  mkdir -p \$OGG_HOME/var && \
+                  \$OGG_HOME/bin/oggca.sh -silent \
+                      DEPLOYMENT_NAME=${env.OGG_DEPLOY_NAME} \
+                      ADMINISTRATOR_USERNAME=${env.deploy_username} \
+                      ADMINISTRATOR_PASSWORD=${env.deploy_password} \
+                      SERVICE_MANAGER_LISTENER_ADDRESS=ogg-users_detail \
+                      SERVICE_MANAGER_LISTENER_PORT=9000 \
+                      ADMIN_SERVER_LISTENER_ADDRESS=ogg-users_detail \
+                      ADMIN_SERVER_LISTENER_PORT=7809 \
+                      DEPLOYMENT_HOME=\$OGG_HOME/var \
+                      SERVICEMANAGER_DEPLOYMENT_HOME=\$OGG_HOME"
+          """
+        }
       }
     }
   }
