@@ -112,6 +112,7 @@ pipeline {
         sh '''
         docker exec -i $OGG_CONTAINER bash -c "mkdir -p /tmp/install_scripts && chown oracle:oinstall /tmp/install_scripts && chmod 775 /tmp/install_scripts"                
         docker cp scripts/. $OGG_CONTAINER:/tmp/install_scripts
+        docker exec -i -u oracle $OGG_CONTAINER bash -c ""
         '''
       }
     }
@@ -136,6 +137,12 @@ pipeline {
 
           # Run GG INSTALLER as oracle user
           docker exec -i ${OGG_CONTAINER} bash -c "chmod +x /tmp/install_scripts/*"
+          docker exec -i -u oracle \
+            -e ORA_BASE=${ORA_BASE} \
+            -e ORA_INV=${ORA_INV} \
+            -e OGG_HOME=${OGG_HOME} \
+            -e STAGE_DIR=${STAGE_DIR} \
+            ${OGG_CONTAINER} bash -lc "/tmp/install_scripts/installgg.sh"
         """
       }
     }
