@@ -147,7 +147,26 @@ pipeline {
       }
     }
 
-    /*stage('Configure Trails & Networking') {
+    stage('Create Deployment') {
+      steps {
+        sh """
+          docker exec -i -u oracle \
+            -e OGG_HOME=${OGG_HOME} \
+            ${OGG_CONTAINER} bash -lc '
+              \${OGG_HOME}/bin/oggca.sh -silent \
+                -deploymentName ${OGG_DEPLOY_NAME} \
+                -port ${PORT} \
+                -dir \${OGG_HOME}/var \
+                -adminUsername ${deploy_username} \
+                -adminPassword ${deploy_password} \
+                -serviceManagerPort 9000 \
+                -skipUpdates
+            '
+        """
+      }
+    }
+
+    stage('Configure Trails & Networking') {
       steps {
         sh """
           docker exec -i -u oracle \
@@ -159,8 +178,8 @@ pipeline {
         """
       }
     }
-  }*/
   }
+  
   post {
     always {
       echo 'Cleaning workspace...'
