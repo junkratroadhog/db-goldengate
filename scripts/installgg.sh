@@ -30,3 +30,5 @@ cd "$installer_dir"
   INSTALL_OPTION=ORA21c \
   DECLINE_SECURITY_UPDATES=true \
   ACCEPT_LICENSE_AGREEMENT=true
+
+sleep 20
