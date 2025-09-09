@@ -162,7 +162,7 @@ pipeline {
             -e OGG_DEPLOY_NAME=${OGG_DEPLOY_NAME} \
             -e DEPLOY_USERNAME=${deploy_username} \
             -e DEPLOY_PASSWORD=${deploy_password} \
-            -e ADMIN_PORT=${PORT} \
+            -e AM_PORT=${AM_PORT} \
             -e SM_PORT=${SM_PORT} \
             ${OGG_CONTAINER} bash -lc "${OGG_HOME}/bin/oggca.sh -silent -responseFile /tmp/install_scripts/ogg_deploy.rsp"
         """
