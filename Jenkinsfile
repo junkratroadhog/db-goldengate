@@ -198,7 +198,7 @@ pipeline {
           // Get container IP dynamically, fallback to 0.0.0.0 if not available
           def oggHost = sh(
             script: """
-              docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${env.OGG_CONTAINER} || echo 0.0.0.0
+              docker inspect -f '{{range $k,$v := .NetworkSettings.Networks}}{{if eq $k "GG_NET"}}{{$v.IPAddress}}{{end}}{{end}}' ogg-users_detail
             """,
             returnStdout: true
           ).trim()
