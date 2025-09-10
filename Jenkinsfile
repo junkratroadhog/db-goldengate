@@ -192,15 +192,15 @@ pipeline {
           """
 
           def ACTUAL_IP = sh(
-            script: "docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${params.OGG_CONTAINER}",
-            returnStdout: true
+          script: "docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${env.OGG_CONTAINER}",
+          returnStdout: true
           ).trim()
 
-            // Get container IP dynamically, fallback to 0.0.0.0 if not available
+          // Get container IP dynamically, fallback to 0.0.0.0 if not available
           sh """
-            docker exec ${params.OGG_CONTAINER} bash -c '
-              sed -i "/${params.OGG_CONTAINER}\\.gg\\.com/d" /etc/hosts
-              echo "${ACTUAL_IP} ${params.OGG_CONTAINER}.gg.com" >> /etc/hosts
+            docker exec ${env.OGG_CONTAINER} bash -c '
+              sed -i "/${env.OGG_CONTAINER}\\.gg\\.com/d" /etc/hosts
+              echo "${ACTUAL_IP} ${env.OGG_CONTAINER}.gg.com" >> /etc/hosts
             '
           """
           echo "GG listener host resolved to: ${ACTUAL_IP}"
