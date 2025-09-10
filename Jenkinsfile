@@ -41,7 +41,6 @@ pipeline {
           docker run -d \
           --name ${params.OGG_CONTAINER} \
           --hostname ${params.OGG_CONTAINER}.gg.com \
-          --add-host ${params.OGG_CONTAINER}.gg.com:172.19.0.4 \
           -v ${params.OGG_VOLUME}:${params.OGG_HOME} \
           oraclelinux:8 tail -f /dev/null
         """
@@ -95,12 +94,19 @@ pipeline {
     }
 
     stage('Download OGG Binary') {
+      environment {
+        GG_BINARY = "${params.OGG_binary}"
+        STAGE_DIR = "${params.STAGE_DIR}"
+        SCRIPT_DIR = "/tmp/install_scripts"
+      }
       steps {
         script {
           sh '''
             set -e
-            mkdir -p /software
-            cd /software
+
+            # Create staging directory
+            mkdir -p "$STAGE_DIR"
+            cd "$STAGE_DIR"
 
             # Backup old gg_binary.zip if exists
             if [ -f "$GG_BINARY" ]; then
@@ -108,27 +114,25 @@ pipeline {
               mv -f "$GG_BINARY" "$GG_BINARY.old"
             fi
 
-            # Run wget script to download the new binary
+            # Run wget script from /tmp/install_scripts
             echo "Running wget_ogg.sh to download latest GoldenGate binary..."
-            ./wget_ogg.sh
+            bash "$SCRIPT_DIR/wget_ogg.sh"
 
-            # Identify the newest file in /software
+            # Identify the newest file in STAGE_DIR
             NEW_FILE=$(ls -1t | head -n 1)
             if [ -z "$NEW_FILE" ]; then
-              echo "ERROR: wget_ogg.sh did not produce any file in /software"
+              echo "ERROR: wget_ogg.sh did not produce any file in $STAGE_DIR"
               exit 1
             fi
 
             # Rename the newest file to gg_binary.zip
             mv -f "$NEW_FILE" "$GG_BINARY"
-            echo "Binary ready: /software/$GG_BINARY"
+            echo "Binary ready: $STAGE_DIR/$GG_BINARY"
           '''
         }
       }
-              environment {
-          GG_BINARY = "${params.OGG_binary}"
-        }
-      }
+    }
+
 
     stage('Install Dependencies and Unzip Binaries') {
       steps {
