@@ -195,9 +195,11 @@ pipeline {
             docker network connect ${env.GG_NETWORK} ${env.OGG_CONTAINER} || true
           """
 
-          // Get container hostname dynamically from /etc/hostname
+          // Get container IP dynamically, fallback to 0.0.0.0 if not available
           def oggHost = sh(
-            script: "docker exec ${env.OGG_CONTAINER} cat /etc/hostname || echo 0.0.0.0",
+            script: """
+              docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${env.OGG_CONTAINER} || echo 0.0.0.0
+            """,
             returnStdout: true
           ).trim()
 
