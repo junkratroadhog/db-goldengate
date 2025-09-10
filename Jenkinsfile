@@ -67,7 +67,7 @@ pipeline {
       }
     }*/
 
-    stage('Deploy GG Container') {
+    /*stage('Deploy GG Container') {
       steps {
         script {
           if (env.New_CN == "yes") {
@@ -150,7 +150,7 @@ pipeline {
       }
     }
 
-    /*stage('Create Deployment') {
+    stage('Create Deployment') {
       steps {
         sh """
           docker exec -i -u oracle \
