@@ -150,7 +150,7 @@ pipeline {
       }
     }
 
-    /*stage('Create Deployment') {
+    stage('Create Deployment') {
       steps {
         sh """
           docker exec -i -u oracle \
@@ -172,9 +172,9 @@ pipeline {
             ${OGG_CONTAINER} bash -lc "${OGG_HOME}/bin/oggca.sh -silent -responseFile /tmp/install_scripts/ogg_deploy.rsp"
         """
       }
-    }*/
+    }
 
-    stage('Setup GG Network & Deploy') {
+    /*stage('Setup GG Network & Deploy') {
       steps {
         script {
           // Create the network if it doesn't exist
@@ -221,6 +221,7 @@ pipeline {
         }
       }
     }
+  }*/
   }
   
   post {
