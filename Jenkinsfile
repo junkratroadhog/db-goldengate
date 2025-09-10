@@ -48,7 +48,7 @@ pipeline {
       }
     }
 
-    stage('Create Oracle User and Copy scripts') {
+    stage('Create Oracle User') {
       steps {
         sh '''
           # Create oracle user + group if not exists
@@ -56,6 +56,15 @@ pipeline {
           getent group oinstall >/dev/null || groupadd -g 54321 oinstall
           id -u oracle >/dev/null 2>&1 || useradd -u 54321 -g oinstall oracle
           "
+        '''
+      }
+    }
+
+    stage('Copy scripts') {
+      steps {
+        sh '''
+        docker exec -i $OGG_CONTAINER bash -c "mkdir -p /tmp/install_scripts && chown oracle:oinstall /tmp/install_scripts && chmod 775 /tmp/install_scripts"                
+        docker cp scripts/. $OGG_CONTAINER:/tmp/install_scripts
         '''
       }
     }
