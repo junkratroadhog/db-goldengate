@@ -196,10 +196,12 @@ pipeline {
           """
           
             // Get container IP dynamically, fallback to 0.0.0.0 if not available
-            def oggHost = sh(
-              script: '''docker inspect -f '{{range $k,$v := .NetworkSettings.Networks}}{{if eq $k "${GG_NETWORK}"}}{{$v.IPAddress}}{{end}}{{end}}' ${OGG_CONTAINER}''',
-              returnStdout: true
-            ).trim()
+          def oggHost = sh(
+            script: "docker inspect -f '{{range \$k,\$v := .NetworkSettings.Networks}}{{if eq \$k \"${env.GG_NETWORK}\"}}{{\$v.IPAddress}}{{end}}{{end}}' ${env.OGG_CONTAINER}",
+            returnStdout: true
+          ).trim()
+
+          println "GG listener host resolved to: ${oggHost}"
 
           // Create deployment directories and deploy GG
           sh """
