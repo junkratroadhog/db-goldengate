@@ -189,7 +189,7 @@ pipeline {
             docker network connect ${env.GG_NETWORK} ${env.src_CN} || true
             docker network connect ${env.GG_NETWORK} ${env.dest_CN} || true
           """
-          
+
           // Connect GG container to the network
           sh """
             docker network connect ${env.GG_NETWORK} ${env.OGG_CONTAINER} || true
@@ -198,7 +198,7 @@ pipeline {
             // Get container IP dynamically, fallback to 0.0.0.0 if not available
             def oggHost = sh(
               script: """
-                docker inspect -f '{{range \$k,\$v := .NetworkSettings.Networks}}{{if eq \$k \"${env.GG_NETWORK}\"}}{{$v.IPAddress}}{{end}}{{end}}' ${env.OGG_CONTAINER} || echo 0.0.0.0
+                docker inspect -f '{{range \$\$k,\$\$v := .NetworkSettings.Networks}}{{if eq \$\$k \"${env.GG_NETWORK}\"}}{{\$\$v.IPAddress}}{{end}}{{end}}' ${env.OGG_CONTAINER} || echo 0.0.0.0
               """,
               returnStdout: true
             ).trim()
