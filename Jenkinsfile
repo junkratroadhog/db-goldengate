@@ -110,7 +110,7 @@ pipeline {
       }
     }
 
-    stage('Create Oracle User and Copy scripts') {
+    stage('Copy scripts') {
       steps {
         sh '''
         docker exec -i $OGG_CONTAINER bash -c "mkdir -p /tmp/install_scripts && chown oracle:oinstall /tmp/install_scripts && chmod 775 /tmp/install_scripts"                
