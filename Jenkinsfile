@@ -213,9 +213,9 @@ pipeline {
                 DEPLOYMENT_NAME=${env.OGG_DEPLOY_NAME} \
                 ADMINISTRATOR_USERNAME=${env.deploy_username} \
                 ADMINISTRATOR_PASSWORD=${env.deploy_password} \
-                SERVICE_MANAGER_LISTENER_ADDRESS=0.0.0.0 \
+                SERVICE_MANAGER_LISTENER_ADDRESS=192.168.0.243 \
                 SERVICE_MANAGER_LISTENER_PORT=9000 \
-                ADMIN_SERVER_LISTENER_ADDRESS=0.0.0.0 \
+                ADMIN_SERVER_LISTENER_ADDRESS=192.168.0.243 \
                 ADMIN_SERVER_LISTENER_PORT=7809 \
                 DEPLOYMENT_HOME=\$OGG_HOME/var \
                 SERVICEMANAGER_DEPLOYMENT_HOME=\$OGG_HOME
