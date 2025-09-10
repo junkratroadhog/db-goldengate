@@ -67,7 +67,7 @@ pipeline {
       }
     }*/
 
-    /*stage('Deploy GG Container') {
+    stage('Deploy GG Container') {
       steps {
         script {
           if (env.New_CN == "yes") {
@@ -148,7 +148,7 @@ pipeline {
             ${OGG_CONTAINER} bash -lc "/tmp/install_scripts/installgg.sh"
         """
       }
-    }*/
+    }
 
     /*stage('Create Deployment') {
       steps {
