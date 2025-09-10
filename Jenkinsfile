@@ -7,6 +7,7 @@ pipeline {
     string(name: 'OGG_HOME', defaultValue: '/u02/ogg/ggs_home', description: '/u02/ogg/ggs_home')
     string(name: 'STAGE_DIR', defaultValue: '/tmp/binaries', description: 'Staging directory inside container')
     string(name: 'OGG_binary', defaultValue: 'gg_binary.zip', description: 'gg_binary.zip')
+    string(name: 'GG_NETWORK', defaultValue: 'GG_NET', description: 'GG_NET')
   }
 
   stages {
@@ -20,6 +21,7 @@ pipeline {
             docker run --rm -v ${params.OGG_VOLUME}:${params.OGG_HOME} alpine sh -c "rm -rf ${params.OGG_HOME}/*"
             docker rm -f ${params.OGG_CONTAINER}
             docker volume rm ${params.OGG_VOLUME}
+            docker network rm ${params.GG_NETWORK}
           fi
 
           if ! docker volume inspect ${params.OGG_VOLUME} > /dev/null 2>&1; then
