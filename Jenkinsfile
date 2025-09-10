@@ -96,34 +96,39 @@ pipeline {
 
     stage('Download OGG Binary') {
       steps {
-        sh """
-          set -e
-          mkdir -p /software
-          cd /software
+        script {
+          sh '''
+            set -e
+            mkdir -p /software
+            cd /software
 
-          # Backup old gg_binary.zip if exists
-          if [ -f ${params.OGG_binary} ]; then
-            echo "Found existing ${params.OGG_binary}, renaming to ${params.OGG_binary}.old"
-            mv -f ${params.OGG_binary} ${params.OGG_binary + '.old'}
-          fi
+            # Backup old gg_binary.zip if exists
+            if [ -f "$GG_BINARY" ]; then
+              echo "Found existing $GG_BINARY, renaming to $GG_BINARY.old"
+              mv -f "$GG_BINARY" "$GG_BINARY.old"
+            fi
 
-          # Run wget script to download the new binary
-          echo "Running wget_ogg.sh to download latest GoldenGate binary..."
-          ./wget_ogg.sh
+            # Run wget script to download the new binary
+            echo "Running wget_ogg.sh to download latest GoldenGate binary..."
+            ./wget_ogg.sh
 
-          # Identify the newest file in /software
-          NEW_FILE=$(ls -1t | head -n 1)
-          if [ -z "$NEW_FILE" ]; then
-            echo "ERROR: wget_ogg.sh did not produce any file in /software"
-            exit 1
-          fi
+            # Identify the newest file in /software
+            NEW_FILE=$(ls -1t | head -n 1)
+            if [ -z "$NEW_FILE" ]; then
+              echo "ERROR: wget_ogg.sh did not produce any file in /software"
+              exit 1
+            fi
 
-          # Rename the newest file to gg_binary.zip
-          mv -f "$NEW_FILE" ${params.OGG_binary}
-          echo "Binary ready: /software/${params.OGG_binary}"
-        """
+            # Rename the newest file to gg_binary.zip
+            mv -f "$NEW_FILE" "$GG_BINARY"
+            echo "Binary ready: /software/$GG_BINARY"
+          '''
+        }
       }
-    }
+              environment {
+          GG_BINARY = "${params.OGG_binary}"
+        }
+      }
 
     stage('Install Dependencies and Unzip Binaries') {
       steps {
