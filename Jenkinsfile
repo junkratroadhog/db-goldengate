@@ -67,7 +67,7 @@ pipeline {
       }
     }*/
 
-    /*stage('Deploy GG Container') {
+    stage('Deploy GG Container') {
       steps {
         script {
           if (env.New_CN == "yes") {
@@ -172,7 +172,7 @@ pipeline {
             ${OGG_CONTAINER} bash -lc "${OGG_HOME}/bin/oggca.sh -silent -responseFile /tmp/install_scripts/ogg_deploy.rsp"
         """
       }
-    }*/
+    }
 
     stage('Setup GG Network & Deploy') {
       steps {
