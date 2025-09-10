@@ -65,7 +65,7 @@ pipeline {
         docker exec $dest_CN sqlplus / as sysdba @/tmp/oggadmin.sql $dest_PDB
         '''
       }
-    }*/
+    }
 
     stage('Deploy GG Container') {
       steps {
@@ -172,9 +172,9 @@ pipeline {
             ${OGG_CONTAINER} bash -lc "${OGG_HOME}/bin/oggca.sh -silent -responseFile /tmp/install_scripts/ogg_deploy.rsp"
         """
       }
-    }
+    }*/
 
-    /*stage('Setup GG Network & Deploy') {
+    stage('Setup GG Network & Deploy') {
       steps {
         script {
           // Create the network if it doesn't exist
@@ -221,7 +221,7 @@ pipeline {
         }
       }
     }
-  }*/
+  }
   }
   
   post {
