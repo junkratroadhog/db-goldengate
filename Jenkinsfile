@@ -195,9 +195,9 @@ pipeline {
             docker network connect ${env.GG_NETWORK} ${env.OGG_CONTAINER} || true
           """
 
-          // Get container hostname dynamically
+          // Get container hostname dynamically from /etc/hostname
           def oggHost = sh(
-            script: "docker exec ${env.OGG_CONTAINER} hostname -f",
+            script: "docker exec ${env.OGG_CONTAINER} cat /etc/hostname || echo 0.0.0.0",
             returnStdout: true
           ).trim()
 
@@ -220,6 +220,7 @@ pipeline {
       }
     }
   }
+  
   post {
     always {
       echo 'Cleaning workspace...'
