@@ -64,7 +64,6 @@ pipeline {
         sh '''
         docker exec -i $OGG_CONTAINER bash -c "mkdir -p /tmp/install_scripts && chown oracle:oinstall /tmp/install_scripts && chmod 775 /tmp/install_scripts"                
         docker cp scripts/. $OGG_CONTAINER:/tmp/install_scripts
-        docker exec -i $OGG_CONTAINER bash -c "chmod 775 /tmp/install_scripts/wget_ogg.sh && chown oracle:oinstall /tmp/install_scripts/wget_ogg.sh && /tmp/install_scripts/wget_ogg.sh"
         '''
       }
     }
@@ -91,44 +90,6 @@ pipeline {
         # Works for non-login shells too
         docker exec -i -u oracle ${params.OGG_CONTAINER} bash -c 'echo OGG_HOME=\$OGG_HOME; echo PATH=\$PATH'
         """
-      }
-    }
-
-    stage('Download OGG Binary') {
-      environment {
-        GG_BINARY = "${params.OGG_binary}"
-        STAGE_DIR = "${params.STAGE_DIR}"
-        SCRIPT_DIR = "/tmp/install_scripts"
-      }
-      steps {
-        script {
-          sh """
-            set -e
-
-            # Ensure staging directory exists inside container
-            docker exec -i $OGG_CONTAINER bash -c "mkdir -p $STAGE_DIR && chown oracle:oinstall $STAGE_DIR"
-
-            # Backup old binary inside container
-            docker exec -i $OGG_CONTAINER bash -c "
-              if [ -f $STAGE_DIR/$GG_BINARY ]; then
-                mv -f $STAGE_DIR/$GG_BINARY $STAGE_DIR/$GG_BINARY.old
-              fi
-            "
-
-            # Run wget script inside container
-            docker exec -i $OGG_CONTAINER bash -c "
-              chmod +x $SCRIPT_DIR/wget_ogg.sh
-              cd $STAGE_DIR
-              $SCRIPT_DIR/wget_ogg.sh
-            "
-
-            # Rename newest file to gg_binary.zip inside container
-            docker exec -i $OGG_CONTAINER bash -c "
-              NEW_FILE=\$(ls -1t $STAGE_DIR | head -n 1)
-              mv -f $STAGE_DIR/\$NEW_FILE $STAGE_DIR/$GG_BINARY
-            "
-          """
-        }
       }
     }
 
