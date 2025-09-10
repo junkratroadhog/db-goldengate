@@ -196,12 +196,16 @@ pipeline {
           """
           
             // Get container IP dynamically, fallback to 0.0.0.0 if not available
-          def oggHost = sh(
-            script: "docker exec ${env.OGG_CONTAINER} hostname -f",
+          docker exec ${params.OGG_CONTAINER} bash -c "\
+            grep -q '${params.OGG_CONTAINER}.gg.com' /etc/hosts || \
+            echo '${ACTUAL_IP} ${params.OGG_CONTAINER}.gg.com' >> /etc/hosts"
+
+          def ACTUAL_IP = sh(
+            script: "docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${params.OGG_CONTAINER}",
             returnStdout: true
           ).trim()
 
-          println "GG listener host resolved to: ${oggHost}"
+          println "GG listener host resolved to: ${ACTUAL_IP}"
 
           // Create deployment directories and deploy GG
           sh """
@@ -211,9 +215,9 @@ pipeline {
                 DEPLOYMENT_NAME=${env.OGG_DEPLOY_NAME} \
                 ADMINISTRATOR_USERNAME=${env.deploy_username} \
                 ADMINISTRATOR_PASSWORD=${env.deploy_password} \
-                SERVICE_MANAGER_LISTENER_ADDRESS=${oggHost} \
+                SERVICE_MANAGER_LISTENER_ADDRESS=${ACTUAL_IP} \
                 SERVICE_MANAGER_LISTENER_PORT=9000 \
-                ADMIN_SERVER_LISTENER_ADDRESS=${oggHost} \
+                ADMIN_SERVER_LISTENER_ADDRESS=${ACTUAL_IP} \
                 ADMIN_SERVER_LISTENER_PORT=7809 \
                 DEPLOYMENT_HOME=\$OGG_HOME/var \
                 SERVICEMANAGER_DEPLOYMENT_HOME=\$OGG_HOME"
