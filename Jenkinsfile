@@ -79,6 +79,7 @@ pipeline {
                 string(name: 'OGG_HOME', value: env.OGG_HOME),
                 string(name: 'OGG_binary', value: env.OGG_binary),
                 string(name: 'STAGE_DIR', value: env.STAGE_DIR),
+                string(name: 'GG_NETWORK', value: env.GG_NETWORK),
               ]
           } 
           
