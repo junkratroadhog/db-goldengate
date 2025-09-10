@@ -22,9 +22,17 @@ pipeline {
             docker run --rm -v ${params.OGG_VOLUME}:${params.OGG_HOME} alpine sh -c "rm -rf ${params.OGG_HOME}/*"
             docker rm -f ${params.OGG_CONTAINER}
             docker volume rm ${params.OGG_VOLUME}
-            docker network disconnect -f ${params.GG_NETWORK} $(docker ps -q --filter network=${params.GG_NETWORK}) && docker network rm ${params.GG_NETWORK}
           fi
 
+          # Remove old network if exists
+          if docker network inspect ${params.GG_NETWORK} >/dev/null 2>&1; then
+            for c in \$(docker ps -q --filter network=${params.GG_NETWORK}); do
+              docker network disconnect -f ${params.GG_NETWORK} \$c || true
+            done
+            docker network rm ${params.GG_NETWORK} || true
+          fi
+
+          # Create network
           if ! docker volume inspect ${params.OGG_VOLUME} > /dev/null 2>&1; then
             docker volume create ${params.OGG_VOLUME}
           fi
