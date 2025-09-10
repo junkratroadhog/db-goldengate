@@ -102,38 +102,35 @@ pipeline {
       }
       steps {
         script {
-          sh '''
+          sh """
             set -e
 
-            # Create staging directory
-            mkdir -p "$STAGE_DIR"
-            cd "$STAGE_DIR"
+            # Ensure staging directory exists inside container
+            docker exec -i $OGG_CONTAINER bash -c "mkdir -p $STAGE_DIR && chown oracle:oinstall $STAGE_DIR"
 
-            # Backup old gg_binary.zip if exists
-            if [ -f "$GG_BINARY" ]; then
-              echo "Found existing $GG_BINARY, renaming to $GG_BINARY.old"
-              mv -f "$GG_BINARY" "$GG_BINARY.old"
-            fi
+            # Backup old binary inside container
+            docker exec -i $OGG_CONTAINER bash -c "
+              if [ -f $STAGE_DIR/$GG_BINARY ]; then
+                mv -f $STAGE_DIR/$GG_BINARY $STAGE_DIR/$GG_BINARY.old
+              fi
+            "
 
-            # Run wget script from /tmp/install_scripts
-            echo "Running wget_ogg.sh to download latest GoldenGate binary..."
-            bash "$SCRIPT_DIR/wget_ogg.sh"
+            # Run wget script inside container
+            docker exec -i $OGG_CONTAINER bash -c "
+              chmod +x $SCRIPT_DIR/wget_ogg.sh
+              cd $STAGE_DIR
+              $SCRIPT_DIR/wget_ogg.sh
+            "
 
-            # Identify the newest file in STAGE_DIR
-            NEW_FILE=$(ls -1t | head -n 1)
-            if [ -z "$NEW_FILE" ]; then
-              echo "ERROR: wget_ogg.sh did not produce any file in $STAGE_DIR"
-              exit 1
-            fi
-
-            # Rename the newest file to gg_binary.zip
-            mv -f "$NEW_FILE" "$GG_BINARY"
-            echo "Binary ready: $STAGE_DIR/$GG_BINARY"
-          '''
+            # Rename newest file to gg_binary.zip inside container
+            docker exec -i $OGG_CONTAINER bash -c "
+              NEW_FILE=\$(ls -1t $STAGE_DIR | head -n 1)
+              mv -f $STAGE_DIR/\$NEW_FILE $STAGE_DIR/$GG_BINARY
+            "
+          """
         }
       }
     }
-
 
     stage('Install Dependencies and Unzip Binaries') {
       steps {
