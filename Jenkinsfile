@@ -17,11 +17,12 @@ pipeline {
         sh """
           # Remove old container if exists
           if docker ps -a --format '{{.Names}}' | grep -q "^${params.OGG_CONTAINER}\$"; then
+
             docker stop ${params.OGG_CONTAINER}
             docker run --rm -v ${params.OGG_VOLUME}:${params.OGG_HOME} alpine sh -c "rm -rf ${params.OGG_HOME}/*"
             docker rm -f ${params.OGG_CONTAINER}
             docker volume rm ${params.OGG_VOLUME}
-            docker network rm ${params.GG_NETWORK}
+            docker network disconnect -f ${params.GG_NETWORK} $(docker ps -q --filter network=${params.GG_NETWORK}) && docker network rm ${params.GG_NETWORK}
           fi
 
           if ! docker volume inspect ${params.OGG_VOLUME} > /dev/null 2>&1; then
