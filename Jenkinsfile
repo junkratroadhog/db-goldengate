@@ -38,8 +38,10 @@ pipeline {
           fi
 
           # Start new GG container
-          docker run -d --name ${params.OGG_CONTAINER} \
+          docker run -d \
+          --name ${params.OGG_CONTAINER} \
           --hostname ${params.OGG_CONTAINER}.gg.com \
+          --add-host ${params.OGG_CONTAINER}.gg.com:172.19.0.4 \
           -v ${params.OGG_VOLUME}:${params.OGG_HOME} \
           oraclelinux:8 tail -f /dev/null
         """
