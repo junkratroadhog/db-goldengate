@@ -210,17 +210,17 @@ pipeline {
           // Create deployment directories and deploy GG
           sh """
             docker exec -i -u oracle -e OGG_HOME=${env.OGG_HOME} ${env.OGG_CONTAINER} bash -lc "\
-              mkdir -p \$OGG_HOME/var && \
-              \$OGG_HOME/bin/oggca.sh -silent \
-                DEPLOYMENT_NAME=${env.OGG_DEPLOY_NAME} \
-                ADMINISTRATOR_USERNAME=${env.deploy_username} \
-                ADMINISTRATOR_PASSWORD=${env.deploy_password} \
-                SERVICE_MANAGER_LISTENER_ADDRESS=${ACTUAL_IP} \
-                SERVICE_MANAGER_LISTENER_PORT=9000 \
-                ADMIN_SERVER_LISTENER_ADDRESS=${ACTUAL_IP} \
-                ADMIN_SERVER_LISTENER_PORT=7809 \
-                DEPLOYMENT_HOME=\$OGG_HOME/var \
-                SERVICEMANAGER_DEPLOYMENT_HOME=\$OGG_HOME"
+            mkdir -p \$OGG_HOME/var && \
+            \$OGG_HOME/bin/oggca.sh -silent \
+              DEPLOYMENT_NAME=${env.OGG_DEPLOY_NAME} \
+              ADMINISTRATOR_USERNAME=${env.deploy_username} \
+              ADMINISTRATOR_PASSWORD=${env.deploy_password} \
+              SERVICE_MANAGER_LISTENER_ADDRESS=${ACTUAL_IP} \
+              SERVICE_MANAGER_LISTENER_PORT=9000 \
+              ADMIN_SERVER_LISTENER_ADDRESS=${ACTUAL_IP} \
+              ADMIN_SERVER_LISTENER_PORT=7809 \
+              DEPLOYMENT_HOME=\$OGG_HOME/var \
+            SERVICEMANAGER_DEPLOYMENT_HOME=\$OGG_HOME"
           """
         }
       }
