@@ -104,7 +104,7 @@ pipeline {
           # Backup old gg_binary.zip if exists
           if [ -f ${params.OGG_binary} ]; then
             echo "Found existing ${params.OGG_binary}, renaming to ${params.OGG_binary}.old"
-            mv -f ${params.OGG_binary} ${params.OGG_binary}.old
+            mv -f ${params.OGG_binary} ${params.OGG_binary + '.old'}
           fi
 
           # Run wget script to download the new binary
