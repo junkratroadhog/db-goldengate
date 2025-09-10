@@ -104,7 +104,7 @@ pipeline {
             docker exec -i -u root ${params.OGG_CONTAINER} bash -c '
             if ! command -v hostname >/dev/null 2>&1; then
               echo "Installing hostname..."
-              yum install -y -q hostname
+              yum install -y hostname
             else
               echo "hostname already installed"
             fi
