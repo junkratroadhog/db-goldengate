@@ -171,7 +171,6 @@ pipeline {
         """
       }
     }
-
     stage('Setup Core MGR Process') {
       steps {
         sh """
@@ -180,21 +179,25 @@ pipeline {
           docker exec -i -u oracle ${env.OGG_CONTAINER} bash -c '
 
           export OGG_HOME=/u02/ogg/ggs_home/ggs_home_core
-          export PATH=\$OGG_HOME/bin:\$PATH
-          cd \$OGG_HOME
+          export PATH=\\\$OGG_HOME/bin:\\\$PATH
+          cd \\$OGG_HOME
 
-          mkdir -p dirprm dirchk dirdsc dirrpt dirlt
+          # Create all required directories
+          mkdir -p dirprm dirchk dirdsc dirrpt dirlt dirout dirpcs dirdmp
 
+          # Create minimal mgr.prm
           cat > dirprm/mgr.prm <<MGR_EOF
 PORT 7809
 AUTOSTART ER *
-CHECKPOINTTABLE ogg_admin.mgr_chk
 MGR_EOF
 
+          # Set permissions
+          chmod -R 775 \\$OGG_HOME/*
+
           # Start GGSCI and run commands
-          \$OGG_HOME/ggsci <<GGSCI_EOF
+          \\$OGG_HOME/ggsci <<GGSCI_EOF
 INFO ALL
-START MANAGER
+START MGR
 INFO ALL
 GGSCI_EOF
           '
@@ -202,7 +205,6 @@ GGSCI_EOF
         """
       }
     }
-
     /*stage('Setup GG Network & Deploy') {
       steps {
         script {
