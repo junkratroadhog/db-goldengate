@@ -131,17 +131,17 @@ pipeline {
           echo "==== Preparing for GoldenGate Installation ===="
 
           # Create oraInst.loc for Oracle Inventory
-          docker exec -i -u root ${OGG_CONTAINER} bash -c "
-            echo 'inventory_loc=${ORA_INV}' > /etc/oraInst.loc
+          docker exec -i -u root ${env.OGG_CONTAINER} bash -c "
+            echo 'inventory_loc=${env.ORA_INV}' > /etc/oraInst.loc
             echo 'inst_group=oinstall' >> /etc/oraInst.loc
             chown oracle:oinstall /etc/oraInst.loc
           "
 
           # Prepare OGG_HOME
-          docker exec -i -u oracle ${OGG_CONTAINER} bash -c "mkdir -p ${OGG_HOME} && chmod 775 ${OGG_HOME}"
+          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -c "mkdir -p ${env.OGG_HOME} && chmod 775 ${env.OGG_HOME}"
 
           # Ensure install script is present and executable
-          docker exec -i ${OGG_CONTAINER} bash -c "
+          docker exec -i ${env.OGG_CONTAINER} bash -c "
             if [ ! -f /tmp/install_scripts/installgg.sh ]; then
               echo 'ERROR: installgg.sh not found in /tmp/install_scripts'
               exit 1
@@ -153,13 +153,13 @@ pipeline {
 
           # Run install script as oracle user with both binaries passed
           docker exec -i -u oracle \
-            -e ORA_BASE=${ORA_BASE} \
-            -e ORA_INV=${ORA_INV} \
-            -e OGG_HOME=${OGG_HOME} \
-            -e STAGE_DIR=${STAGE_DIR} \
-            -e GG_binary=${GG_binary} \
-            -e MS_binary=${MS_binary} \
-            ${OGG_CONTAINER} bash -lc "/tmp/install_scripts/installgg.sh"
+            -e ORA_BASE=${env.ORA_BASE} \
+            -e ORA_INV=${env.ORA_INV} \
+            -e OGG_HOME=${env.OGG_HOME} \
+            -e STAGE_DIR=${env.STAGE_DIR} \
+            -e GG_binary=${env.GG_binary} \
+            -e MS_binary=${env.MS_binary} \
+            ${env.OGG_CONTAINER} bash -lc "/tmp/install_scripts/installgg.sh"
 
           echo "==== GoldenGate Installation Completed ===="
         """
