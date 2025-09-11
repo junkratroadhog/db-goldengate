@@ -125,57 +125,34 @@ pipeline {
 
 
 
-    stage ('Copy & Install GoldenGate') {
+    stage ('Install GoldenGate + Microservices') {
       steps {
         sh """
           # Create oraInst.loc
           docker exec -i -u root ${OGG_CONTAINER} bash -c "
-            echo 'inventory_loc=/u02/oraInventory' > /etc/oraInst.loc
+            echo 'inventory_loc=${ORA_INV}' > /etc/oraInst.loc
             echo 'inst_group=oinstall' >> /etc/oraInst.loc
             chown oracle:oinstall /etc/oraInst.loc
           "
-          if [ -d "\$OGG_HOME" ]; then
-              echo "Cleaning existing OGG_HOME: \$OGG_HOME"
-              rm -rf "\$OGG_HOME"
-          fi
 
-          docker exec -i -u oracle ${OGG_CONTAINER} bash -c "mkdir -p \$OGG_HOME && chown oracle:oinstall \$OGG_HOME && chmod 775 \$OGG_HOME"
+          # Prepare OGG_HOME
+          docker exec -i -u oracle ${OGG_CONTAINER} bash -c "mkdir -p ${OGG_HOME} && chmod 775 ${OGG_HOME}"
 
-          # Run GG INSTALLER as oracle user
+          # Ensure install script is executable
           docker exec -i ${OGG_CONTAINER} bash -c "chmod +x /tmp/install_scripts/*"
+
+          # Run install script as oracle user with both binaries passed
           docker exec -i -u oracle \
             -e ORA_BASE=${ORA_BASE} \
             -e ORA_INV=${ORA_INV} \
             -e OGG_HOME=${OGG_HOME} \
             -e STAGE_DIR=${STAGE_DIR} \
+            -e GG_binary=${GG_binary} \
+            -e MS_binary=${MS_binary} \
             ${OGG_CONTAINER} bash -lc "/tmp/install_scripts/installgg.sh"
         """
       }
     }
-
-    /*stage('Create Deployment') {
-      steps {
-        sh """
-          docker exec -i -u oracle \
-            -e OGG_HOME=${OGG_HOME} \
-            -e OGG_DEPLOY_NAME=${OGG_DEPLOY_NAME} \
-            -e DEPLOY_USERNAME=${deploy_username} \
-            -e DEPLOY_PASSWORD=${deploy_password} \
-            -e AM_PORT=${AM_PORT} \
-            -e SM_PORT=${SM_PORT} \
-            ${OGG_CONTAINER} bash -lc '/tmp/install_scripts/create_deploy_rsp.sh'
-
-          docker exec -i -u oracle \
-            -e OGG_HOME=${OGG_HOME} \
-            -e OGG_DEPLOY_NAME=${OGG_DEPLOY_NAME} \
-            -e DEPLOY_USERNAME=${deploy_username} \
-            -e DEPLOY_PASSWORD=${deploy_password} \
-            -e AM_PORT=${AM_PORT} \
-            -e SM_PORT=${SM_PORT} \
-            ${OGG_CONTAINER} bash -lc "${OGG_HOME}/bin/oggca.sh -silent -responseFile /tmp/install_scripts/ogg_deploy.rsp"
-        """
-      }
-    }*/
 
     stage('Setup GG Network & Deploy') {
       steps {
