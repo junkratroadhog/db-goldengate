@@ -172,6 +172,33 @@ pipeline {
       }
     }
 
+    stage('Setup Core MGR Process') {
+      steps {
+        sh """
+          echo "==== Setting up Core Manager Process ===="
+
+          export OGG_HOME=/u02/ogg/ggs_home/ggs_home_core
+          export PATH=\$OGG_HOME/bin:\$PATH
+          cd \$OGG_HOME
+
+          mkdir -p dirprm dirchk dirdsc dirrpt dirlt
+
+          cat > dirprm/mgr.prm <<MGR_EOF
+PORT 7809
+AUTOSTART ER *
+CHECKPOINTTABLE ogg_admin.mgr_chk
+MGR_EOF
+
+          # Start GGSCI and run commands
+          \$OGG_HOME/ggsci <<GGSCI_EOF
+INFO ALL
+START MANAGER
+INFO ALL
+GGSCI_EOF
+        """
+      }
+    }
+
     /*stage('Setup GG Network & Deploy') {
       steps {
         script {
