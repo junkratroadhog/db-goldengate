@@ -128,7 +128,9 @@ pipeline {
     stage ('Install GoldenGate + Microservices') {
       steps {
         sh """
-          # Create oraInst.loc
+          echo "==== Preparing for GoldenGate Installation ===="
+
+          # Create oraInst.loc for Oracle Inventory
           docker exec -i -u root ${OGG_CONTAINER} bash -c "
             echo 'inventory_loc=${ORA_INV}' > /etc/oraInst.loc
             echo 'inst_group=oinstall' >> /etc/oraInst.loc
@@ -138,8 +140,16 @@ pipeline {
           # Prepare OGG_HOME
           docker exec -i -u oracle ${OGG_CONTAINER} bash -c "mkdir -p ${OGG_HOME} && chmod 775 ${OGG_HOME}"
 
-          # Ensure install script is executable
-          docker exec -i ${OGG_CONTAINER} bash -c "chmod +x /tmp/install_scripts/*"
+          # Ensure install script is present and executable
+          docker exec -i ${OGG_CONTAINER} bash -c "
+            if [ ! -f /tmp/install_scripts/installgg.sh ]; then
+              echo 'ERROR: installgg.sh not found in /tmp/install_scripts'
+              exit 1
+            fi
+            chmod +x /tmp/install_scripts/installgg.sh
+          "
+
+          echo "==== Starting Silent Install of GoldenGate Classic + Microservices ===="
 
           # Run install script as oracle user with both binaries passed
           docker exec -i -u oracle \
@@ -150,9 +160,12 @@ pipeline {
             -e GG_binary=${GG_binary} \
             -e MS_binary=${MS_binary} \
             ${OGG_CONTAINER} bash -lc "/tmp/install_scripts/installgg.sh"
+
+          echo "==== GoldenGate Installation Completed ===="
         """
       }
     }
+
 
     stage('Setup GG Network & Deploy') {
       steps {
