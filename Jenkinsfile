@@ -6,8 +6,10 @@ pipeline {
     string(name: 'OGG_CONTAINER', defaultValue: 'ogg-users_detail', description: 'ogg-users_detail')
     string(name: 'OGG_HOME', defaultValue: '/u02/ogg/ggs_home', description: '/u02/ogg/ggs_home')
     string(name: 'STAGE_DIR', defaultValue: '/tmp/binaries', description: 'Staging directory inside container')
-    string(name: 'OGG_binary', defaultValue: 'gg_binary.zip', description: 'gg_binary.zip')
     string(name: 'GG_NETWORK', defaultValue: 'GG_NET', description: 'GG_NET')
+    string(name: 'GG_binary', defaultValue: 'gg_binary.zip', description: 'gg_binary.zip')
+    string(name: 'MS_binary', defaultValue: 'ms_binary.zip', description: 'ms_binary.zip')
+
   }
 
   stages {
@@ -96,8 +98,8 @@ pipeline {
     stage('Install Dependencies and Unzip Binaries') {
       steps {
         sh """
-            echo "Using existing GoldenGate binary: ${OGG_binary}"
-  
+            echo "Using existing GoldenGate binary: ${params.GG_binary} and Microservices binary: ${params.MS_binary}"
+
           # Prepare directories with correct ownership
           docker exec -i -u root ${params.OGG_CONTAINER} bash -c "
             mkdir -p ${params.STAGE_DIR} /u02/ogg /u02/oraInventory
@@ -106,9 +108,12 @@ pipeline {
           "
   
           # Copy GG binary zip into container
-          docker cp /software/${params.OGG_binary} ${params.OGG_CONTAINER}:${params.STAGE_DIR}/${params.OGG_binary}
-          docker exec -i -u root -e STAGE_DIR="${params.STAGE_DIR}" -e OGG_HOME="${params.OGG_HOME}" ${params.OGG_CONTAINER} bash -c "chown oracle:oinstall ${params.STAGE_DIR}/${params.OGG_binary} && chmod 777 ${params.STAGE_DIR}/${params.OGG_binary}"
-  
+          docker cp /software/${params.GG_binary} ${params.OGG_CONTAINER}:${params.STAGE_DIR}/${params.GG_binary}
+          docker cp /software/${params.MS_binary} ${params.OGG_CONTAINER}:${params.STAGE_DIR}/${params.MS_binary}
+          docker exec -i -u root -e STAGE_DIR="${params.STAGE_DIR}" -e OGG_HOME="${params.OGG_HOME}" ${params.OGG_CONTAINER} bash -c "chown oracle:oinstall ${params.STAGE_DIR}/${params.GG_binary} && chmod 777 ${params.STAGE_DIR}/${params.GG_binary}"
+          docker exec -i -u root -e STAGE_DIR="${params.STAGE_DIR}" -e OGG_HOME="${params.OGG_HOME}" ${params.OGG_CONTAINER} bash -c "chown oracle:oinstall ${params.STAGE_DIR}/${params.MS_binary} && chmod 777 ${params.STAGE_DIR}/${params.MS_binary}"
+
+
             docker exec -i -u root ${params.OGG_CONTAINER} bash -c '
             if ! command -v hostname >/dev/null 2>&1; then
               echo "Installing hostname..."
@@ -134,7 +139,8 @@ pipeline {
           
           # Unzip Binaries as oracle
           docker exec -i -u oracle ${params.OGG_CONTAINER} bash -c "
-            unzip -q -o ${params.STAGE_DIR}/${params.OGG_binary} -d ${params.STAGE_DIR}/.
+            unzip -q -o ${params.STAGE_DIR}/${params.GG_binary} -d ${params.STAGE_DIR}/.
+            unzip -q -o ${params.STAGE_DIR}/${params.MS_binary} -d ${params.STAGE_DIR}/.
           "
         """
       }
