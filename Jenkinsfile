@@ -77,15 +77,10 @@ pipeline {
       steps {
         sh """
         docker exec -i -u oracle ${params.OGG_CONTAINER} bash -c 'mkdir -p ${params.OGG_HOME_CORE} ${params.OGG_HOME_MS}'
-        docker exec -i -u root ${params.OGG_CONTAINER} bash -c '
-          echo "export OGG_HOME_CORE=${params.OGG_HOME_CORE}" > /etc/profile.d/ogg.sh
-          echo "export PATH=\\\$OGG_HOME_CORE/bin:\\\$PATH" >> /etc/profile.d/ogg.sh
-          chmod +x /etc/profile.d/ogg.sh
-        '
 
         docker exec -i -u root ${params.OGG_CONTAINER} bash -c '
-          echo "export OGG_HOME_MS=${params.OGG_HOME_MS}" > /etc/profile.d/ogg.sh
-          echo "export PATH=\\\$OGG_HOME_MS/bin:\\\$PATH" >> /etc/profile.d/ogg.sh
+          echo "export OGG_HOME_CORE=${params.OGG_HOME_CORE}" > /etc/profile.d/ogg.sh
+          echo "export OGG_HOME_MS=${params.OGG_HOME_MS}" >> /etc/profile.d/ogg.sh
           chmod +x /etc/profile.d/ogg.sh
         '
         """
@@ -95,8 +90,11 @@ pipeline {
     stage('Verify Env') {
       steps {
         sh """
-        # Works for login shells
-        docker exec -i -u oracle ${params.OGG_CONTAINER} bash -l -c 'echo OGG_HOME_CORE=\$OGG_HOME_CORE; echo OGG_HOME_MS=\$OGG_HOME_MS; echo PATH=\$PATH'
+        docker exec -i -u oracle ${params.OGG_CONTAINER} bash -l -c '
+          echo OGG_HOME_CORE=\$OGG_HOME_CORE
+          echo OGG_HOME_MS=\$OGG_HOME_MS
+          echo PATH=\$PATH
+        '
         """
       }
     }
