@@ -107,10 +107,12 @@ pipeline {
             chmod -R 775 /u02/ogg /u02/oraInventory
           "
   
-          # Copy GG binary zip into container
+          # Copy GG binary zip into container and set permissions
           docker cp /software/${params.GG_binary} ${params.OGG_CONTAINER}:${params.STAGE_DIR}/${params.GG_binary}
-          docker cp /software/${params.MS_binary} ${params.OGG_CONTAINER}:${params.STAGE_DIR}/${params.MS_binary}
           docker exec -i -u root -e STAGE_DIR="${params.STAGE_DIR}" -e OGG_HOME="${params.OGG_HOME}" ${params.OGG_CONTAINER} bash -c "chown oracle:oinstall ${params.STAGE_DIR}/${params.GG_binary} && chmod 777 ${params.STAGE_DIR}/${params.GG_binary}"
+
+          # Copy MS binary zip into container and set permissions
+          docker cp /software/${params.MS_binary} ${params.OGG_CONTAINER}:${params.STAGE_DIR}/${params.MS_binary}
           docker exec -i -u root -e STAGE_DIR="${params.STAGE_DIR}" -e OGG_HOME="${params.OGG_HOME}" ${params.OGG_CONTAINER} bash -c "chown oracle:oinstall ${params.STAGE_DIR}/${params.MS_binary} && chmod 777 ${params.STAGE_DIR}/${params.MS_binary}"
 
 
