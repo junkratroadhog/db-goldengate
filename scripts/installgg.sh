@@ -46,7 +46,6 @@ echo "==== Classic GoldenGate installation complete ===="
 echo "==== Installing GoldenGate Microservices ===="
 cd "$(dirname "$MS_INSTALLER")"
 ./runInstaller -silent \
-  oracle.install.option=OGGCORE \
   INSTALL_TYPE=GG_MICROSERVICES \
   SOFTWARE_LOCATION="$OGG_HOME_MS" \
   ORACLE_BASE="$ORA_BASE" \
