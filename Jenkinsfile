@@ -13,8 +13,9 @@ pipeline {
     // GoldenGate environment NOTE : You must dump the gg_binary.zip into /software volume in jenkins container manually
     OGG_VOLUME = 'ogg_users_detail_vol'
     OGG_CONTAINER = 'ogg-users_detail'
-    OGG_HOME_CORE = '/u02/ogg/ggs_home_core'
-    OGG_HOME_MS = '/u02/ogg/ggs_home_ms'
+    OGG_HOME = '/u02/ogg/ggs_home'
+    OGG_HOME_CORE = '/u02/ogg/ggs_home/ggs_home_core'
+    OGG_HOME_MS = '/u02/ogg/ggs_home/ggs_home_ms'
     STAGE_DIR = '/tmp/binaries'
     ORA_BASE = '/u02/ogg'
     ORA_INV = '/u02/oraInventory'
