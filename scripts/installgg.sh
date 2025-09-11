@@ -37,6 +37,8 @@ echo "==== Installing GoldenGate Classic Core ===="
   DECLINE_SECURITY_UPDATES=true \
   ACCEPT_LICENSE_AGREEMENT=true
 
+sleep 15
+
 echo "==== Installing GoldenGate Microservices ===="
 "$ms_installer" -silent \
   oracle.install.option=OGGCORE \
@@ -48,5 +50,7 @@ echo "==== Installing GoldenGate Microservices ===="
   INSTALL_OPTION=ORA21c \
   DECLINE_SECURITY_UPDATES=true \
   ACCEPT_LICENSE_AGREEMENT=true
+
+sleep 15
 
 echo "==== GoldenGate Classic + Microservices Installation Completed Successfully ===="
