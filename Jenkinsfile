@@ -8,8 +8,9 @@ pipeline {
     string(name: 'GG_NETWORK', defaultValue: 'GG_NET', description: 'GG_NET')
     string(name: 'GG_binary', defaultValue: 'gg_binary.zip', description: 'gg_binary.zip')
     string(name: 'MS_binary', defaultValue: 'ms_binary.zip', description: 'ms_binary.zip')
-    string(name: 'OGG_HOME_CORE', defaultValue: '/u02/ogg/ggs_home_core', description: '/u02/ogg/ggs_home_core')
-    string(name: 'OGG_HOME_MS', defaultValue: '/u02/ogg/ggs_home_ms', description: '/u02/ogg/ggs_home_ms')
+    string(name: 'OGG_HOME', defaultValue: '/u02/ogg/ggs_home', description: '/u02/ogg/ggs_home')
+    string(name: 'OGG_HOME_CORE', defaultValue: '/u02/ogg/ggs_home/ggs_home_core', description: '/u02/ogg/ggs_home/ggs_home_core')
+    string(name: 'OGG_HOME_MS', defaultValue: '/u02/ogg/ggs_home/ggs_home_ms', description: '/u02/ogg/ggs_home/ggs_home_ms')
   }
 
   stages {
@@ -45,8 +46,7 @@ pipeline {
           docker run -d \
           --name ${params.OGG_CONTAINER} \
           --hostname ${params.OGG_CONTAINER}.gg.com \
-          -v ${params.OGG_VOLUME}:${params.OGG_HOME_CORE} \
-          -v ${params.OGG_VOLUME}:${params.OGG_HOME_MS} \
+          -v ${params.OGG_VOLUME}:${params.OGG_HOME} \
           oraclelinux:8 tail -f /dev/null
         """
       }
