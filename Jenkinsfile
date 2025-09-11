@@ -178,9 +178,9 @@ pipeline {
 
           docker exec -i -u oracle ${env.OGG_CONTAINER} bash -c '
 
-          export OGG_HOME=/u02/ogg/ggs_home/ggs_home_core
-          export PATH=\\\$OGG_HOME/bin:\\\$PATH
-          cd \\$OGG_HOME
+          export OGG_HOME=${env.OGG_HOME_CORE}
+          export PATH=\\\$OGG_HOME_CORE/bin:\\\$PATH
+          cd \$OGG_HOME_CORE
 
           # Create all required directories
           mkdir -p dirprm dirchk dirdsc dirrpt dirlt dirout dirpcs dirdmp
