@@ -177,6 +177,8 @@ pipeline {
         sh """
           echo "==== Setting up Core Manager Process ===="
 
+          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -c '
+
           export OGG_HOME=/u02/ogg/ggs_home/ggs_home_core
           export PATH=\$OGG_HOME/bin:\$PATH
           cd \$OGG_HOME
@@ -195,6 +197,8 @@ INFO ALL
 START MANAGER
 INFO ALL
 GGSCI_EOF
+          '
+          echo "==== Core Manager Setup Completed ===="
         """
       }
     }
