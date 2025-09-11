@@ -1,56 +1,60 @@
 #!/bin/bash
 set -e
 
-: "${OGG_HOME:?Environment variable OGG_HOME must be set}"
-: "${STAGE_DIR:?Environment variable STAGE_DIR must be set}"
-: "${ORA_BASE:?Environment variable ORA_BASE must be set}"
-: "${ORA_INV:?Environment variable ORA_INV must be set}"
+# Required environment variables
+: "${STAGE_DIR:?STAGE_DIR must be set}"
+: "${ORA_BASE:?ORA_BASE must be set}"
+: "${ORA_INV:?ORA_INV must be set}"
+: "${OGG_HOME_CORE:?OGG_HOME_CORE must be set}"
+: "${OGG_HOME_MS:?OGG_HOME_MS must be set}"
 
-echo "==== Looking for GoldenGate installers under ${STAGE_DIR} ===="
+echo "==== Looking for GoldenGate installers under $STAGE_DIR ===="
 
-# Find GG Classic installer
-gg_installer=$(find "${STAGE_DIR}" -type f -path "*/fbo_ggs_Linux_x64_Oracle_shiphome/Disk1/runInstaller" | head -n 1)
-if [ -z "$gg_installer" ]; then
-  echo "ERROR: GoldenGate Classic installer not found under ${STAGE_DIR}"
+# Find Classic GG installer dynamically
+GG_INSTALLER=$(find "$STAGE_DIR" -type f -path "*/fbo_ggs_Linux_x64_Oracle_shiphome/Disk1/runInstaller" | head -n 1)
+if [ -z "$GG_INSTALLER" ]; then
+  echo "ERROR: Classic GoldenGate installer not found in $STAGE_DIR"
   exit 1
 fi
+echo "==== Found Classic Installer: $GG_INSTALLER ===="
 
-# Find GG Microservices installer
-ms_installer=$(find "${STAGE_DIR}" -type f -path "*/fbo_ggs_Linux_x64_Oracle_services_shiphome/Disk1/runInstaller" | head -n 1)
-if [ -z "$ms_installer" ]; then
-  echo "ERROR: GoldenGate Microservices installer not found under ${STAGE_DIR}"
+# Find Microservices installer dynamically
+MS_INSTALLER=$(find "$STAGE_DIR" -type f -path "*/fbo_ggs_Linux_x64_Oracle_services_shiphome/Disk1/runInstaller" | head -n 1)
+if [ -z "$MS_INSTALLER" ]; then
+  echo "ERROR: Microservices installer not found in $STAGE_DIR"
   exit 1
 fi
+echo "==== Found Microservices Installer: $MS_INSTALLER ===="
 
-echo "==== Found installers ===="
-echo "Classic: $gg_installer"
-echo "Microservices: $ms_installer"
-
+# Install Classic GoldenGate Core
 echo "==== Installing GoldenGate Classic Core ===="
-"$gg_installer" -silent \
+cd "$(dirname "$GG_INSTALLER")"
+./runInstaller -silent \
   oracle.install.option=OGGCORE \
-  ORACLE_BASE=$ORA_BASE \
-  INVENTORY_LOCATION=$ORA_INV \
-  SOFTWARE_LOCATION=$OGG_HOME \
+  SOFTWARE_LOCATION="$OGG_HOME_CORE" \
+  ORACLE_BASE="$ORA_BASE" \
+  INVENTORY_LOCATION="$ORA_INV" \
   UNIX_GROUP_NAME=oinstall \
-  INSTALL_OPTION=ORA21c \
   DECLINE_SECURITY_UPDATES=true \
   ACCEPT_LICENSE_AGREEMENT=true
 
 sleep 15
 
+echo "==== Classic GoldenGate installation complete ===="
+
+# Install GoldenGate Microservices
 echo "==== Installing GoldenGate Microservices ===="
-"$ms_installer" -silent \
+cd "$(dirname "$MS_INSTALLER")"
+./runInstaller -silent \
   oracle.install.option=OGGCORE \
   INSTALL_TYPE=GG_MICROSERVICES \
-  ORACLE_BASE=$ORA_BASE \
-  INVENTORY_LOCATION=$ORA_INV \
-  SOFTWARE_LOCATION=$OGG_HOME \
+  SOFTWARE_LOCATION="$OGG_HOME_MS" \
+  ORACLE_BASE="$ORA_BASE" \
+  INVENTORY_LOCATION="$ORA_INV" \
   UNIX_GROUP_NAME=oinstall \
-  INSTALL_OPTION=ORA21c \
   DECLINE_SECURITY_UPDATES=true \
   ACCEPT_LICENSE_AGREEMENT=true
 
 sleep 15
 
-echo "==== GoldenGate Classic + Microservices Installation Completed Successfully ===="
+echo "==== Microservices installation complete ===="
