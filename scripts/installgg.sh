@@ -1,55 +1,52 @@
 #!/bin/bash
 set -e
 
-# Required environment variables
-: "${OGG_HOME:?OGG_HOME must be set}"
-: "${STAGE_DIR:?STAGE_DIR must be set}"
-: "${ORA_BASE:?ORA_BASE must be set}"
-: "${ORA_INV:?ORA_INV must be set}"
+: "${OGG_HOME:?Environment variable OGG_HOME must be set}"
+: "${STAGE_DIR:?Environment variable STAGE_DIR must be set}"
+: "${ORA_BASE:?Environment variable ORA_BASE must be set}"
+: "${ORA_INV:?Environment variable ORA_INV must be set}"
 
-export PATH=${OGG_HOME}/bin:$PATH
+echo "==== Looking for GoldenGate installers under ${STAGE_DIR} ===="
 
-# Function to run installer from a given extracted directory
-install_from_dir() {
-  local dir=$1
-  local install_type=$2
-
-  installer=$(find "$dir" -type f -name runInstaller | head -n 1)
-  if [ -z "$installer" ]; then
-    echo "ERROR: runInstaller not found under $dir"
-    exit 1
-  fi
-
-  installer_dir=$(dirname "$installer")
-  cd "$installer_dir"
-
-  echo ">>> Running installer [$install_type] from $installer_dir"
-
-  ./runInstaller -silent \
-    oracle.install.option=OGGCORE \
-    INSTALL_TYPE=$install_type \
-    ORACLE_BASE=$ORA_BASE \
-    INVENTORY_LOCATION=$ORA_INV \
-    SOFTWARE_LOCATION=$OGG_HOME \
-    UNIX_GROUP_NAME=oinstall \
-    INSTALL_OPTION=ORA21c \
-    DECLINE_SECURITY_UPDATES=true \
-    ACCEPT_LICENSE_AGREEMENT=true
-}
-
-# Find extracted GG and MS directories
-GG_DIR=$(find "${STAGE_DIR}" -maxdepth 1 -type d -name "fbo_ggs_Linux*" | head -n 1)
-MS_DIR=$(find "${STAGE_DIR}" -maxdepth 1 -type d -name "fbo_ggs_ms_*" | head -n 1)
-
-if [ -z "$GG_DIR" ] || [ -z "$MS_DIR" ]; then
-  echo "ERROR: Could not find extracted GoldenGate directories under ${STAGE_DIR}"
+# Find GG Classic installer
+gg_installer=$(find "${STAGE_DIR}" -type f -path "*/fbo_ggs_Linux_x64_Oracle_shiphome/Disk1/runInstaller" | head -n 1)
+if [ -z "$gg_installer" ]; then
+  echo "ERROR: GoldenGate Classic installer not found under ${STAGE_DIR}"
   exit 1
 fi
 
-# Install Classic (Core)
-install_from_dir "$GG_DIR" OGGCLASSIC
+# Find GG Microservices installer
+ms_installer=$(find "${STAGE_DIR}" -type f -path "*/fbo_ggs_Linux_x64_Oracle_services_shiphome/Disk1/runInstaller" | head -n 1)
+if [ -z "$ms_installer" ]; then
+  echo "ERROR: GoldenGate Microservices installer not found under ${STAGE_DIR}"
+  exit 1
+fi
 
-# Install Microservices
-install_from_dir "$MS_DIR" GG_MICROSERVICES
+echo "==== Found installers ===="
+echo "Classic: $gg_installer"
+echo "Microservices: $ms_installer"
 
-echo ">>> GoldenGate Classic + Microservices installed successfully!"
+echo "==== Installing GoldenGate Classic Core ===="
+"$gg_installer" -silent \
+  oracle.install.option=OGGCORE \
+  ORACLE_BASE=$ORA_BASE \
+  INVENTORY_LOCATION=$ORA_INV \
+  SOFTWARE_LOCATION=$OGG_HOME \
+  UNIX_GROUP_NAME=oinstall \
+  INSTALL_OPTION=ORA21c \
+  DECLINE_SECURITY_UPDATES=true \
+  ACCEPT_LICENSE_AGREEMENT=true
+
+echo "==== Installing GoldenGate Microservices ===="
+"$ms_installer" -silent \
+  oracle.install.option=OGGCORE \
+  INSTALL_TYPE=GG_MICROSERVICES \
+  ORACLE_BASE=$ORA_BASE \
+  INVENTORY_LOCATION=$ORA_INV \
+  SOFTWARE_LOCATION=$OGG_HOME \
+  UNIX_GROUP_NAME=oinstall \
+  INSTALL_OPTION=ORA21c \
+  DECLINE_SECURITY_UPDATES=true \
+  ACCEPT_LICENSE_AGREEMENT=true
+
+echo "==== GoldenGate Classic + Microservices Installation Completed Successfully ===="
