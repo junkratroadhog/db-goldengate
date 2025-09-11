@@ -2,11 +2,11 @@
 set -e
 
 # Required environment variables
-: "${STAGE_DIR:?STAGE_DIR must be set}"
-: "${ORA_BASE:?ORA_BASE must be set}"
-: "${ORA_INV:?ORA_INV must be set}"
-: "${OGG_HOME_CORE:?OGG_HOME_CORE must be set}"
-: "${OGG_HOME_MS:?OGG_HOME_MS must be set}"
+: "${STAGE_DIR:?Environment variable STAGE_DIR must be set}"
+: "${ORA_BASE:?Environment variable ORA_BASE must be set}"
+: "${ORA_INV:?Environment variable ORA_INV must be set}"
+: "${OGG_HOME_CORE:?Environment variable OGG_HOME_CORE must be set}"
+: "${OGG_HOME_MS:?Environment variable OGG_HOME_MS must be set}"
 
 echo "==== Looking for GoldenGate installers under $STAGE_DIR ===="
 
