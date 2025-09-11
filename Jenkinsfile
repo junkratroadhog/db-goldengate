@@ -15,7 +15,6 @@ pipeline {
     OGG_CONTAINER = 'ogg-users_detail'
     OGG_HOME_CORE = '/u02/ogg/ggs_home_core'
     OGG_HOME_MS = '/u02/ogg/ggs_home_ms'
-    OGG_HOME
     STAGE_DIR = '/tmp/binaries'
     ORA_BASE = '/u02/ogg'
     ORA_INV = '/u02/oraInventory'
@@ -81,7 +80,6 @@ pipeline {
               parameters: [
                 string(name: 'OGG_VOLUME', value: env.OGG_VOLUME),
                 string(name: 'OGG_CONTAINER', value: env.OGG_CONTAINER),
-                string(name: 'OGG_HOME', value: env.OGG_HOME),
                 string(name: 'OGG_HOME_CORE', value: env.OGG_HOME_CORE),
                 string(name: 'OGG_HOME_MS', value: env.OGG_HOME_MS),
                 string(name: 'STAGE_DIR', value: env.STAGE_DIR),
@@ -141,8 +139,10 @@ pipeline {
             chown oracle:oinstall /etc/oraInst.loc
           "
 
-          # Prepare OGG_HOME
-          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -c "mkdir -p ${env.OGG_HOME} && chmod 775 ${env.OGG_HOME}"
+          # Prepare OGG_HOME_CORE and OGG_HOME_MS directories
+          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -c "mkdir -p ${env.OGG_HOME_CORE} && chmod 775 ${env.OGG_HOME_CORE}"
+          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -c "mkdir -p ${env.OGG_HOME_MS} && chmod 775 ${env.OGG_HOME_MS}"
+          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -c "chown -R oracle:oinstall ${env.OGG_HOME_CORE} ${env.OGG_HOME_MS}"
 
           # Ensure install script is present and executable
           docker exec -i ${env.OGG_CONTAINER} bash -c "
@@ -159,7 +159,8 @@ pipeline {
           docker exec -i -u oracle \
             -e ORA_BASE=${env.ORA_BASE} \
             -e ORA_INV=${env.ORA_INV} \
-            -e OGG_HOME=${env.OGG_HOME} \
+            -e OGG_HOME_CORE=${env.OGG_HOME_CORE} \
+            -e OGG_HOME_MS=${env.OGG_HOME_MS} \
             -e STAGE_DIR=${env.STAGE_DIR} \
             -e GG_binary=${env.GG_binary} \
             -e MS_binary=${env.MS_binary} \
@@ -170,7 +171,7 @@ pipeline {
       }
     }
 
-    stage('Setup GG Network & Deploy') {
+    /*stage('Setup GG Network & Deploy') {
       steps {
         script {
           // Create the network if it doesn't exist
@@ -219,7 +220,7 @@ pipeline {
           """
         }
       }
-    }
+    }*/
   }
   
   post {
