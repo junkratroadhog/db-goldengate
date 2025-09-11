@@ -76,7 +76,16 @@ pipeline {
     stage('Setup Global Env') {
       steps {
         sh """
+          # Create required directories
+        docker exec -i ${params.OGG_CONTAINER} bash -c 'chmod 775 ${params.OGG_HOME} && chown -R oracle:oinstall ${params.OGG_HOME}'
         docker exec -i -u oracle ${params.OGG_CONTAINER} bash -c 'mkdir -p ${params.OGG_HOME_CORE} ${params.OGG_HOME_MS}'
+
+          # Prepare directories with correct ownership
+          docker exec -i -u root ${params.OGG_CONTAINER} bash -c "
+            mkdir -p ${params.STAGE_DIR} /u02/ogg /u02/oraInventory
+            chown -R oracle:oinstall ${params.STAGE_DIR} /u02/ogg /u02/oraInventory
+            chmod -R 775 /u02/ogg /u02/oraInventory
+          "
 
         docker exec -i -u root ${params.OGG_CONTAINER} bash -c '
           echo "export OGG_HOME_CORE=${params.OGG_HOME_CORE}" > /etc/profile.d/ogg.sh
@@ -104,12 +113,7 @@ pipeline {
         sh """
             echo "Using existing GoldenGate binary: ${params.GG_binary} and Microservices binary: ${params.MS_binary}"
 
-          # Prepare directories with correct ownership
-          docker exec -i -u root ${params.OGG_CONTAINER} bash -c "
-            mkdir -p ${params.STAGE_DIR} /u02/ogg /u02/oraInventory
-            chown -R oracle:oinstall ${params.STAGE_DIR} /u02/ogg /u02/oraInventory
-            chmod -R 775 /u02/ogg /u02/oraInventory
-          "
+
   
           # Copy GG binary zip into container and set permissions
           docker cp /software/${params.GG_binary} ${params.OGG_CONTAINER}:${params.STAGE_DIR}/${params.GG_binary}
