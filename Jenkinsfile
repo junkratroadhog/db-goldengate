@@ -14,11 +14,14 @@ pipeline {
     OGG_VOLUME = 'ogg_users_detail_vol'
     OGG_CONTAINER = 'ogg-users_detail'
     OGG_HOME = '/u02/ogg/ggs_home'
-    OGG_binary = 'gg_binary.zip' // This file has to be copied to my-jenkins docker container manually into /tmp/binaries/
     STAGE_DIR = '/tmp/binaries'
     ORA_BASE = '/u02/ogg'
     ORA_INV = '/u02/oraInventory'
     INSTALL_TYPE = 'ORA21c'
+
+    // GoldenGate binaries (must exist in /software inside Jenkins container)
+    GG_binary    = 'gg_binary.zip'
+    MS_binary     = 'ms_binary.zip'
 
     // Goldengate Deployment parameters
     OGG_DEPLOY_NAME = 'ogg_deploy-Users-Detail'
@@ -77,9 +80,10 @@ pipeline {
                 string(name: 'OGG_VOLUME', value: env.OGG_VOLUME),
                 string(name: 'OGG_CONTAINER', value: env.OGG_CONTAINER),
                 string(name: 'OGG_HOME', value: env.OGG_HOME),
-                string(name: 'OGG_binary', value: env.OGG_binary),
                 string(name: 'STAGE_DIR', value: env.STAGE_DIR),
                 string(name: 'GG_NETWORK', value: env.GG_NETWORK),
+                string(name: 'MS_binary', value: env.MS_binary),
+                string(name: 'GG_binary', value: env.GG_binary),
               ]
           } 
           
