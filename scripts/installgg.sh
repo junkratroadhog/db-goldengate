@@ -31,6 +31,7 @@ echo "==== Installing GoldenGate Classic Core ===="
 cd "$(dirname "$GG_INSTALLER")"
 ./runInstaller -silent \
   oracle.install.option=OGGCORE \
+  INSTALL_OPTION=ORA21c \
   SOFTWARE_LOCATION="$OGG_HOME_CORE" \
   ORACLE_BASE="$ORA_BASE" \
   INVENTORY_LOCATION="$ORA_INV" \
@@ -47,6 +48,7 @@ echo "==== Installing GoldenGate Microservices ===="
 cd "$(dirname "$MS_INSTALLER")"
 ./runInstaller -silent \
   INSTALL_TYPE=GG_MICROSERVICES \
+  INSTALL_OPTION=ORA21c \
   SOFTWARE_LOCATION="$OGG_HOME_MS" \
   ORACLE_BASE="$ORA_BASE" \
   INVENTORY_LOCATION="$ORA_INV" \
