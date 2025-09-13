@@ -234,21 +234,21 @@ EOF
             cat > dirprm/ext1.prm <<EXT_EOF
 EXTRACT ext1
 USERID ${env.deploy_username}, PASSWORD ${env.deploy_password}
-EXTTRAIL ./dirdat/ext1.trl
-TABLE ${env.src_PDB}.employees;
+EXTTRAIL ./dirdat/et
+TABLE ${env.src_PDB}.${TABLE_NAME};
 EXT_EOF
 
             cat > dirprm/rep1.prm <<REP_EOF
 REPLICAT rep1
 USERID ${env.deploy_username}, PASSWORD ${env.deploy_password}
-EXTTRAIL ./dirdat/ext1.trl
-MAP ${env.src_PDB}.employees, TARGET ${env.dest_PDB}.employees;
+EXTTRAIL ./dirdat/et
+MAP ${env.src_PDB}.${TABLE_NAME}, TARGET ${env.dest_PDB}.${TABLE_NAME};
 REP_EOF
 
             \$OGG_HOME/ggsci <<GGSCI_EOF
 ADD EXTRACT ext1, TRANLOG, BEGIN NOW
-ADD EXTTRAIL ./dirdat/ext1.trl EXTRACT ext1
-ADD REPLICAT rep1, EXTTRAIL ./dirdat/ext1.trl
+ADD EXTTRAIL ./dirdat/et EXTRACT ext1
+ADD REPLICAT rep1, EXTTRAIL ./dirdat/et
 
 START EXTRACT ext1
 START REPLICAT rep1
@@ -259,7 +259,6 @@ GGSCI_EOF
         }
       }
     }
-
   }
   
   post {
