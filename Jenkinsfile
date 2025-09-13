@@ -217,6 +217,16 @@ EOF
       }
     }
 
+    stage('Add DB and GG into same network') {
+      steps{
+        sh """
+          docker network connect ${env.GG_NETWORK} ${env.src_PDB}
+          docker network connect ${env.GG_NETWORK} ${env.dest_PDB}
+          docker network connect ${env.GG_NETWORK} ${env.OGG_CONTAINER}
+        """
+      }
+    }
+
     stage('Configure and Start GoldenGate Processes') {
       steps {
         script {
