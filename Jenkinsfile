@@ -37,10 +37,12 @@ pipeline {
             docker network rm ${params.GG_NETWORK} || true
           fi
 
-          # Create network
+          # Create GG VOLUME
           if ! docker volume inspect ${params.OGG_VOLUME} > /dev/null 2>&1; then
             docker volume create ${params.OGG_VOLUME}
           fi
+          
+          docker volume create ${params.GG_NETWORK}
 
           # Start new GG container
           docker run -d \
@@ -76,9 +78,9 @@ pipeline {
     stage('Setup Global Env') {
       steps {
         sh """
-          # Create required directories
-        docker exec -i ${params.OGG_CONTAINER} bash -c 'chmod 775 ${params.OGG_HOME} && chown -R oracle:oinstall ${params.OGG_HOME}'
-        docker exec -i -u oracle ${params.OGG_CONTAINER} bash -c 'mkdir -p ${params.OGG_HOME_CORE} ${params.OGG_HOME_MS}'
+        # Create required directories
+          docker exec -i ${params.OGG_CONTAINER} bash -c 'chmod 775 ${params.OGG_HOME} && chown -R oracle:oinstall ${params.OGG_HOME}'
+          docker exec -i -u oracle ${params.OGG_CONTAINER} bash -c 'mkdir -p ${params.OGG_HOME_CORE} ${params.OGG_HOME_MS}'
 
           # Prepare directories with correct ownership
           docker exec -i -u root ${params.OGG_CONTAINER} bash -c "
@@ -87,11 +89,11 @@ pipeline {
             chmod -R 775 /u02/ogg /u02/oraInventory
           "
 
-        docker exec -i -u root ${params.OGG_CONTAINER} bash -c '
-          echo "export OGG_HOME_CORE=${params.OGG_HOME_CORE}" > /etc/profile.d/ogg.sh
-          echo "export OGG_HOME_MS=${params.OGG_HOME_MS}" >> /etc/profile.d/ogg.sh
-          chmod +x /etc/profile.d/ogg.sh
-        '
+          docker exec -i -u root ${params.OGG_CONTAINER} bash -c '
+            echo "export OGG_HOME_CORE=${params.OGG_HOME_CORE}" > /etc/profile.d/ogg.sh
+            echo "export OGG_HOME_MS=${params.OGG_HOME_MS}" >> /etc/profile.d/ogg.sh
+            chmod +x /etc/profile.d/ogg.sh
+          '
         """
       }
     }
