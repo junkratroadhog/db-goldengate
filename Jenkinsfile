@@ -295,7 +295,7 @@ ${db.name} =
     )
   )
 EOF'
-            cat \$TNS_ADMIN/tnsnames.ora
+          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -lc 'cat \$TNS_ADMIN/tnsnames.ora'
             """
           }
         }
