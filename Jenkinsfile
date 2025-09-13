@@ -9,6 +9,7 @@ pipeline {
     string(name: 'GG_binary', defaultValue: 'gg_binary.zip', description: 'gg_binary.zip')
     string(name: 'MS_binary', defaultValue: 'ms_binary.zip', description: 'ms_binary.zip')
     string(name: 'OGG_HOME', defaultValue: '/u02/ogg/ggs_home', description: '/u02/ogg/ggs_home')
+    string(name: 'GG_INV', defaultValue: '/u02/ogg/network/admin', description: '/u02/ogg/network/admin')
     string(name: 'OGG_HOME_CORE', defaultValue: '/u02/ogg/ggs_home/ggs_home_core', description: '/u02/ogg/ggs_home/ggs_home_core')
     string(name: 'OGG_HOME_MS', defaultValue: '/u02/ogg/ggs_home/ggs_home_ms', description: '/u02/ogg/ggs_home/ggs_home_ms')
     string(name: 'TNS_ADMIN', defaultValue: '/u02/ogg/network/admin', description: '/u02/ogg/network/admin')
