@@ -291,7 +291,7 @@ EOF
                     (SERVICE_NAME = ${db.name})
                   )
                 )
-              " >> $TNS_ADMIN/tnsnames.ora
+              " >> $$TNS_ADMIN/tnsnames.ora
               '
             """
           }
