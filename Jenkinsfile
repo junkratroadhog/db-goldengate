@@ -21,6 +21,7 @@ pipeline {
     ORA_INV = '/u02/oraInventory'
     INSTALL_TYPE = 'ORA21c'
     TABLE_NAME = 'employees'
+    TNS_ADMIN = '/u02/ogg/network/admin'
 
     // GoldenGate binaries (must exist in /software inside Jenkins container)
     GG_binary    = 'gg_binary.zip'
@@ -88,6 +89,7 @@ pipeline {
                 string(name: 'GG_NETWORK', value: env.GG_NETWORK),
                 string(name: 'MS_binary', value: env.MS_binary),
                 string(name: 'GG_binary', value: env.GG_binary),
+                string(name: 'TNS_ADMIN', value: env.TNS_ADMIN),
               ]
           } 
           
