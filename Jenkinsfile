@@ -283,7 +283,7 @@ EOF
             echo "Adding TNS entry for ${db.name} at ${db.host}"
 
             sh """
-          docker exec -i ${env.OGG_CONTAINER} bash -c '
+          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -lc '
           ls -ltr \$TNS_ADMIN
           touch \$TNS_ADMIN/tnsnames.ora
           cat >> \$TNS_ADMIN/tnsnames.ora <<EOF
