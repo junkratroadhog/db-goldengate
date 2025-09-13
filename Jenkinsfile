@@ -20,6 +20,7 @@ pipeline {
     ORA_BASE = '/u02/ogg'
     ORA_INV = '/u02/oraInventory'
     INSTALL_TYPE = 'ORA21c'
+    TABLE_NAME = 'employees'
 
     // GoldenGate binaries (must exist in /software inside Jenkins container)
     GG_binary    = 'gg_binary.zip'
@@ -213,6 +214,51 @@ EOF
             fi
           '
         """
+      }
+    }
+
+    stage('Configure and Start GoldenGate Processes') {
+      steps {
+        script {
+          echo "==== Setting up Extract and Replicat Processes ===="
+
+          sh """
+          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -c '
+            export OGG_HOME=${env.OGG_HOME_CORE}
+            export PATH=\\$OGG_HOME/bin:\\$PATH
+            cd \\$OGG_HOME
+
+            # Create directories if missing
+            mkdir -p dirprm dirdat dirrpt
+
+            # ----- Create Extract parameter file -----
+            cat > dirprm/ext1.prm <<EXT_EOF
+EXTRACT ext1
+USERID ${env.deploy_username}, PASSWORD ${env.deploy_password}
+EXTTRAIL ./dirdat/ext1.trl
+TABLE ${env.src_PDB}.${TABLE_NAME};
+EXT_EOF
+
+            # ----- Create Replicat parameter file -----
+            cat > dirprm/rep1.prm <<REP_EOF
+REPLICAT rep1
+USERID ${env.deploy_username}, PASSWORD ${env.deploy_password}
+EXTTRAIL ./dirdat/ext1.trl
+MAP ${env.src_PDB}.${TABLE_NAME}, TARGET ${env.dest_PDB}.${TABLE_NAME};
+REP_EOF
+
+            # Start GGSCI and run commands
+            ./ggsci <<GGSCI_EOF
+ADD EXTRACT ext1, TRANLOG, BEGIN NOW
+ADD REPLICAT rep1, EXTTRAIL ./dirdat/ext1.trl
+
+START EXTRACT ext1
+START REPLICAT rep1
+INFO ALL
+GGSCI_EOF
+          '
+          """
+        }
       }
     }
   }
