@@ -268,6 +268,33 @@ EOF
       }
     }
 
+    stage('Add TNS Entries') {
+      steps {
+        script {
+          def dbs = [
+            [name: env.src_PDB, host: env.src_CN],
+            [name: env.dest_PDB, host: env.dest_CN]
+          ]
+
+          dbs.each { db ->
+            echo "Adding TNS entry for ${db.name} at ${db.host}"
+            sh """
+              docker exec -i ${env.OGG_CONTAINER} bash -c '
+              echo "
+              ${db.name} =
+                (DESCRIPTION =
+                  (ADDRESS = (PROTOCOL = TCP)(HOST = ${db.host})(PORT = 1521))
+                  (CONNECT_DATA =
+                    (SERVICE_NAME = ${db.name})
+                  )
+                )
+              " >> \$ORACLE_HOME/network/admin/tnsnames.ora
+              '
+            """
+          }
+        }
+      }
+    }
 
     stage('Configure and Start GoldenGate Processes') {
       steps {
@@ -285,16 +312,17 @@ EOF
 
             cat > dirprm/ext1.prm <<EXT_EOF
 EXTRACT ext1
-USERID ${env.deploy_username}, PASSWORD ${env.deploy_password}
+USERID ${env.deploy_username}@"${env.src_CN}:1521/${env.src_PDB}", PASSWORD ${env.deploy_password}
 EXTTRAIL ./dirdat/et
-TABLE ${env.src_PDB}.${TABLE_NAME};
+TABLE ${env.src_PDB}.${env.TABLE_NAME};
 EXT_EOF
+
 
             cat > dirprm/rep1.prm <<REP_EOF
 REPLICAT rep1
-USERID ${env.deploy_username}, PASSWORD ${env.deploy_password}
+USERID ${env.deploy_username}@"${env.dest_CN}:1521/${env.dest_PDB}", PASSWORD ${env.deploy_password}
 EXTTRAIL ./dirdat/et
-MAP ${env.src_PDB}.${TABLE_NAME}, TARGET ${env.dest_PDB}.${TABLE_NAME};
+MAP ${env.src_PDB}.${env.TABLE_NAME}, TARGET ${env.dest_PDB}.${env.TABLE_NAME};
 REP_EOF
 
             \$OGG_HOME/ggsci <<GGSCI_EOF
