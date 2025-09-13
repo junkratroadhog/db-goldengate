@@ -198,10 +198,10 @@ EOF
           '
 
           # Wait a few seconds to allow MGR to initialize
-          sleep 5
+          sleep 10
 
           # Validate that MGR process is running at OS level
-          if ps -ef | grep '[m]gr' > /dev/null; then
+          if pgrep -f './mgr PARAMFILE' > /dev/null; then
             echo "==== Core Manager is RUNNING ===="
           else
             echo "==== ERROR: Core Manager FAILED to start ===="
@@ -213,57 +213,6 @@ EOF
         """
       }
     }
-
-    /*stage('Setup GG Network & Deploy') {
-      steps {
-        script {
-          // Create the network if it doesn't exist
-          sh """
-            if ! docker network ls --format '{{.Name}}' | grep -w ${env.GG_NETWORK} > /dev/null; then
-              docker network create ${env.GG_NETWORK}
-            fi
-
-          # Connect DB containers to the network
-            docker network connect ${env.GG_NETWORK} ${env.src_CN} || true
-            docker network connect ${env.GG_NETWORK} ${env.dest_CN} || true
-
-          # Connect GG container to the network
-            docker network connect ${env.GG_NETWORK} ${env.OGG_CONTAINER} || true
-          """
-
-          def ACTUAL_IP = sh(
-          script: "docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${env.OGG_CONTAINER}",
-          returnStdout: true
-          ).trim()
-
-          // Get container IP dynamically, fallback to 0.0.0.0 if not available
-          sh """
-            docker exec ${env.OGG_CONTAINER} bash -c '
-              sed -i "/${env.OGG_CONTAINER}\\.gg\\.com/d" /etc/hosts
-              echo "${ACTUAL_IP} ${env.OGG_CONTAINER}.gg.com" >> /etc/hosts
-            '
-          """
-          echo "GG listener host resolved to: ${ACTUAL_IP}"
-
-          // Create deployment directories and deploy GG
-          sh """
-            docker exec -i -u oracle -e OGG_HOME=${env.OGG_HOME} ${env.OGG_CONTAINER} bash -lc '
-              mkdir -p \$OGG_HOME/var && \
-              \$OGG_HOME/bin/oggca.sh -silent \
-                DEPLOYMENT_NAME=${env.OGG_DEPLOY_NAME} \
-                ADMINISTRATOR_USERNAME=${env.deploy_username} \
-                ADMINISTRATOR_PASSWORD=${env.deploy_password} \
-                SERVICE_MANAGER_LISTENER_ADDRESS=192.168.0.243 \
-                SERVICE_MANAGER_LISTENER_PORT=9000 \
-                ADMIN_SERVER_LISTENER_ADDRESS=192.168.0.243 \
-                ADMIN_SERVER_LISTENER_PORT=7809 \
-                DEPLOYMENT_HOME=\$OGG_HOME/var \
-                SERVICEMANAGER_DEPLOYMENT_HOME=\$OGG_HOME
-            '
-          """
-        }
-      }
-    }*/
   }
   
   post {
