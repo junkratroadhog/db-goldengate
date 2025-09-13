@@ -194,9 +194,21 @@ EOF
             chmod -R 775 \$OGG_HOME
 
             # Start GGSCI commands using a subshell
-            echo -e "INFO ALL\nSTART MGR\nINFO ALL\nEXIT" | \$OGG_HOME/ggsci
+            echo -e "INFO ALL\nSTART MGR\nEXIT" | \$OGG_HOME/ggsci
           '
 
+          # Wait a few seconds to allow MGR to initialize
+          sleep 5
+
+          # Validate that MGR process is running at OS level
+          if ps -ef | grep '[m]gr' > /dev/null; then
+            echo "==== Core Manager is RUNNING ===="
+          else
+            echo "==== ERROR: Core Manager FAILED to start ===="
+            exit 1
+          fi
+
+          '
           echo "==== Core Manager Setup Completed ===="
         """
       }
