@@ -56,6 +56,7 @@ pipeline {
                 string(name: 'MS_binary', value: env.MS_binary),
                 string(name: 'GG_binary', value: env.GG_binary),
                 string(name: 'TNS_ADMIN', value: env.TNS_ADMIN),
+                string(name: 'ORA_INV', value: env.TNS_ADMIN)
               ]
           } 
           
