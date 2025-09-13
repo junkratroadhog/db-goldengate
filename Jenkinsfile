@@ -32,9 +32,14 @@ pipeline {
             docker network rm ${params.GG_NETWORK} || true
           fi
 
-          # Create network
+          # Create New Volume
           if ! docker volume inspect ${params.OGG_VOLUME} > /dev/null 2>&1; then
             docker volume create ${params.OGG_VOLUME}
+          fi
+
+          # Create New Network
+          if ! docker volume inspect ${params.GG_NETWORK} > /dev/null 2>&1; then
+            docker volume create ${params.GG_NETWORK}
           fi
 
           # Start new GG container
