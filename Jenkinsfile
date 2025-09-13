@@ -284,6 +284,7 @@ EOF
 
             sh """
           docker exec -i ${env.OGG_CONTAINER} bash -c '
+          ls -ltr \$TNS_ADMIN
           touch \$TNS_ADMIN/tnsnames.ora
           cat >> \$TNS_ADMIN/tnsnames.ora <<EOF
 ${db.name} =
