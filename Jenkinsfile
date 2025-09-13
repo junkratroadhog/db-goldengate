@@ -42,7 +42,7 @@ pipeline {
             docker volume create ${params.OGG_VOLUME}
           fi
           
-          docker volume create ${params.GG_NETWORK}
+          docker network create ${params.GG_NETWORK}
 
           # Start new GG container
           docker run -d \
