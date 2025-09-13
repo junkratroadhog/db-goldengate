@@ -223,44 +223,43 @@ EOF
           echo "==== Setting up Extract and Replicat Processes ===="
 
           sh """
-            docker exec -i -u oracle ogg-users_detail bash -c '
-            export OGG_HOME=/u02/ogg/ggs_home/ggs_home_core
-            export PATH=$OGG_HOME/bin:$PATH
-            cd $OGG_HOME
+          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -c '
+            export OGG_HOME=${env.OGG_HOME_CORE}
+            export PATH=\$OGG_HOME/bin:\\$PATH
+            cd \$OGG_HOME
 
             # Create directories if missing
             mkdir -p dirprm dirdat dirrpt
 
-            # ----- Create Extract parameter file -----
             cat > dirprm/ext1.prm <<EXT_EOF
-            EXTRACT ext1
-            USERID oggadmin, PASSWORD oracle
-            EXTTRAIL ./dirdat/ext1.trl
-            TABLE TUSERS_PDB.employees;
-            EXT_EOF
+EXTRACT ext1
+USERID ${env.deploy_username}, PASSWORD ${env.deploy_password}
+EXTTRAIL ./dirdat/ext1.trl
+TABLE ${env.src_PDB}.employees;
+EXT_EOF
 
-            # ----- Create Replicat parameter file -----
             cat > dirprm/rep1.prm <<REP_EOF
-            REPLICAT rep1
-            USERID oggadmin, PASSWORD oracle
-            EXTTRAIL ./dirdat/ext1.trl
-            MAP TUSERS_PDB.employees, TARGET TDETAILS_PDB.employees;
-            REP_EOF
+REPLICAT rep1
+USERID ${env.deploy_username}, PASSWORD ${env.deploy_password}
+EXTTRAIL ./dirdat/ext1.trl
+MAP ${env.src_PDB}.employees, TARGET ${env.dest_PDB}.employees;
+REP_EOF
 
-            # Start GGSCI and run commands
-            $OGG_HOME/bin/ggsci <<GGSCI_EOF
-            ADD EXTRACT ext1, TRANLOG, BEGIN NOW
-            ADD REPLICAT rep1, EXTTRAIL ./dirdat/ext1.trl
+            \$OGG_HOME/bin/ggsci <<GGSCI_EOF
+ADD EXTRACT ext1, TRANLOG, BEGIN NOW
+ADD EXTTRAIL ./dirdat/ext1.trl EXTRACT ext1
+ADD REPLICAT rep1, EXTTRAIL ./dirdat/ext1.trl
 
-            START EXTRACT ext1
-            START REPLICAT rep1
-            INFO ALL
-            GGSCI_EOF
-            '
+START EXTRACT ext1
+START REPLICAT rep1
+INFO ALL
+GGSCI_EOF
+          '
           """
         }
       }
     }
+
   }
   
   post {
