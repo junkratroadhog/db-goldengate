@@ -217,15 +217,57 @@ EOF
       }
     }
 
-    stage('Add DB and GG into same network') {
-      steps{
-        sh """
-          docker network connect ${env.GG_NETWORK} ${env.src_PDB}
-          docker network connect ${env.GG_NETWORK} ${env.dest_PDB}
-          docker network connect ${env.GG_NETWORK} ${env.OGG_CONTAINER}
-        """
+    stage('Validate DB Containers') {
+      steps {
+        script {
+          // ✅ Check if network exists
+          def netExists = sh(
+            script: "docker network ls --format '{{.Name}}' | grep -w ${env.GG_NETWORK} || true",
+            returnStdout: true
+          ).trim()
+
+          if (!netExists) {
+            error "Network ${env.GG_NETWORK} does not exist! Please create it during container build."
+          } else {
+            echo "Network ${env.GG_NETWORK} exists."
+          }
+
+          // ✅ List of DB containers
+          def dbs = ["db-dtest", "db-utest"]
+
+          dbs.each { db ->
+            echo "=== Checking DB Container: ${db} ==="
+
+            // Check if container is running
+            def running = sh(
+              script: "docker ps --format '{{.Names}}' | grep -w ${db} || true",
+              returnStdout: true
+            ).trim()
+
+            if (!running) {
+              echo "${db} is not running → starting..."
+              sh "docker start ${db}"
+            } else {
+              echo "${db} is already running."
+            }
+
+            // Check if attached to GG_NET
+            def attached = sh(
+              script: """docker inspect -f '{{json .NetworkSettings.Networks}}' ${db} | grep ${env.GG_NETWORK} || true""",
+              returnStdout: true
+            ).trim()
+
+            if (!attached) {
+              echo "Attaching ${db} to ${env.GG_NETWORK}..."
+              sh "docker network connect ${env.GG_NETWORK} ${db} || true"
+            } else {
+              echo "${db} is already attached to ${env.GG_NETWORK}"
+            }
+          }
+        }
       }
     }
+
 
     stage('Configure and Start GoldenGate Processes') {
       steps {
