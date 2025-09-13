@@ -278,6 +278,13 @@ EOF
 
           dbs.each { db ->
             echo "Adding TNS entry for ${db.name} at ${db.host}"
+
+            sh """
+              docker exec -i ogg-users_detail bash -c '
+                mkdir -p /u02/ogg/network/admin
+                chmod 755 /u02/ogg/network/admin
+              '
+            """
             sh """
               docker exec -i ${env.OGG_CONTAINER} bash -c '
               echo "
