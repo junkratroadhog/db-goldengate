@@ -11,6 +11,7 @@ pipeline {
     string(name: 'OGG_HOME', defaultValue: '/u02/ogg/ggs_home', description: '/u02/ogg/ggs_home')
     string(name: 'OGG_HOME_CORE', defaultValue: '/u02/ogg/ggs_home/ggs_home_core', description: '/u02/ogg/ggs_home/ggs_home_core')
     string(name: 'OGG_HOME_MS', defaultValue: '/u02/ogg/ggs_home/ggs_home_ms', description: '/u02/ogg/ggs_home/ggs_home_ms')
+    string(name: 'TND_DIR', defaultValue: '/u02/ogg/network/admin', description: '/u02/ogg/network/admin')
   }
 
   stages {
@@ -78,20 +79,18 @@ pipeline {
     stage('Setup Global Env') {
       steps {
         sh """
-        # Create required directories
-          docker exec -i ${params.OGG_CONTAINER} bash -c 'chmod 775 ${params.OGG_HOME} && chown -R oracle:oinstall ${params.OGG_HOME}'
-          docker exec -i -u oracle ${params.OGG_CONTAINER} bash -c 'mkdir -p ${params.OGG_HOME_CORE} ${params.OGG_HOME_MS}'
-
           # Prepare directories with correct ownership
           docker exec -i -u root ${params.OGG_CONTAINER} bash -c "
-            mkdir -p ${params.STAGE_DIR} /u02/ogg /u02/oraInventory
-            chown -R oracle:oinstall ${params.STAGE_DIR} /u02/ogg /u02/oraInventory
-            chmod -R 775 /u02/ogg /u02/oraInventory
+            mkdir -p ${params.OGG_HOME} ${params.STAGE_DIR} ${params.TND_DIR} ${params.OGG_HOME_CORE} ${params.OGG_HOME_MS}
+            chown -R oracle:oinstall ${params.OGG_HOME} ${params.STAGE_DIR} ${params.TND_DIR} ${params.OGG_HOME_CORE} ${params.OGG_HOME_MS}
+            chmod 775 ${params.OGG_HOME} ${params.STAGE_DIR} ${params.TND_DIR} ${params.OGG_HOME_CORE} ${params.OGG_HOME_MS}
           "
 
           docker exec -i -u root ${params.OGG_CONTAINER} bash -c '
+            echo "export OGG_HOME=${params.OGG_HOME}" >> /etc/profile.d/ogg.sh"
             echo "export OGG_HOME_CORE=${params.OGG_HOME_CORE}" > /etc/profile.d/ogg.sh
             echo "export OGG_HOME_MS=${params.OGG_HOME_MS}" >> /etc/profile.d/ogg.sh
+            echo "export TNS_ADMIN=${params.TND_DIR}" >> /etc/profile.d/ogg.sh"
             chmod +x /etc/profile.d/ogg.sh
           '
         """
