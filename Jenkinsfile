@@ -225,7 +225,7 @@ EOF
           sh """
           docker exec -i -u oracle ${env.OGG_CONTAINER} bash -c '
             export OGG_HOME=${env.OGG_HOME_CORE}
-            export PATH=\$OGG_HOME/bin:\\$PATH
+            export PATH=\$OGG_HOME:\\$PATH
             cd \$OGG_HOME
 
             # Create directories if missing
@@ -245,7 +245,7 @@ EXTTRAIL ./dirdat/ext1.trl
 MAP ${env.src_PDB}.employees, TARGET ${env.dest_PDB}.employees;
 REP_EOF
 
-            \$OGG_HOME/bin/ggsci <<GGSCI_EOF
+            \$OGG_HOME/ggsci <<GGSCI_EOF
 ADD EXTRACT ext1, TRANLOG, BEGIN NOW
 ADD EXTTRAIL ./dirdat/ext1.trl EXTRACT ext1
 ADD REPLICAT rep1, EXTTRAIL ./dirdat/ext1.trl
