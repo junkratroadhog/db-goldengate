@@ -87,7 +87,7 @@ pipeline {
           "
 
           docker exec -i -u root ${params.OGG_CONTAINER} bash -c '
-            echo "export OGG_HOME=${params.OGG_HOME}" >> /etc/profile.d/ogg.sh"
+            echo "export OGG_HOME=${params.OGG_HOME}" >> /etc/profile.d/ogg.sh
             echo "export OGG_HOME_CORE=${params.OGG_HOME_CORE}" > /etc/profile.d/ogg.sh
             echo "export OGG_HOME_MS=${params.OGG_HOME_MS}" >> /etc/profile.d/ogg.sh
             echo "export TNS_ADMIN=${params.TNS_ADMIN}" >> /etc/profile.d/ogg.sh"
