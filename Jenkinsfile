@@ -177,34 +177,31 @@ pipeline {
           echo "==== Setting up Core Manager Process ===="
 
           docker exec -i -u oracle ${env.OGG_CONTAINER} bash -c '
+            export OGG_HOME=${env.OGG_HOME_CORE}
+            export PATH=\$OGG_HOME/bin:\$PATH
+            cd \$OGG_HOME
 
-          export OGG_HOME=${env.OGG_HOME_CORE}
-          export PATH=\\\$OGG_HOME_CORE/bin:\\\$PATH
-          cd \$OGG_HOME_CORE
+            # Create required directories
+            mkdir -p dirprm dirchk dirdsc dirrpt dirlt dirout dirpcs dirdmp
 
-          # Create all required directories
-          mkdir -p dirprm dirchk dirdsc dirrpt dirlt dirout dirpcs dirdmp
-
-          # Create minimal mgr.prm
-          cat > dirprm/mgr.prm <<MGR_EOF
+            # Minimal mgr.prm
+            cat > dirprm/mgr.prm <<EOF
 PORT 7809
 AUTOSTART ER *
-MGR_EOF
+EOF
 
-          # Set permissions
-          chmod -R 775 \\$OGG_HOME/*
+            # Set permissions
+            chmod -R 775 \$OGG_HOME
 
-          # Start GGSCI and run commands
-          \\$OGG_HOME/ggsci <<GGSCI_EOF
-INFO ALL
-START MGR
-INFO ALL
-GGSCI_EOF
+            # Start GGSCI commands using a subshell
+            echo -e "INFO ALL\nSTART MGR\nINFO ALL\nEXIT" | \$OGG_HOME/ggsci
           '
+
           echo "==== Core Manager Setup Completed ===="
         """
       }
     }
+
     /*stage('Setup GG Network & Deploy') {
       steps {
         script {
