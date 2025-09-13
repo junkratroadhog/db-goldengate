@@ -196,20 +196,22 @@ EOF
             # Start GGSCI commands using a subshell
             echo -e "INFO ALL\nSTART MGR\nEXIT" | \$OGG_HOME/ggsci
           '
+        """
+      }
+    }
 
-          # Wait a few seconds to allow MGR to initialize
-          sleep 10
-
-          # Validate that MGR process is running at OS level
-          if pgrep -f './mgr PARAMFILE' > /dev/null; then
-            echo "==== Core Manager is RUNNING ===="
-          else
-            echo "==== ERROR: Core Manager FAILED to start ===="
-            exit 1
-          fi
-
+    stage('Validate Core MGR') {
+      steps {
+        sh """
+          echo "==== Validating Core Manager ===="
+          docker exec -i ${env.OGG_CONTAINER} bash -c '
+            if pgrep -f "./mgr PARAMFILE" > /dev/null; then
+              echo "==== Core Manager is RUNNING ===="
+            else
+              echo "==== ERROR: Core Manager FAILED to start ===="
+              exit 1
+            fi
           '
-          echo "==== Core Manager Setup Completed ===="
         """
       }
     }
