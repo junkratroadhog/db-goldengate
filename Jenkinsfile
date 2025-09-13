@@ -282,17 +282,15 @@ EOF
             echo "Adding TNS entry for ${db.name} at ${db.host}"
 
             sh """
-              docker exec -i ${env.OGG_CONTAINER} bash -c '
-              echo "
-              ${db.name} =
-                (DESCRIPTION =
-                  (ADDRESS = (PROTOCOL = TCP)(HOST = ${db.host})(PORT = 1521))
-                  (CONNECT_DATA =
-                    (SERVICE_NAME = ${db.name})
-                  )
-                )
-              " >> $$TNS_ADMIN/tnsnames.ora
-              '
+          docker exec -i ${env.OGG_CONTAINER} bash -c 'cat >> \$TNS_ADMIN/tnsnames.ora <<EOF
+${db.name} =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = ${db.host})(PORT = 1521))
+    (CONNECT_DATA =
+      (SERVICE_NAME = ${db.name})
+    )
+  )
+EOF'
             """
           }
         }
