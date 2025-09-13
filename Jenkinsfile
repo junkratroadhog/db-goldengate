@@ -246,9 +246,13 @@ MAP ${env.src_PDB}.${TABLE_NAME}, TARGET ${env.dest_PDB}.${TABLE_NAME};
 REP_EOF
 
             \$OGG_HOME/ggsci <<GGSCI_EOF
+dblogin userid ${env.deploy_username}, password ${env.deploy_password}
+ADD CHECKPOINTTABLE ${env.deploy_username}.chkptab
+
 ADD EXTRACT ext1, TRANLOG, BEGIN NOW
 ADD EXTTRAIL ./dirdat/et EXTRACT ext1
-ADD REPLICAT rep1, EXTTRAIL ./dirdat/et
+
+ADD REPLICAT rep1, EXTTRAIL ./dirdat/et, CHECKPOINTTABLE ${env.deploy_username}.chkptab
 
 START EXTRACT ext1
 START REPLICAT rep1
