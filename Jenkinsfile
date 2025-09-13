@@ -83,8 +83,8 @@ pipeline {
           # Prepare directories with correct ownership
           docker exec -i -u root ${params.OGG_CONTAINER} bash -c "
             mkdir -p ${params.OGG_HOME} ${params.STAGE_DIR} ${params.TNS_ADMIN} ${params.OGG_HOME_CORE} ${params.OGG_HOME_MS} ${params.ORA_INV}
+            chmod 775 ${params.OGG_HOME} ${params.STAGE_DIR} ${params.TNS_ADMIN} ${params.OGG_HOME_CORE} ${params.OGG_HOME_MS} ${params.ORA_INV}            
             chown -R oracle:oinstall ${params.OGG_HOME} ${params.STAGE_DIR} ${params.TNS_ADMIN} ${params.OGG_HOME_CORE} ${params.OGG_HOME_MS} ${params.ORA_INV}
-            chmod 775 ${params.OGG_HOME} ${params.STAGE_DIR} ${params.TNS_ADMIN} ${params.OGG_HOME_CORE} ${params.OGG_HOME_MS} ${params.ORA_INV}
           "
 
           docker exec -i -u root ${params.OGG_CONTAINER} bash -c '
