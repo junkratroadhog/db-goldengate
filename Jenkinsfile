@@ -21,7 +21,7 @@ pipeline {
     ORA_INV = '/u02/oraInventory'
     INSTALL_TYPE = 'ORA21c'
     TABLE_NAME = 'employees'
-    TNS_ADMIN = '/u02/ogg/network/admin'
+    TNS_ADMIN = '/u02/ogg/ggs_home/network/admin'
 
     // GoldenGate binaries (must exist in /software inside Jenkins container)
     GG_binary    = 'gg_binary.zip'
@@ -39,40 +39,6 @@ pipeline {
   }
 
   stages {
-
-    stage('Pre-requisites for Golden-Gate Deploy') {
-      steps {
-        // SRC - Pre-requisite commands to be run on source DB Force loggin enabled in CDB and Supplemental log data added in PDB
-        sh '''
-        echo "Running Pre-requisites for Golden-Gate Deploy on Source DB in container $src_CN"
-        docker cp scripts/pre-requisite-params.sql $src_CN:/tmp/pre-requisite-params.sql
-        docker exec $src_CN sqlplus / as sysdba @/tmp/pre-requisite-params.sql $src_PDB
-        '''
-        
-        // DEST - Pre-requisite commands to be run on destination DB Force loggin enabled in CDB and Supplemental log data added in PDB
-        sh '''
-        echo "Running Pre-requisites for Golden-Gate Deploy on Destination DB in container $dest_CN"
-        docker cp scripts/pre-requisite-params.sql $dest_CN:/tmp/pre-requisite-params.sql
-        docker exec $dest_CN sqlplus / as sysdba @/tmp/pre-requisite-params.sql $dest_PDB
-        '''
-      }
-    }
-
-    stage ('Creating OGG users and granting required privileges') {
-      steps {
-        // SRC
-        sh """
-          docker cp scripts/oggadmin.sql ${env.src_CN}:/tmp/oggadmin.sql
-          docker exec ${env.src_CN} sqlplus / as sysdba @/tmp/oggadmin.sql ${env.src_PDB} ${env.deploy_username} ${env.deploy_password}
-        """
-
-        // DEST
-        sh """
-          docker cp scripts/oggadmin.sql ${env.dest_CN}:/tmp/oggadmin.sql
-          docker exec ${env.dest_CN} sqlplus / as sysdba @/tmp/oggadmin.sql ${env.dest_PDB} ${env.deploy_username} ${env.deploy_password}
-        """
-      }
-    }
 
     stage('Deploy GG Container') {
       steps {
@@ -270,6 +236,40 @@ EOF
       }
     }
 
+    stage('Pre-requisites for Golden-Gate Deploy') {
+      steps {
+        // SRC - Pre-requisite commands to be run on source DB Force loggin enabled in CDB and Supplemental log data added in PDB
+        sh '''
+        echo "Running Pre-requisites for Golden-Gate Deploy on Source DB in container $src_CN"
+        docker cp scripts/pre-requisite-params.sql $src_CN:/tmp/pre-requisite-params.sql
+        docker exec $src_CN sqlplus / as sysdba @/tmp/pre-requisite-params.sql $src_PDB
+        '''
+        
+        // DEST - Pre-requisite commands to be run on destination DB Force loggin enabled in CDB and Supplemental log data added in PDB
+        sh '''
+        echo "Running Pre-requisites for Golden-Gate Deploy on Destination DB in container $dest_CN"
+        docker cp scripts/pre-requisite-params.sql $dest_CN:/tmp/pre-requisite-params.sql
+        docker exec $dest_CN sqlplus / as sysdba @/tmp/pre-requisite-params.sql $dest_PDB
+        '''
+      }
+    }
+
+    stage ('Creating OGG users and granting required privileges') {
+      steps {
+        // SRC
+        sh """
+          docker cp scripts/oggadmin.sql ${env.src_CN}:/tmp/oggadmin.sql
+          docker exec ${env.src_CN} sqlplus / as sysdba @/tmp/oggadmin.sql ${env.src_PDB} ${env.deploy_username} ${env.deploy_password}
+        """
+
+        // DEST
+        sh """
+          docker cp scripts/oggadmin.sql ${env.dest_CN}:/tmp/oggadmin.sql
+          docker exec ${env.dest_CN} sqlplus / as sysdba @/tmp/oggadmin.sql ${env.dest_PDB} ${env.deploy_username} ${env.deploy_password}
+        """
+      }
+    }
+
     stage('Add TNS Entries') {
       steps {
         script {
@@ -282,12 +282,6 @@ EOF
             echo "Adding TNS entry for ${db.name} at ${db.host}"
 
             sh """
-              docker exec -i ogg-users_detail bash -c '
-                mkdir -p /u02/ogg/network/admin
-                chmod 755 /u02/ogg/network/admin
-              '
-            """
-            sh """
               docker exec -i ${env.OGG_CONTAINER} bash -c '
               echo "
               ${db.name} =
@@ -297,7 +291,7 @@ EOF
                     (SERVICE_NAME = ${db.name})
                   )
                 )
-              " >> \$ORACLE_HOME/network/admin/tnsnames.ora
+              " >> $TNS_ADMIN/tnsnames.ora
               '
             """
           }
