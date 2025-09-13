@@ -248,7 +248,7 @@ MAP ${env.src_PDB}.${TABLE_NAME}, TARGET ${env.dest_PDB}.${TABLE_NAME};
 REP_EOF
 
             # Start GGSCI and run commands
-            ./ggsci <<GGSCI_EOF
+            $OGG_HOME_CORE/bin/ggsci <<GGSCI_EOF
 ADD EXTRACT ext1, TRANLOG, BEGIN NOW
 ADD REPLICAT rep1, EXTTRAIL ./dirdat/ext1.trl
 
