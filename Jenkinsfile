@@ -330,23 +330,24 @@ stage('Add TNS Entries') {
   )
 """
 
-        sh """
-          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -lc "
-            mkdir -p \\\$TNS_ADMIN
-            touch \\\$TNS_ADMIN/tnsnames.ora
+sh """
+  docker exec -i -u oracle ${env.OGG_CONTAINER} bash -lc "
+    mkdir -p \\\$TNS_ADMIN
+    touch \\\$TNS_ADMIN/tnsnames.ora
 
-            # Remove old entry (handles multi-line, indentation)
-            sed -i.bak \"/^${db.name} =/,/^[[:space:]]*)$/d\" \\\$TNS_ADMIN/tnsnames.ora
+    # Remove old entry (handles multi-line, indentation)
+    sed -i.bak \"/^""" + db.name + """ =/,/^[[:space:]]*)$/d\" \\\$TNS_ADMIN/tnsnames.ora
 
-            # Append entry
-            cat >> \\\$TNS_ADMIN/tnsnames.ora <<EOF
-${tnsEntry}
+    # Append entry
+    cat >> \\\$TNS_ADMIN/tnsnames.ora <<EOF
+""" + tnsEntry + """
 EOF
 
-            # Show final tnsnames.ora
-            cat \\\$TNS_ADMIN/tnsnames.ora
-          "
-        """
+    # Show final tnsnames.ora
+    cat \\\$TNS_ADMIN/tnsnames.ora
+  "
+"""
+
       }
     }
   }
