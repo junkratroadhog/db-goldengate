@@ -37,7 +37,7 @@ pipeline {
     SM_PORT = 9000
     GG_NETWORK = 'GG_NET'
 
-    New_CN = 'yes' // yes/no - Whether to create a new container or use existing one
+    New_CN = 'no' // yes/no - Whether to create a new container or use existing one
   }
 
   stages {
