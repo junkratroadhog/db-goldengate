@@ -389,7 +389,7 @@ INFO ALL
 STOP MGR
 GGSCI_EOF
 
-
+            sleep 5
             \$OGG_HOME/ggsci <<GGSCI_EOF
 START MGR
 GGSCI_EOF
