@@ -376,40 +376,20 @@ EXTTRAIL ./dirdat/et
 MAP ${env.src_PDB}.${env.TABLE_NAME}, TARGET ${env.dest_PDB}.${env.TABLE_NAME};
 REP_EOF
 
-\$OGG_HOME_CORE/ggsci <<GGSCI_EOF
+            \$OGG_HOME/ggsci <<GGSCI_EOF
 dblogin userid ${env.deploy_username}, password ${env.deploy_password}
-
--- Create checkpoint table if not exists
 ADD CHECKPOINTTABLE ${env.deploy_username}.chkptab
 
--- Add Extract and trail
 ADD EXTRACT ext1, TRANLOG, BEGIN NOW
 ADD EXTTRAIL ./dirdat/et EXTRACT ext1
 
--- Add Replicat
 ADD REPLICAT rep1, EXTTRAIL ./dirdat/et, CHECKPOINTTABLE ${env.deploy_username}.chkptab
 
--- Start Manager first
-START MANAGER
-GGSCI_EOF
-
-# Wait until Manager is fully running
-while ! \$OGG_HOME_CORE/ggsci <<EOF | grep -q "MANAGER *RUNNING"
-INFO MANAGER
-EXIT
-EOF
-do
-    echo "Waiting for Manager to start..."
-    sleep 2
-done
-
-# Now start Extract and Replicat
-\$OGG_HOME_CORE/ggsci <<GGSCI_EOF
+START manager
 START EXTRACT ext1
 START REPLICAT rep1
 INFO ALL
 GGSCI_EOF
-
           '
           """
         }
