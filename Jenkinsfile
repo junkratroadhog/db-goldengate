@@ -238,23 +238,42 @@ EOF
         }
       }
     }*/
-
-
+    
     stage('Enable ARCHIVELOG Mode on Source DB') {
       steps {
-        echo "==== Enabling ARCHIVELOG Mode on Source DB ===="
-        sh """
-          docker exec -i ${env.src_CN} bash -c "sqlplus -S / as sysdba <<'SQL_EOF'
-          WHENEVER SQLERROR EXIT FAILURE;
-          SET SERVEROUTPUT ON
-          SHUTDOWN IMMEDIATE;
-          STARTUP MOUNT;
-          ALTER DATABASE ARCHIVELOG;
-          ALTER DATABASE OPEN;
-          EXIT;
-          SQL_EOF
-          "
-        """
+        echo "==== Checking ARCHIVELOG Mode on Source DB ===="
+        script {
+          // Check if ARCHIVELOG is already enabled
+          def logMode = sh(
+            script: """
+              docker exec -i ${env.src_CN} bash -c "sqlplus -S / as sysdba <<'SQL_EOF'
+              SET PAGESIZE 0 FEEDBACK OFF VERIFY OFF HEADING OFF ECHO OFF
+              SELECT log_mode FROM v\\$database;
+              EXIT;
+              SQL_EOF
+              "
+            """,
+            returnStdout: true
+          ).trim()
+
+          echo "Current ARCHIVELOG mode: ${logMode}"
+
+          if (logMode == "ARCHIVELOG") {
+            echo "ARCHIVELOG mode already enabled → skipping DB shutdown."
+          } else {
+            echo "ARCHIVELOG mode not enabled → enabling now."
+            sh """
+              docker exec -i ${env.src_CN} bash -c "sqlplus / as sysdba <<'SQL_EOF'
+                SHUTDOWN IMMEDIATE;
+                STARTUP MOUNT;
+                ALTER DATABASE ARCHIVELOG;
+                ALTER DATABASE OPEN;
+                EXIT;
+                SQL_EOF
+              "
+            """
+          }
+        }
       }
     }
 
