@@ -335,10 +335,8 @@ sh '''
     mkdir -p $TNS_ADMIN
     touch $TNS_ADMIN/tnsnames.ora
 
-    # Remove old entry for this DB (handles multi-line entry with indentation)
     sed -i.bak "/^''' + db.name + ''' =/,/^[[:space:]]*)$/d" $TNS_ADMIN/tnsnames.ora
 
-    # Append entry if missing
     grep -Fq "''' + tnsEntry + '''" $TNS_ADMIN/tnsnames.ora || cat >> $TNS_ADMIN/tnsnames.ora <<EOF
 ''' + tnsEntry + '''
 EOF
@@ -346,6 +344,7 @@ EOF
     cat $TNS_ADMIN/tnsnames.ora
   '
 '''
+
       }
     }
   }
