@@ -386,14 +386,6 @@ GGSCI_EOF
         }
       }
     }
-
-    stage ('Enable Archive Log Mode') {
-      steps {
-        docker exec -i ${src_CN} bach -lc "
-        sqlplus / as sysdba 
-        "
-      }
-    }
   }
   
   post {
