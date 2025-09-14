@@ -244,30 +244,39 @@ EOF
       steps {
         echo "==== Ensuring ARCHIVELOG Mode on Source DB ===="
         sh """
-          docker exec -i ${env.src_CN} bash -c "sqlplus / as sysdba <<'SQL_EOF'
+          docker exec -i ${env.src_CN} bash -c "sqlplus -S / as sysdba <<'SQL_EOF'
             WHENEVER SQLERROR EXIT FAILURE;
             SET SERVEROUTPUT ON
             DECLARE
               v_log_mode VARCHAR2(30);
             BEGIN
-              SELECT log_mode INTO v_log_mode FROM v\$database;
-              IF v_log_mode != 'ARCHIVELOG' THEN
-                DBMS_OUTPUT.PUT_LINE('ARCHIVELOG mode not enabled → enabling now.');
-                SHUT IMMEDIATE;
-                STARTUP MOUNT;
-                ALTER DATABASE ARCHIVELOG;
-                ALTER DATABASE OPEN;
+              SELECT log_mode INTO v_log_mode FROM v\\$database;
+              IF v_log_mode = 'NOARCHIVELOG' THEN
+                DBMS_OUTPUT.PUT_LINE('ARCHIVELOG mode not enabled → exiting with code 1.');
+                RAISE_APPLICATION_ERROR(-20001, 'ARCHIVELOG mode not enabled');
               ELSE
                 DBMS_OUTPUT.PUT_LINE('ARCHIVELOG mode already enabled.');
               END IF;
             END;
             /
             EXIT;
+            SQL_EOF"
+                """
+
+                echo "==== Enabling ARCHIVELOG Mode if needed ===="
+                sh """
+                  docker exec -i ${env.src_CN} bash -c "sqlplus / as sysdba <<'SQL_EOF'
+            SHUTDOWN IMMEDIATE;
+            STARTUP MOUNT;
+            ALTER DATABASE ARCHIVELOG;
+            ALTER DATABASE OPEN;
+            EXIT;
             SQL_EOF
           "
         """
       }
     }
+
 
 
     stage('Pre-requisites for Golden-Gate Deploy') {
