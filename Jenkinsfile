@@ -98,7 +98,7 @@ pipeline {
       }
     }
 
-    /*stage ('Install GoldenGate + Microservices') {
+    stage ('Install GoldenGate + Microservices') {
       steps {
         sh """
           echo "==== Preparing for GoldenGate Installation ===="
@@ -140,7 +140,7 @@ pipeline {
           echo "==== GoldenGate Installation Completed ===="
         """
       }
-    }*/
+    }
 
     stage('Setup Core MGR Process') {
       steps {
@@ -187,7 +187,7 @@ EOF
       }
     }
 
-    /*stage('Validate DB Containers') {
+    stage('Validate DB Containers') {
       steps {
         script {
           // ✅ Check if network exists
@@ -237,7 +237,7 @@ EOF
           }
         }
       }
-    }*/
+    }
     
     stage('Enable ARCHIVELOG Mode on Source DB') {
       steps {
