@@ -247,11 +247,10 @@ EOF
           def logMode = sh(
             script: """
               docker exec -i ${env.src_CN} bash -c "sqlplus -S / as sysdba <<'SQL_EOF'
-              SET PAGESIZE 0 FEEDBACK OFF VERIFY OFF HEADING OFF ECHO OFF
-              SELECT log_mode FROM v\\\$database;
-              EXIT;
-              SQL_EOF
-              "
+SET PAGESIZE 0 FEEDBACK OFF VERIFY OFF HEADING OFF ECHO OFF
+SELECT log_mode FROM v\\\$database;
+EXIT;
+SQL_EOF"
             """,
             returnStdout: true
           ).trim()
@@ -320,22 +319,40 @@ EOF
           ]
 
           dbs.each { db ->
-            echo "Adding TNS entry for ${db.name} at ${db.host}"
+            echo "Ensuring correct TNS entry for ${db.name} at ${db.host}"
+
+            // Build expected TNS entry as a single variable
+            def tnsEntry = """${db.name} =
+(DESCRIPTION =
+  (ADDRESS = (PROTOCOL = TCP)(HOST = ${db.host})(PORT = 1521))
+  (CONNECT_DATA =
+    (SERVICE_NAME = ${db.name})
+  )
+)
+"""
 
             sh """
-          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -lc '
-          ls -ltr \$TNS_ADMIN
-          touch \$TNS_ADMIN/tnsnames.ora
-          cat >> \$TNS_ADMIN/tnsnames.ora <<EOF
-${db.name} =
-  (DESCRIPTION =
-    (ADDRESS = (PROTOCOL = TCP)(HOST = ${db.host})(PORT = 1521))
-    (CONNECT_DATA =
-      (SERVICE_NAME = ${db.name})
-    )
-  )
-EOF'
-          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -lc 'cat \$TNS_ADMIN/tnsnames.ora'
+              docker exec -i -u oracle ${env.OGG_CONTAINER} bash -lc '
+                mkdir -p \$TNS_ADMIN
+                touch \$TNS_ADMIN/tnsnames.ora
+
+                # Remove existing entry for this db (if any)
+                awk -v name="${db.name}" '
+                  BEGIN {skip=0}
+                  \$0 ~ "^"name" =" {skip=1; next}
+                  skip && /^\\)/ {skip=0; next}
+                  !skip {print}
+                ' \$TNS_ADMIN/tnsnames.ora > \$TNS_ADMIN/tnsnames.ora.tmp
+
+                mv \$TNS_ADMIN/tnsnames.ora.tmp \$TNS_ADMIN/tnsnames.ora
+
+                # Check if the exact entry exists, append if missing
+                grep -Fq "${tnsEntry}" \$TNS_ADMIN/tnsnames.ora || cat >> \$TNS_ADMIN/tnsnames.ora <<EOF
+${tnsEntry}
+EOF
+
+                cat \$TNS_ADMIN/tnsnames.ora
+              '
             """
           }
         }
