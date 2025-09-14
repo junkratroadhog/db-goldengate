@@ -343,6 +343,9 @@ ADD EXTTRAIL ./dirdat/et EXTRACT ext1
 
 ADD REPLICAT rep1, EXTTRAIL ./dirdat/et, CHECKPOINTTABLE ${env.deploy_username}.chkptab
 
+START manager
+y
+START manager
 START EXTRACT ext1
 START REPLICAT rep1
 INFO ALL
