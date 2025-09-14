@@ -248,7 +248,7 @@ EOF
             script: """
               docker exec -i ${env.src_CN} bash -c "sqlplus -S / as sysdba <<'SQL_EOF'
               SET PAGESIZE 0 FEEDBACK OFF VERIFY OFF HEADING OFF ECHO OFF
-              SELECT log_mode FROM v\\$database;
+              SELECT log_mode FROM v\\\$database;
               EXIT;
               SQL_EOF
               "
