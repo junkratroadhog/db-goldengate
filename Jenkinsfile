@@ -310,51 +310,42 @@ SQL_EOF"
       }
     }
 
-stage('Add TNS Entries') {
-  steps {
-    script {
-      def dbs = [
-        [name: env.src_PDB, host: env.src_CN],
-        [name: env.dest_PDB, host: env.dest_CN]
-      ]
+    stage('Add TNS Entries') {
+      steps {
+        script {
+          def dbs = [
+            [name: env.src_PDB, host: env.src_CN],
+            [name: env.dest_PDB, host: env.dest_CN]
+          ]
 
-      dbs.each { db ->
-        echo "Ensuring correct TNS entry for ${db.name} at ${db.host}"
+          dbs.each { db ->
+            echo "Adding TNS entry for ${db.name} at ${db.host}"
 
-        def tnsEntry = """${db.name} =
-  (DESCRIPTION =
-    (ADDRESS = (PROTOCOL = TCP)(HOST = ${db.host})(PORT = 1521))
-    (CONNECT_DATA =
-      (SERVICE_NAME = ${db.name})
-    )
+            def tnsEntry = """${db.name} =
+(DESCRIPTION =
+  (ADDRESS = (PROTOCOL = TCP)(HOST = ${db.host})(PORT = 1521))
+  (CONNECT_DATA =
+    (SERVICE_NAME = ${db.name})
   )
+)
 """
 
-sh """
-  docker exec -i -u oracle ${env.OGG_CONTAINER} bash -lc "
-    mkdir -p \\\$TNS_ADMIN
-    touch \\\$TNS_ADMIN/tnsnames.ora
+        sh """
+          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -c "
+            mkdir -p \$TNS_ADMIN
+            touch \$TNS_ADMIN/tnsnames.ora
 
-    # Remove old entry (handles multi-line, indentation)
-    sed -i.bak \"/^""" + db.name + """ =/,/^[[:space:]]*)$/d\" \\\$TNS_ADMIN/tnsnames.ora
+            # Append the TNS entry
+            echo '${tnsEntry}' >> \$TNS_ADMIN/tnsnames.ora
 
-    # Append entry
-    cat >> \\\$TNS_ADMIN/tnsnames.ora <<EOF
-""" + tnsEntry + """
-EOF
-
-    # Show final tnsnames.ora
-    cat \\\$TNS_ADMIN/tnsnames.ora
-  "
-"""
-
+            # Show final tnsnames.ora
+            cat \$TNS_ADMIN/tnsnames.ora
+          "
+        """
+          }
+        }
       }
     }
-  }
-}
-
-
-
 
     stage('Configure and Start GoldenGate Processes') {
       steps {
