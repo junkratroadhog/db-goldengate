@@ -22,19 +22,19 @@ SHOW CON_NAME;
 -- Create OGGADMIN user in PDB if it doesn't exist and grant privileges
 DECLARE
     v_count NUMBER;
-    v_user  VARCHAR2(30) := '&2';
+    v_user  VARCHAR2(30) := UPPER('&2');
     v_pass  VARCHAR2(30) := '&3';
 BEGIN
-    SELECT COUNT(*) INTO v_count FROM dba_users WHERE username = UPPER(v_user);
+    SELECT COUNT(*) INTO v_count FROM dba_users WHERE username = v_user;
 
     IF v_count = 0 THEN
-        -- Create user
+        -- Create user with unlimited quota on USERS tablespace
         EXECUTE IMMEDIATE 
             'CREATE USER ' || v_user || 
             ' IDENTIFIED BY ' || v_pass || 
             ' DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp QUOTA UNLIMITED ON users';
 
-        -- Grant required privileges
+        -- Grant required system privileges
         EXECUTE IMMEDIATE 'GRANT CREATE SESSION, CONNECT, RESOURCE TO ' || v_user;
         EXECUTE IMMEDIATE 'GRANT SELECT ANY DICTIONARY TO ' || v_user;
         EXECUTE IMMEDIATE 'GRANT FLASHBACK ANY TABLE TO ' || v_user;
@@ -56,13 +56,15 @@ BEGIN
         DBMS_OUTPUT.PUT_LINE('OGGADMIN user created and privileges granted in PDB ' || SYS_CONTEXT('USERENV','CON_NAME'));
     ELSE
         DBMS_OUTPUT.PUT_LINE('OGGADMIN user already exists in PDB ' || SYS_CONTEXT('USERENV','CON_NAME'));
+
+        -- Ensure quota is set if user exists
+        EXECUTE IMMEDIATE 'ALTER USER ' || v_user || ' QUOTA UNLIMITED ON USERS';
     END IF;
 END;
 /
 
 -- Insert minimal redo activity to populate LogMiner dictionary
 PROMPT === Creating minimal redo activity for LogMiner ===
-ALTER SESSION SET CONTAINER=&1;
 BEGIN
     EXECUTE IMMEDIATE 'CREATE TABLE logminer_dummy(id NUMBER)';
     EXECUTE IMMEDIATE 'INSERT INTO logminer_dummy VALUES(1)';
