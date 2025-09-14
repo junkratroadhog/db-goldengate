@@ -430,7 +430,7 @@ GGSCI_EOF
       steps {
         script {
           sh """
-          docker exec -i ${env.dest_CN} bash -c '
+          docker exec -i ${env.OGG_CONTAINER} bash -c '
               \$OGG_HOME_CORE/ggsci <<EOF
 STOP MANAGER !
 START MANAGER
