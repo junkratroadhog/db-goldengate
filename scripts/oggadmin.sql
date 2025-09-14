@@ -2,6 +2,9 @@
 
 SET DEFINE ON
 SET SERVEROUTPUT ON
+SET LINESIZE 200
+SET PAGESIZE 100
+
 PROMPT === Enabling GoldenGate Replication in CDB$ROOT ===
 
 -- Enable GoldenGate replication at CDB level
@@ -39,10 +42,13 @@ BEGIN
         EXECUTE IMMEDIATE 'GRANT ALTER ANY TABLE TO ' || v_user;
         EXECUTE IMMEDIATE 'GRANT ALTER SYSTEM TO ' || v_user;
         EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_FLASHBACK TO ' || v_user;
+        EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_LOGMNR TO ' || v_user;
+        EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_LOGMNR_D TO ' || v_user;
         EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_CAPTURE_ADM TO ' || v_user;
         EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_APPLY_ADM TO ' || v_user;
         EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_STREAMS_ADM TO ' || v_user;
         EXECUTE IMMEDIATE 'GRANT LOGMINING TO ' || v_user;
+        EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_GOLDENGATE_AUTH TO ' || v_user;
 
         -- Grant GoldenGate admin privilege
         DBMS_GOLDENGATE_AUTH.GRANT_ADMIN_PRIVILEGE(v_user);
@@ -53,7 +59,20 @@ BEGIN
     END IF;
 END;
 /
--- Build LogMiner dictionary in PDB (outside PL/SQL block)
+
+-- Insert minimal redo activity to populate LogMiner dictionary
+PROMPT === Creating minimal redo activity for LogMiner ===
+ALTER SESSION SET CONTAINER=&1;
+BEGIN
+    EXECUTE IMMEDIATE 'CREATE TABLE logminer_dummy(id NUMBER)';
+    EXECUTE IMMEDIATE 'INSERT INTO logminer_dummy VALUES(1)';
+    EXECUTE IMMEDIATE 'COMMIT';
+    EXECUTE IMMEDIATE 'DROP TABLE logminer_dummy';
+    EXECUTE IMMEDIATE 'COMMIT';
+END;
+/
+
+-- Build LogMiner dictionary in PDB
 PROMPT === Building LogMiner dictionary in PDB &1 ===
 EXEC DBMS_LOGMNR_D.BUILD(OPTIONS => DBMS_LOGMNR_D.STORE_IN_REDO_LOGS);
 
