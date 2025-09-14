@@ -260,12 +260,14 @@ EOF
             END;
             /
             EXIT;
-            SQL_EOF"
-                """
+            SQL_EOF
+          "
+        """
 
-                echo "==== Enabling ARCHIVELOG Mode if needed ===="
-                sh """
-                  docker exec -i ${env.src_CN} bash -c "sqlplus / as sysdba <<'SQL_EOF'
+          echo "==== Enabling ARCHIVELOG Mode if needed ===="
+          
+        sh """
+          docker exec -i ${env.src_CN} bash -c "sqlplus / as sysdba <<'SQL_EOF'
             SHUTDOWN IMMEDIATE;
             STARTUP MOUNT;
             ALTER DATABASE ARCHIVELOG;
