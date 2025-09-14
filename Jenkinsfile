@@ -387,6 +387,7 @@ ADD REPLICAT rep1, EXTTRAIL ./dirdat/et, CHECKPOINTTABLE ${env.deploy_username}.
 
 INFO ALL
 STOP MGR
+y
 GGSCI_EOF
 
             sleep 5
