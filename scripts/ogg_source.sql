@@ -1,9 +1,12 @@
 -- Usage:
--- sqlplus / as sysdba @ogg_grants.sql <PDB_NAME> <USERNAME> <ROLE>
+-- sqlplus / as sysdba @oggg_source.sql <PDB_NAME> <USERNAME> <ROLE>
 -- ROLE = CAPTURE for Extract side, APPLY for Replicat side
 
 SET DEFINE ON
 SET SERVEROUTPUT ON
+SET SERVEROUTPUT ON SIZE 1000000
+SET LINESIZE 200
+SET PAGESIZE 100
 
 PROMPT === Configuring GoldenGate user &2 in PDB &1 with role &3 ===
 
@@ -15,6 +18,7 @@ DECLARE
     v_role  VARCHAR2(30) := UPPER('&3');
     v_count NUMBER;
 BEGIN
+    -- Check if user exists
     SELECT COUNT(*) INTO v_count FROM dba_users WHERE username = v_user;
 
     IF v_count = 0 THEN
@@ -36,12 +40,29 @@ BEGIN
         -- Role-specific grants
         IF v_role = 'CAPTURE' THEN
             EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_CAPTURE_ADM TO ' || v_user;
-            DBMS_GOLDENGATE_AUTH.GRANT_ADMIN_PRIVILEGE(v_user, privilege_type => 'CAPTURE', grant_select_privileges => TRUE);
-            DBMS_OUTPUT.PUT_LINE('Granted CAPTURE privileges to ' || v_user);
+            EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_XSTREAM_ADM TO ' || v_user;
+            EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_XSTREAM_GG_ADMIN TO ' || v_user;
+            EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_XSTREAM_GG_ADM TO ' || v_user;
+
+            DBMS_GOLDENGATE_AUTH.GRANT_ADMIN_PRIVILEGE(
+                v_user,
+                privilege_type => 'CAPTURE',
+                grant_select_privileges => TRUE
+            );
+
+            DBMS_OUTPUT.PUT_LINE('Granted CAPTURE + XStream privileges to ' || v_user);
+
         ELSIF v_role = 'APPLY' THEN
             EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_APPLY_ADM TO ' || v_user;
-            DBMS_GOLDENGATE_AUTH.GRANT_ADMIN_PRIVILEGE(v_user, privilege_type => 'APPLY', grant_select_privileges => TRUE);
+
+            DBMS_GOLDENGATE_AUTH.GRANT_ADMIN_PRIVILEGE(
+                v_user,
+                privilege_type => 'APPLY',
+                grant_select_privileges => TRUE
+            );
+
             DBMS_OUTPUT.PUT_LINE('Granted APPLY privileges to ' || v_user);
+
         ELSE
             DBMS_OUTPUT.PUT_LINE('Invalid role ' || v_role || ' (must be CAPTURE or APPLY).');
         END IF;
