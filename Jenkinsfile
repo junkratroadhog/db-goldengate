@@ -386,6 +386,12 @@ ADD EXTTRAIL ./dirdat/et EXTRACT ext1
 ADD REPLICAT rep1, EXTTRAIL ./dirdat/et, CHECKPOINTTABLE ${env.deploy_username}.chkptab
 
 INFO ALL
+STOP MGR
+GGSCI_EOF
+
+
+            \$OGG_HOME/ggsci <<GGSCI_EOF
+START MGR
 GGSCI_EOF
           '
           """
