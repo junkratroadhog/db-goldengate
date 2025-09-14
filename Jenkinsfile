@@ -310,51 +310,47 @@ SQL_EOF"
       }
     }
 
-    stage('Add TNS Entries') {
-      steps {
-        script {
-          def dbs = [
-            [name: env.src_PDB, host: env.src_CN],
-            [name: env.dest_PDB, host: env.dest_CN]
-          ]
+stage('Add TNS Entries') {
+  steps {
+    script {
+      def dbs = [
+        [name: env.src_PDB, host: env.src_CN],
+        [name: env.dest_PDB, host: env.dest_CN]
+      ]
 
-          dbs.each { db ->
-            echo "Ensuring correct TNS entry for ${db.name} at ${db.host}"
+      dbs.each { db ->
+        echo "Ensuring correct TNS entry for ${db.name} at ${db.host}"
 
         def tnsEntry = """${db.name} =
-(DESCRIPTION =
-  (ADDRESS = (PROTOCOL = TCP)(HOST = ${db.host})(PORT = 1521))
-  (CONNECT_DATA =
-    (SERVICE_NAME = ${db.name})
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = ${db.host})(PORT = 1521))
+    (CONNECT_DATA =
+      (SERVICE_NAME = ${db.name})
+    )
   )
-)
 """
 
         sh """
-          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -lc "
+          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -lc '
             mkdir -p \$TNS_ADMIN
             touch \$TNS_ADMIN/tnsnames.ora
 
-            # Remove old entry if any
-            awk -v name=\\"${db.name}\\" \\"BEGIN {skip=0} 
-              \\\$0 ~ \\"^\\\"name\\\" =\\" {skip=1; next} 
-              skip && /^\\)/ {skip=0; next} 
-              !skip {print}\\" \$TNS_ADMIN/tnsnames.ora > \$TNS_ADMIN/tnsnames.ora.tmp
-
-            mv \$TNS_ADMIN/tnsnames.ora.tmp \$TNS_ADMIN/tnsnames.ora
+            # Remove old entry for this DB (handles multi-line entry)
+            sed -i.bak "/^${db.name} =/,/^)/d" \$TNS_ADMIN/tnsnames.ora
 
             # Append entry if missing
-            grep -Fq '${tnsEntry}' \$TNS_ADMIN/tnsnames.ora || cat >> \$TNS_ADMIN/tnsnames.ora <<EOF
+            grep -Fq "${tnsEntry}" \$TNS_ADMIN/tnsnames.ora || cat >> \$TNS_ADMIN/tnsnames.ora <<EOF
 ${tnsEntry}
 EOF
 
-                cat \$TNS_ADMIN/tnsnames.ora
-              "
-            """
-          }
-        }
+            cat \$TNS_ADMIN/tnsnames.ora
+          '
+        """
       }
     }
+  }
+}
+
 
     stage('Configure and Start GoldenGate Processes') {
       steps {
