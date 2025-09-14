@@ -345,6 +345,10 @@ ADD REPLICAT rep1, EXTTRAIL ./dirdat/et, CHECKPOINTTABLE ${env.deploy_username}.
 
 STOP manager
 y
+GGSCI_EOF
+
+            sleep 10
+            \$OGG_HOME/ggsci <<GGSCI_EOF
 START manager
 START EXTRACT ext1
 START REPLICAT rep1
