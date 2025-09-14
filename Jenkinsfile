@@ -250,7 +250,7 @@ EOF
             DECLARE
               v_log_mode VARCHAR2(30);
             BEGIN
-              SELECT log_mode INTO v_log_mode FROM v\$database;
+              SELECT log_mode INTO v_log_mode FROM v\\\$database;
               IF v_log_mode = 'NOARCHIVELOG' THEN
                 DBMS_OUTPUT.PUT_LINE('ARCHIVELOG mode not enabled → exiting with code 1.');
                 RAISE_APPLICATION_ERROR(-20001, 'ARCHIVELOG mode not enabled');
