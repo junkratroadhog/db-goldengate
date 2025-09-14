@@ -398,30 +398,46 @@ GGSCI_EOF
             script {
                 // Run in CDB$ROOT of destination
                 sh """
-                docker exec -i ${env.dest_CN} bash -c '
+                docker exec -i -u oracle ${env.dest_CN} bash -lc '
                     sqlplus -s / as sysdba <<EOF
-                    WHENEVER SQLERROR EXIT 1;
-                    @?/rdbms/admin/prvtxstr.plb
-                    @?/rdbms/admin/dbmsxstr.sql
-                    @?/rdbms/admin/prvtgs.sql
-                    EXIT;
-                    EOF
-                '
+WHENEVER SQLERROR EXIT 1;
+@?/rdbms/admin/prvtxstr.plb
+@?/rdbms/admin/dbmsxstr.sql
+@?/rdbms/admin/prvtgs.sql
+EXIT;
+EOF
+'
+                docker exec -i ${env.src_CN} bash -c "
+                  sqlplus -s / as sysdba <<EOF
+WHENEVER SQLERROR EXIT 1;
+@/scripts/ogg_grants.sql TUSERS_PDB OGGADMIN CAPTURE
+EXIT;
+EOF
+"
                 """
 
                 // Run in destination PDB
                 sh """
-                docker exec -i ${env.dest_CN} bash -c '
+                docker exec -i -u oracle ${env.dest_CN} bash -lc '
                     sqlplus -s / as sysdba <<EOF
-                    WHENEVER SQLERROR EXIT 1;
-                    ALTER SESSION SET CONTAINER=${env.dest_PDB};
-                    @?/rdbms/admin/dbmsxstr.sql
-                    @?/rdbms/admin/prvtgs.sql
-                    GRANT EXECUTE ON DBMS_XSTREAM_GG_ADM TO ${env.deploy_username};
-                    EXIT;
-                    EOF
-                '
+WHENEVER SQLERROR EXIT 1;
+ALTER SESSION SET CONTAINER=${env.dest_PDB};
+@?/rdbms/admin/dbmsxstr.sql
+@?/rdbms/admin/prvtgs.sql
+GRANT EXECUTE ON DBMS_XSTREAM_GG_ADM TO ${env.deploy_username};
+EXIT;
+EOF
+'
+                
+                docker exec -i ${env.dest_CN} bash -c "
+                  sqlplus -s / as sysdba <<EOF
+WHENEVER SQLERROR EXIT 1;
+@/scripts/ogg_grants.sql TDETAILS_PDB OGGADMIN APPLY
+EXIT;
+EOF
+"
                 """
+                
             }
         }
     }
