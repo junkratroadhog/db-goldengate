@@ -59,7 +59,7 @@ BEGIN
 
         -- Ensure quota is set if user exists
         EXECUTE IMMEDIATE 'ALTER USER ' || v_user || ' QUOTA UNLIMITED ON USERS';
-        EXECUTE IMMEDIATE 'ALTER USER ' || v_user || ' IDENTIFIED BY ' || v_pass ||;
+        EXECUTE IMMEDIATE 'ALTER USER ' || v_user || ' IDENTIFIED BY "' || v_pass || '"';
         EXECUTE IMMEDIATE 'ALTER USER ' || v_user || ' ACCOUNT UNLOCK';
     END IF;
 END;
