@@ -5,10 +5,12 @@ pipeline {
     src_CN  = 'db-utest'
     src_CDB = 'TUSERS'
     src_PDB = 'TUSERS_PDB'
+    src_PORT = '1525'
 
     dest_CDB = 'TDETAILS'
     dest_CN  = 'db-dtest'
     dest_PDB = 'TDETAILS_PDB'
+    dest_PORT = '1526'
 
     // GoldenGate environment NOTE : You must dump the gg_binary.zip into /software volume in jenkins container manually
     OGG_VOLUME = 'ogg_users_detail_vol'
@@ -152,7 +154,7 @@ pipeline {
             cd \$OGG_HOME
 
             # Create required directories
-            mkdir -p dirprm dirchk dirdsc dirrpt dirlt dirout dirpcs dirdmp
+            mkdir -p dirprm dirchk dirdsc dirrpt dirlt dirout dirpcs dirdmp dirtmp
 
             # Minimal mgr.prm
             cat > dirprm/mgr.prm <<EOF
