@@ -187,7 +187,7 @@ EOF
       }
     }
 
-    stage('Validate DB Containers') {
+    /*stage('Validate DB Containers') {
       steps {
         script {
           // ✅ Check if network exists
@@ -237,7 +237,7 @@ EOF
           }
         }
       }
-    }
+    }*/
 
     
     stage('Enable ARCHIVELOG Mode on Source DB') {
