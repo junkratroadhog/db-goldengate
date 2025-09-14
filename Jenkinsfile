@@ -239,36 +239,45 @@ EOF
       }
     }*/
     
-    stage('Enable ARCHIVELOG Mode on Source DB') {
+    stage('Add TNS Entries') {
       steps {
-        echo "==== Checking ARCHIVELOG Mode on Source DB ===="
         script {
-          // Check if ARCHIVELOG is already enabled
-          def logMode = sh(
-            script: """
-              docker exec -i ${env.src_CN} bash -c "sqlplus -S / as sysdba <<'SQL_EOF'
-SET PAGESIZE 0 FEEDBACK OFF VERIFY OFF HEADING OFF ECHO OFF
-SELECT log_mode FROM v\\\$database;
-EXIT;
-SQL_EOF"
-            """,
-            returnStdout: true
-          ).trim()
+          def dbs = [
+            [name: env.src_PDB, host: env.src_CN],
+            [name: env.dest_PDB, host: env.dest_CN]
+          ]
 
-          echo "Current ARCHIVELOG mode: ${logMode}"
+          dbs.each { db ->
+            echo "Ensuring correct TNS entry for ${db.name} at ${db.host}"
 
-          if (logMode == "ARCHIVELOG") {
-            echo "ARCHIVELOG mode already enabled → skipping DB shutdown."
-          } else {
-            echo "ARCHIVELOG mode not enabled → enabling now."
-            sh """
-              docker exec -i ${env.src_CN} bash -c "sqlplus / as sysdba <<'SQL_EOF'
-                SHUTDOWN IMMEDIATE;
-                STARTUP MOUNT;
-                ALTER DATABASE ARCHIVELOG;
-                ALTER DATABASE OPEN;
-                EXIT;
-                SQL_EOF
+            def tnsEntry = """${db.name} =
+(DESCRIPTION =
+  (ADDRESS = (PROTOCOL = TCP)(HOST = ${db.host})(PORT = 1521))
+  (CONNECT_DATA =
+    (SERVICE_NAME = ${db.name})
+  )
+)
+"""
+
+        sh """
+          docker exec -i -u oracle ${env.OGG_CONTAINER} bash -lc "
+            mkdir -p \$TNS_ADMIN
+            touch \$TNS_ADMIN/tnsnames.ora
+
+            # Remove old entry if any
+            awk -v name=\\"${db.name}\\" \\"BEGIN {skip=0} 
+              \\\$0 ~ \\"^\\\"name\\\" =\\" {skip=1; next} 
+              skip && /^\\)/ {skip=0; next} 
+              !skip {print}\\" \$TNS_ADMIN/tnsnames.ora > \$TNS_ADMIN/tnsnames.ora.tmp
+
+            mv \$TNS_ADMIN/tnsnames.ora.tmp \$TNS_ADMIN/tnsnames.ora
+
+            # Append entry if missing
+            grep -Fq '${tnsEntry}' \$TNS_ADMIN/tnsnames.ora || cat >> \$TNS_ADMIN/tnsnames.ora <<EOF
+${tnsEntry}
+EOF
+
+                cat \$TNS_ADMIN/tnsnames.ora
               "
             """
           }
