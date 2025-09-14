@@ -431,13 +431,11 @@ GGSCI_EOF
         script {
           sh """
           docker exec -i ${env.dest_CN} bash -c '
-              cd $OGG_HOME_CORE
-              ./ggsci <<EOF
-              STOP MANAGER !
-              START MANAGER
-              INFO MANAGER
-              EXIT
-              EOF
+              \$OGG_HOME_CORE/ggsci <<EOF
+STOP MANAGER !
+START MANAGER
+EXIT
+EOF
           '
           """
         }
