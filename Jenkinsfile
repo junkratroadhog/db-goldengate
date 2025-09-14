@@ -98,9 +98,7 @@ pipeline {
       }
     }
 
-
-
-    stage ('Install GoldenGate + Microservices') {
+    /*stage ('Install GoldenGate + Microservices') {
       steps {
         sh """
           echo "==== Preparing for GoldenGate Installation ===="
@@ -142,7 +140,8 @@ pipeline {
           echo "==== GoldenGate Installation Completed ===="
         """
       }
-    }
+    }*/
+
     stage('Setup Core MGR Process') {
       steps {
         sh """
