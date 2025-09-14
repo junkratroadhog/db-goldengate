@@ -319,7 +319,7 @@ EOF'
 
             cat > dirprm/ext1.prm <<EXT_EOF
 EXTRACT ext1
-USERID ${env.deploy_username}@"${env.src_CN}:1521/${env.src_PDB}", PASSWORD ${env.deploy_password}
+USERID ${env.deploy_username}@${env.src_PDB}, PASSWORD ${env.deploy_password}
 EXTTRAIL ./dirdat/et
 TABLE ${env.src_PDB}.${env.TABLE_NAME};
 EXT_EOF
@@ -327,7 +327,7 @@ EXT_EOF
 
             cat > dirprm/rep1.prm <<REP_EOF
 REPLICAT rep1
-USERID ${env.deploy_username}@"${env.dest_CN}:1521/${env.dest_PDB}", PASSWORD ${env.deploy_password}
+USERID ${env.deploy_username}@${env.dest_PDB}, PASSWORD ${env.deploy_password}
 EXTTRAIL ./dirdat/et
 MAP ${env.src_PDB}.${env.TABLE_NAME}, TARGET ${env.dest_PDB}.${env.TABLE_NAME};
 REP_EOF
