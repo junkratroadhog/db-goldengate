@@ -31,37 +31,46 @@ BEGIN
         -- Create user with unlimited quota on USERS tablespace
         EXECUTE IMMEDIATE 
             'CREATE USER ' || v_user || 
-            ' IDENTIFIED BY ' || v_pass || 
+            ' IDENTIFIED BY ''' || v_pass || '''' ||
             ' DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp QUOTA UNLIMITED ON users';
 
-        -- Grant required system privileges
-        EXECUTE IMMEDIATE 'GRANT CREATE SESSION, CONNECT, RESOURCE TO ' || v_user;
-        EXECUTE IMMEDIATE 'GRANT SELECT ANY DICTIONARY TO ' || v_user;
-        EXECUTE IMMEDIATE 'GRANT FLASHBACK ANY TABLE TO ' || v_user;
-        EXECUTE IMMEDIATE 'GRANT SELECT ANY TRANSACTION TO ' || v_user;
-        EXECUTE IMMEDIATE 'GRANT ALTER ANY TABLE TO ' || v_user;
-        EXECUTE IMMEDIATE 'GRANT ALTER SYSTEM TO ' || v_user;
-        EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_FLASHBACK TO ' || v_user;
-        EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_LOGMNR TO ' || v_user;
-        EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_LOGMNR_D TO ' || v_user;
-        EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_CAPTURE_ADM TO ' || v_user;
-        EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_APPLY_ADM TO ' || v_user;
-        EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_STREAMS_ADM TO ' || v_user;
-        EXECUTE IMMEDIATE 'GRANT LOGMINING TO ' || v_user;
-        EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_GOLDENGATE_AUTH TO ' || v_user;
-
-        -- Grant GoldenGate admin privilege
-        DBMS_GOLDENGATE_AUTH.GRANT_ADMIN_PRIVILEGE(v_user);
-
-        DBMS_OUTPUT.PUT_LINE('OGGADMIN user created and privileges granted in PDB ' || SYS_CONTEXT('USERENV','CON_NAME'));
+        DBMS_OUTPUT.PUT_LINE('OGGADMIN user created in PDB ' || SYS_CONTEXT('USERENV','CON_NAME'));
     ELSE
         DBMS_OUTPUT.PUT_LINE('OGGADMIN user already exists in PDB ' || SYS_CONTEXT('USERENV','CON_NAME'));
 
-        -- Ensure quota is set if user exists
+        -- Ensure quota, password, and unlock
         EXECUTE IMMEDIATE 'ALTER USER ' || v_user || ' QUOTA UNLIMITED ON USERS';
-        EXECUTE IMMEDIATE 'ALTER USER ' || v_user || ' IDENTIFIED BY "' || v_pass || '"';
+        EXECUTE IMMEDIATE 'ALTER USER ' || v_user || ' IDENTIFIED BY ''' || v_pass || '''';
         EXECUTE IMMEDIATE 'ALTER USER ' || v_user || ' ACCOUNT UNLOCK';
     END IF;
+
+    -- Grant required system privileges
+    EXECUTE IMMEDIATE 'GRANT CREATE SESSION, CONNECT, RESOURCE TO ' || v_user;
+    EXECUTE IMMEDIATE 'GRANT SELECT ANY DICTIONARY TO ' || v_user;
+    EXECUTE IMMEDIATE 'GRANT FLASHBACK ANY TABLE TO ' || v_user;
+    EXECUTE IMMEDIATE 'GRANT SELECT ANY TRANSACTION TO ' || v_user;
+    EXECUTE IMMEDIATE 'GRANT ALTER ANY TABLE TO ' || v_user;
+    EXECUTE IMMEDIATE 'GRANT ALTER SYSTEM TO ' || v_user;
+
+    -- Grant required EXECUTE privileges
+    EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_FLASHBACK TO ' || v_user;
+    EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_LOGMNR TO ' || v_user;
+    EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_LOGMNR_D TO ' || v_user;
+    EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_CAPTURE_ADM TO ' || v_user;
+    EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_APPLY_ADM TO ' || v_user;
+    EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_STREAMS_ADM TO ' || v_user;
+    EXECUTE IMMEDIATE 'GRANT LOGMINING TO ' || v_user;
+    EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_GOLDENGATE_AUTH TO ' || v_user;
+
+    -- Grant XStream / GoldenGate packages for Integrated Replicat
+    EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_XSTREAM_ADM TO ' || v_user;
+    EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_XSTREAM_GG_ADMIN TO ' || v_user;
+    EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_XSTREAM_GG_ADM TO ' || v_user;
+
+    -- Grant GoldenGate admin privilege
+    DBMS_GOLDENGATE_AUTH.GRANT_ADMIN_PRIVILEGE(v_user);
+
+    DBMS_OUTPUT.PUT_LINE('Privileges granted to OGGADMIN in PDB ' || SYS_CONTEXT('USERENV','CON_NAME'));
 END;
 /
 
