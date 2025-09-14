@@ -31,7 +31,7 @@ BEGIN
         -- Create user with unlimited quota on USERS tablespace
         EXECUTE IMMEDIATE 
             'CREATE USER ' || v_user || 
-            ' IDENTIFIED BY ''' || v_pass || '''' ||
+            ' IDENTIFIED BY "' || v_pass || '"' ||
             ' DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp QUOTA UNLIMITED ON users';
 
         DBMS_OUTPUT.PUT_LINE('OGGADMIN user created in PDB ' || SYS_CONTEXT('USERENV','CON_NAME'));
@@ -40,7 +40,7 @@ BEGIN
 
         -- Ensure quota, password, and unlock
         EXECUTE IMMEDIATE 'ALTER USER ' || v_user || ' QUOTA UNLIMITED ON USERS';
-        EXECUTE IMMEDIATE 'ALTER USER ' || v_user || ' IDENTIFIED BY ''' || v_pass || '''';
+        EXECUTE IMMEDIATE 'ALTER USER ' || v_user || ' IDENTIFIED BY "' || v_pass || '"';
         EXECUTE IMMEDIATE 'ALTER USER ' || v_user || ' ACCOUNT UNLOCK';
     END IF;
 
@@ -62,13 +62,28 @@ BEGIN
     EXECUTE IMMEDIATE 'GRANT LOGMINING TO ' || v_user;
     EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_GOLDENGATE_AUTH TO ' || v_user;
 
-    -- Grant XStream / GoldenGate packages for Integrated Replicat
+    -- Optional: XStream packages
     EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_XSTREAM_ADM TO ' || v_user;
-    EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_XSTREAM_GG_ADMIN TO ' || v_user;
     EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_XSTREAM_GG_ADM TO ' || v_user;
 
-    -- Grant GoldenGate admin privilege
-    DBMS_GOLDENGATE_AUTH.GRANT_ADMIN_PRIVILEGE(v_user);
+    -- Grant GoldenGate CAPTURE (source PDB) + APPLY (target PDB)
+    BEGIN
+        DBMS_GOLDENGATE_AUTH.GRANT_ADMIN_PRIVILEGE(
+            grantee                 => v_user,
+            privilege_type          => 'CAPTURE',
+            grant_select_privileges => TRUE
+        );
+    EXCEPTION WHEN OTHERS THEN NULL; -- avoid error if not source PDB
+    END;
+
+    BEGIN
+        DBMS_GOLDENGATE_AUTH.GRANT_ADMIN_PRIVILEGE(
+            grantee                 => v_user,
+            privilege_type          => 'APPLY',
+            grant_select_privileges => TRUE
+        );
+    EXCEPTION WHEN OTHERS THEN NULL; -- avoid error if not target PDB
+    END;
 
     DBMS_OUTPUT.PUT_LINE('Privileges granted to OGGADMIN in PDB ' || SYS_CONTEXT('USERENV','CON_NAME'));
 END;
