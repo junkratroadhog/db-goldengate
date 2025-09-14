@@ -386,19 +386,64 @@ ADD EXTTRAIL ./dirdat/et EXTRACT ext1
 ADD REPLICAT rep1, EXTTRAIL ./dirdat/et, CHECKPOINTTABLE ${env.deploy_username}.chkptab
 
 INFO ALL
-STOP MGR
-y
-GGSCI_EOF
-
-            sleep 10
-            \$OGG_HOME/ggsci <<GGSCI_EOF
-START MGR
 GGSCI_EOF
           '
           """
         }
       }
     }
+    
+    stage('Install DBMS_XSTREAM_GG_ADM in Dest DB') {
+        steps {
+            script {
+                // Run in CDB$ROOT of destination
+                sh """
+                docker exec -i ${env.dest_CN} bash -c '
+                    sqlplus -s / as sysdba <<EOF
+                    WHENEVER SQLERROR EXIT 1;
+                    @?/rdbms/admin/prvtxstr.plb
+                    @?/rdbms/admin/dbmsxstr.sql
+                    @?/rdbms/admin/prvtgs.sql
+                    EXIT;
+                    EOF
+                '
+                """
+
+                // Run in destination PDB
+                sh """
+                docker exec -i ${env.dest_CN} bash -c '
+                    sqlplus -s / as sysdba <<EOF
+                    WHENEVER SQLERROR EXIT 1;
+                    ALTER SESSION SET CONTAINER=${env.dest_PDB};
+                    @?/rdbms/admin/dbmsxstr.sql
+                    @?/rdbms/admin/prvtgs.sql
+                    GRANT EXECUTE ON DBMS_XSTREAM_GG_ADM TO ${env.deploy_username};
+                    EXIT;
+                    EOF
+                '
+                """
+            }
+        }
+    }
+
+    stage('Restart GoldenGate Manager') {
+      steps {
+        script {
+          sh """
+          docker exec -i ${env.dest_CN} bash -c '
+              cd $OGG_HOME_CORE
+              ./ggsci <<EOF
+              STOP MANAGER !
+              START MANAGER
+              INFO MANAGER
+              EXIT
+              EOF
+          '
+          """
+        }
+      }
+    }
+
   }
   
   post {
