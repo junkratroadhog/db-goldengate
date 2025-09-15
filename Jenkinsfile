@@ -388,9 +388,10 @@ EXT_EOF
 
             cat > dirprm/rep1.prm <<REP_EOF
 REPLICAT rep1
-INTEGRATED
-USERID ${deploy_username}@${dest_PDB}, PASSWORD ${deploy_password}
-MAP ${src_PDB}.${TABLE_NAME}, TARGET ${dest_PDB}.${TABLE_NAME};
+USERID ${env.deploy_username}@${env.dest_PDB}, PASSWORD ${env.deploy_password}
+EXTTRAIL ./dirdat/et
+MAP ${env.src_PDB}.${env.TABLE_NAME}, TARGET ${env.dest_PDB}.${env.TABLE_NAME};
+REP_EOF
 
             \$OGG_HOME/ggsci <<GGSCI_EOF
 dblogin userid ${env.deploy_username}, password ${env.deploy_password}
