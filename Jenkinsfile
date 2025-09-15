@@ -438,7 +438,9 @@ ADD CHECKPOINTTABLE ${env.deploy_username}.chkptab
 ADD EXTRACT ext1, TRANLOG, BEGIN NOW
 ADD EXTTRAIL ./dirdat/et EXTRACT ext1
 START EXTRACT EXT1
+GGSCI_EOF
 
+            \$OGG_HOME/ggsci <<GGSCI_EOF
 DBLOGIN USERID ${env.deploy_username}@${dest_PDB}, PASSWORD oracle
 ADD CHECKPOINTTABLE ${env.deploy_username}.chkptab
 ADD REPLICAT rep1, INTEGRATED TRANLOG, BEGIN NOW, EXTTRAIL ./dirdat/et
