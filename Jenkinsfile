@@ -404,7 +404,7 @@ EOF'
           sh """
           docker exec -i -u oracle ${env.OGG_CONTAINER} bash -c '
             export OGG_HOME=${env.OGG_HOME_CORE}
-            export PATH=\$OGG_HOME:\\$PATH
+            export PATH=\$OGG_HOME:\$PATH
             cd \$OGG_HOME
 
             # Create directories if missing
@@ -414,7 +414,7 @@ EOF'
 EXTRACT ext1
 USERID ${env.deploy_username}@${env.src_PDB}, PASSWORD ${env.deploy_password}
 EXTTRAIL ./dirdat/et
-TABLE ${env.src_PDB}.${env.TABLE_NAME};
+TABLE ${env.deploy_username}.${env.TABLE_NAME};
 EXT_EOF
 
 
