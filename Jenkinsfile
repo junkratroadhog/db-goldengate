@@ -226,7 +226,7 @@ EOF
               echo "${db} is already running."
             }
 
-            // Check if attached to GG_NET
+            // Check if DB attached to GG_NET
             def attached = sh(
               script: """docker inspect -f '{{json .NetworkSettings.Networks}}' ${db} | grep ${env.GG_NETWORK} || true""",
               returnStdout: true
@@ -238,6 +238,9 @@ EOF
             } else {
               echo "${db} is already attached to ${env.GG_NETWORK}"
             }
+
+            // Connect GG docker Container to GG network
+            sh "docker network connect ${env.GG_NETWORK} ${env.OGG_CONTAINER}"
           }
         }
       }
