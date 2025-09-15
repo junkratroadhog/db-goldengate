@@ -217,11 +217,11 @@ EOF
             if (!running) {
               echo "${db} is not running → starting..."
               sh """
+                docker network disconnect \$(docker inspect ${db} --format '{{.HostConfig.NetworkMode}}') ${db}
                 docker network connect ${env.GG_NETWORK} ${db}
                 docker start ${db}
                 sleep 10
               """
-              sh "docker start ${db}"
             } else {
               echo "${db} is already running."
             }
