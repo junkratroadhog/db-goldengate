@@ -102,6 +102,22 @@ BEGIN
 END;
 /
 
+    -- Dynamically enable table-level supplemental logging for the table if provided
+    IF v_table IS NOT NULL THEN
+        BEGIN
+            EXECUTE IMMEDIATE 
+                'ALTER TABLE ' || v_table || 
+                ' ADD SUPPLEMENTAL LOG DATA (PRIMARY KEY, UNIQUE, FOREIGN KEY) COLUMNS';
+            DBMS_OUTPUT.PUT_LINE('Supplemental logging enabled for table ' || v_table);
+        EXCEPTION
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Warning: Could not enable supplemental logging for table ' || v_table || '. ' || SQLERRM);
+        END;
+    END IF;
+
+END;
+/
+
 -- Insert minimal redo activity to populate LogMiner dictionary
 PROMPT === Creating minimal redo activity for LogMiner ===
 BEGIN

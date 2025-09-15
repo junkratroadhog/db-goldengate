@@ -316,13 +316,13 @@ SQL_EOF"
         // SRC
         sh """
           docker cp scripts/oggadmin.sql ${env.src_CN}:/tmp/oggadmin.sql
-          docker exec ${env.src_CN} sqlplus / as sysdba @/tmp/oggadmin.sql ${env.src_PDB} ${env.deploy_username} ${env.deploy_password}
+          docker exec ${env.src_CN} sqlplus / as sysdba @/tmp/oggadmin.sql ${env.src_PDB} ${env.deploy_username} ${env.deploy_password} ${TABLE_NAME}
         """
 
         // DEST
         sh """
           docker cp scripts/oggadmin.sql ${env.dest_CN}:/tmp/oggadmin.sql
-          docker exec ${env.dest_CN} sqlplus / as sysdba @/tmp/oggadmin.sql ${env.dest_PDB} ${env.deploy_username} ${env.deploy_password}
+          docker exec ${env.dest_CN} sqlplus / as sysdba @/tmp/oggadmin.sql ${env.dest_PDB} ${env.deploy_username} ${env.deploy_password} ${TABLE_NAME}
         """
       }
     }
