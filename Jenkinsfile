@@ -382,7 +382,7 @@ SQL_EOF"
 EXTRACT ext1
 USERID ${env.deploy_username}@${env.src_PDB}, PASSWORD ${env.deploy_password}
 EXTTRAIL ./dirdat/et
-TABLE ${env.src_PDB}.${env.TABLE_NAME}
+TABLE ${env.src_PDB}.${env.TABLE_NAME};
 EXT_EOF
 
 
@@ -390,7 +390,7 @@ EXT_EOF
 REPLICAT rep1
 INTEGRATED
 USERID ${env.deploy_username}@${env.dest_PDB}, PASSWORD ${env.deploy_password}
-MAP ${env.src_PDB}.${env.TABLE_NAME}, TARGET ${env.dest_PDB}.${env.TABLE_NAME}
+MAP ${env.src_PDB}.${env.TABLE_NAME}, TARGET ${env.dest_PDB}.${env.TABLE_NAME};
 REP_EOF
 
             \$OGG_HOME/ggsci <<GGSCI_EOF
@@ -423,13 +423,6 @@ WHENEVER SQLERROR EXIT 1;
 EXIT;
 EOF
 '
-                docker exec -i ${env.src_CN} bash -c "
-                  sqlplus -s / as sysdba <<EOF
-WHENEVER SQLERROR EXIT 1;
-@/scripts/ogg_grants.sql TUSERS_PDB OGGADMIN CAPTURE
-EXIT;
-EOF
-"
                 """
 
                 // Run in destination PDB
@@ -444,14 +437,6 @@ GRANT EXECUTE ON DBMS_XSTREAM_GG_ADM TO ${env.deploy_username};
 EXIT;
 EOF
 '
-                
-                docker exec -i ${env.dest_CN} bash -c "
-                  sqlplus -s / as sysdba <<EOF
-WHENEVER SQLERROR EXIT 1;
-@/scripts/ogg_grants.sql TDETAILS_PDB OGGADMIN APPLY
-EXIT;
-EOF
-"
                 """
                 
             }
