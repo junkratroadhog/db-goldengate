@@ -441,7 +441,7 @@ START EXTRACT EXT1
 GGSCI_EOF
 
             \$OGG_HOME/ggsci <<GGSCI_EOF
-DBLOGIN USERID ${env.deploy_username}@${dest_PDB}, PASSWORD oracle
+DBLOGIN USERID ${env.deploy_username}@${dest_PDB}, PASSWORD ${env.deploy_password}
 ADD CHECKPOINTTABLE ${env.deploy_username}.chkptab
 ADD REPLICAT rep1, INTEGRATED TRANLOG, BEGIN NOW, EXTTRAIL ./dirdat/et
 START REPLICAT rep1
