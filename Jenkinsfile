@@ -382,15 +382,15 @@ SQL_EOF"
 EXTRACT ext1
 USERID ${env.deploy_username}@${env.src_PDB}, PASSWORD ${env.deploy_password}
 EXTTRAIL ./dirdat/et
-TABLE ${env.src_PDB}.${env.TABLE_NAME};
+TABLE ${env.src_PDB}.${env.TABLE_NAME}
 EXT_EOF
 
 
             cat > dirprm/rep1.prm <<REP_EOF
 REPLICAT rep1
+INTEGRATED
 USERID ${env.deploy_username}@${env.dest_PDB}, PASSWORD ${env.deploy_password}
-EXTTRAIL ./dirdat/et
-MAP ${env.src_PDB}.${env.TABLE_NAME}, TARGET ${env.dest_PDB}.${env.TABLE_NAME};
+MAP ${env.src_PDB}.${env.TABLE_NAME}, TARGET ${env.dest_PDB}.${env.TABLE_NAME}
 REP_EOF
 
             \$OGG_HOME/ggsci <<GGSCI_EOF
@@ -400,8 +400,7 @@ ADD CHECKPOINTTABLE ${env.deploy_username}.chkptab
 ADD EXTRACT ext1, TRANLOG, BEGIN NOW
 ADD EXTTRAIL ./dirdat/et EXTRACT ext1
 
-ADD REPLICAT rep1, EXTTRAIL ./dirdat/et, CHECKPOINTTABLE ${env.deploy_username}.chkptab
-
+ADD REPLICAT rep1, CHECKPOINTTABLE ${env.deploy_username}.chkptab
 INFO ALL
 GGSCI_EOF
           '
