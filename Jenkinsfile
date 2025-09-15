@@ -204,7 +204,7 @@ EOF
           }
 
           // ✅ List of DB containers
-          def dbs = ["db-dtest", "db-utest"]
+          def dbs = ["${env.src_CN}", "${env.dest_CN}"]
 
           dbs.each { db ->
             echo "=== Checking DB Container: ${db} ==="
