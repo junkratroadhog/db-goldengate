@@ -367,7 +367,7 @@ EOF'
             [name: env.dest_PDB, host: env.dest_CN]
           ]
 
-          if (${env.New_CN} == "no") {
+          if (env.New_CN == "no") {
             echo "TNS already present with OLD DB details"
           } else {
           dbs.each { db ->
@@ -376,7 +376,7 @@ EOF'
             def tnsEntry = """${db.name} =
 (DESCRIPTION =
   (ADDRESS = (PROTOCOL = TCP)(HOST = ${db.host})(PORT = 1521))
-  (CONNECT_DATA =c
+  (CONNECT_DATA =
     (SERVICE_NAME = ${db.name})
   )
 )
