@@ -442,8 +442,7 @@ GGSCI_EOF
 
             \$OGG_HOME/ggsci <<GGSCI_EOF
 DBLOGIN USERID ${env.deploy_username}@${env.dest_PDB}, PASSWORD ${env.deploy_password}
-ADD CHECKPOINTTABLE ${env.deploy_username}.chkptab
-ADD REPLICAT rep1, INTEGRATED TRANLOG, BEGIN NOW, EXTTRAIL ./dirdat/et
+ADD REPLICAT rep1, BEGIN NOW, CHECKPOINTTABLE ${env.deploy_username}.chkptab, EXTTRAIL ./dirdat/et
 START REPLICAT rep1
 INFO ALL
 GGSCI_EOF
