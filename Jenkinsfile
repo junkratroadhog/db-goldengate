@@ -367,7 +367,7 @@ EOF'
             [name: env.dest_PDB, host: env.dest_CN]
           ]
 
-          if (${env.New_CN} == no) {
+          if (${env.New_CN} == "no") {
             echo "TNS already present with OLD DB details"
           } else {
           dbs.each { db ->
