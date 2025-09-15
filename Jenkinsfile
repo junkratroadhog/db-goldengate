@@ -219,6 +219,7 @@ EOF
               sh """
                 docker network connect ${env.GG_NETWORK} ${db}
                 docker start ${db}
+                sleep 10
               """
               sh "docker start ${db}"
             } else {
