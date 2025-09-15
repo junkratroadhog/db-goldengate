@@ -200,7 +200,6 @@ EOF
             error "Network ${env.GG_NETWORK} does not exist! Please create it during container build."
           } else {
             echo "Network ${env.GG_NETWORK} exists."
-            sh "docker network connect ${env.GG_NETWORK} ${env.OGG_CONTAINER}"
           }
 
           // ✅ List of DB containers
@@ -219,6 +218,7 @@ EOF
               echo "${db} is not running → starting..."
               sh """
                 docker network disconnect $(docker inspect db-utest --format '{{.HostConfig.NetworkMode}}') ${db}
+                docker network connect ${env.GG_NETWORK} ${db}
               """
               sh "docker start ${db}"
             } else {
