@@ -29,7 +29,7 @@ DECLARE
     v_count NUMBER;
     v_user  VARCHAR2(30) := UPPER('&2');
     v_pass  VARCHAR2(30) := '&3';
-    v_table VARCHAR2(30) := '&4'
+    v_table VARCHAR2(30) := '&4';
 BEGIN
     SELECT COUNT(*) INTO v_count FROM dba_users WHERE username = v_user;
 
