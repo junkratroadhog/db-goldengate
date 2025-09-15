@@ -425,19 +425,24 @@ EXT_EOF
             cat > dirprm/rep1.prm <<REP_EOF
 REPLICAT rep1
 USERID ${env.deploy_username}@${env.dest_PDB}, PASSWORD ${env.deploy_password}
-EXTTRAIL ./dirdat/et
-MAP ${env.src_PDB}.${env.TABLE_NAME}, TARGET ${env.dest_PDB}.${env.TABLE_NAME};
+ASSUMETARGETDEFS
+DISCARDFILE ./dirrpt/rep1.dsc, APPEND, MEGABYTES 100
+
+-- Table mapping
+MAP ${env.deploy_username}.${env.TABLE_NAME}, TARGET ${env.deploy_username}.${env.TABLE_NAME};
 REP_EOF
 
             \$OGG_HOME/ggsci <<GGSCI_EOF
-dblogin userid ${env.deploy_username}, password ${env.deploy_password}
+dblogin userid ${env.deploy_username}@${src_PDB}, password ${env.deploy_password}
 ADD CHECKPOINTTABLE ${env.deploy_username}.chkptab
-
 ADD EXTRACT ext1, TRANLOG, BEGIN NOW
 ADD EXTTRAIL ./dirdat/et EXTRACT ext1
+START EXTRACT EXT1
 
-ADD REPLICAT rep1, EXTTRAIL ./dirdat/et, CHECKPOINTTABLE ${env.deploy_username}.chkptab
-
+DBLOGIN USERID ${env.deploy_username}@${dest_PDB}, PASSWORD oracle
+ADD CHECKPOINTTABLE ${env.deploy_username}.chkptab
+ADD REPLICAT rep1, INTEGRATED TRANLOG, BEGIN NOW, EXTTRAIL ./dirdat/et
+START REPLICAT rep1
 INFO ALL
 GGSCI_EOF
           '
