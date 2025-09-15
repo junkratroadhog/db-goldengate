@@ -367,6 +367,9 @@ EOF'
             [name: env.dest_PDB, host: env.dest_CN]
           ]
 
+          if (New_CN -eq no) {
+            echo "TNS already present with OLD DB details"
+          } else {
           dbs.each { db ->
             echo "Adding TNS entry for ${db.name} at ${db.host}"
 
@@ -391,6 +394,7 @@ EOF'
             cat \$TNS_ADMIN/tnsnames.ora
           "
         """
+          }
           }
         }
       }
