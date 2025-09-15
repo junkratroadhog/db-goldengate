@@ -239,8 +239,18 @@ EOF
               echo "${db} is already attached to ${env.GG_NETWORK}"
             }
 
-            // Connect GG docker Container to GG network
-            sh "docker network connect ${env.GG_NETWORK} ${env.OGG_CONTAINER}"
+            // Check if OGG container is attached to GG_NET
+            def oggAttached = sh(
+              script: """docker inspect -f '{{json .NetworkSettings.Networks}}' ${env.OGG_CONTAINER} | grep ${env.GG_NETWORK} || true""",
+              returnStdout: true
+            ).trim()
+
+            if (!oggAttached) {
+              echo "Attaching ${env.OGG_CONTAINER} to ${env.GG_NETWORK}..."
+              sh "docker network connect ${env.GG_NETWORK} ${env.OGG_CONTAINER} || true"
+            } else {
+              echo "${env.OGG_CONTAINER} is already attached to ${env.GG_NETWORK}"
+            }
           }
         }
       }
